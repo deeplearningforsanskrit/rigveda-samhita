@@ -562,13 +562,15 @@ function fuzzyScore(queryCompact, targetCompact) {
 
   return best;
 }
-
 function searchEntries(rawQuery) {
   const q = normalizeForSearch(rawQuery);
   const qCompact = compactForSearch(q);
 
   const latinQ = normalizeLatinQuery(rawQuery);
   const latinCompactQ = compactForSearch(latinQ);
+
+  const hasLatinQuery = latinQ.length > 0;
+  const hasLatinCompactQuery = latinCompactQ.length > 0;
 
   if (!rawQuery.trim()) {
     return {
@@ -582,13 +584,16 @@ function searchEntries(rawQuery) {
     if (
       item.searchRef.includes(q) ||
       item.searchText.includes(q) ||
-      item.latinRef.includes(latinQ) ||
-      item.latinText.includes(latinQ)
+      (hasLatinQuery && (
+        item.latinRef.includes(latinQ) ||
+        item.latinText.includes(latinQ)
+      ))
     ) {
       exact.push(item);
       if (exact.length >= MAX_RESULTS) break;
     }
   }
+
   if (exact.length > 0) {
     return {
       mode: "exact",
@@ -601,13 +606,16 @@ function searchEntries(rawQuery) {
     if (
       item.compactRef.includes(qCompact) ||
       item.compactText.includes(qCompact) ||
-      item.compactLatinRef.includes(latinCompactQ) ||
-      item.compactLatinText.includes(latinCompactQ)
+      (hasLatinCompactQuery && (
+        item.compactLatinRef.includes(latinCompactQ) ||
+        item.compactLatinText.includes(latinCompactQ)
+      ))
     ) {
       compact.push(item);
       if (compact.length >= MAX_RESULTS) break;
     }
   }
+
   if (compact.length > 0) {
     return {
       mode: "compact",
@@ -615,7 +623,7 @@ function searchEntries(rawQuery) {
     };
   }
 
-  const baseLen = Math.max(qCompact.length, latinCompactQ.length);
+  const baseLen = hasLatinCompactQuery ? latinCompactQ.length : 0;
   if (baseLen < 3) {
     return {
       mode: "fuzzy",
@@ -623,41 +631,36 @@ function searchEntries(rawQuery) {
     };
   }
 
- const fuzzyCandidates = [];
+  const fuzzyCandidates = [];
+  for (const item of ENTRIES) {
+    const latinRefScore = hasLatinCompactQuery
+      ? fuzzyScore(latinCompactQ, item.compactLatinRef)
+      : Infinity;
 
-for (const item of ENTRIES) {
-  const refScore = qCompact ? fuzzyScore(qCompact, item.compactRef) : Infinity;
-  const textScore = qCompact ? fuzzyScore(qCompact, item.compactText) : Infinity;
-  const latinRefScore = latinCompactQ ? fuzzyScore(latinCompactQ, item.compactLatinRef) : Infinity;
-  const latinTextScore = latinCompactQ ? fuzzyScore(latinCompactQ, item.compactLatinText) : Infinity;
+    const latinTextScore = hasLatinCompactQuery
+      ? fuzzyScore(latinCompactQ, item.compactLatinText)
+      : Infinity;
 
-  const score = Math.min(refScore, textScore, latinRefScore, latinTextScore);
+    const score = Math.min(latinRefScore, latinTextScore);
 
-  const allowed =
-    baseLen <= 4 ? 1 :
-    baseLen <= 8 ? 2 : 3;
+    const allowed =
+      baseLen <= 4 ? 1 :
+      baseLen <= 8 ? 2 : 3;
 
-  if (score <= allowed) {
-    fuzzyCandidates.push({ item, score });
+    if (score <= allowed) {
+      fuzzyCandidates.push({ item, score });
+    }
   }
-}
 
-fuzzyCandidates.sort((a, b) => {
-  if (a.score !== b.score) return a.score - b.score;
+  fuzzyCandidates.sort((a, b) => {
+    if (a.score !== b.score) return a.score - b.score;
+    return a.item.ref.localeCompare(b.item.ref);
+  });
 
-  const aTextLen = a.item.text.length;
-  const bTextLen = b.item.text.length;
-  if (aTextLen !== bTextLen) return aTextLen - bTextLen;
-
-  return a.item.ref.localeCompare(b.item.ref);
-});
-
-const topFuzzy = fuzzyCandidates.slice(0, 200);
-
-return {
-  mode: "fuzzy",
-  results: topFuzzy.map((x) => x.item),
-};
+  return {
+    mode: "fuzzy",
+    results: fuzzyCandidates.slice(0, MAX_RESULTS).map((x) => x.item),
+  };
 }
 
 loadData();
