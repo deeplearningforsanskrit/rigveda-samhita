@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: "Tiro Devanagari Sanskrit", serif;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  background: #020617;
+  padding: 16px;
+  border-bottom: 1px solid #1e293b;
+}
+
+h1 {
+  margin: 0 0 12px 0;
+  font-size: 32px;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  font-size: 18px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #111827;
+  color: #e2e8f0;
+}
+
+main {
+  padding: 12px;
+}
+
+#status {
+  margin-bottom: 12px;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+.mantra {
+  padding: 16px;
+  margin-bottom: 10px;
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 14px;
+  line-height: 1.9;
+  font-size: 24px;
+}
+
+.ref {
+  display: block;
+  margin-bottom: 8px;
+  color: #93c5fd;
+  font-size: 14px;
+  font-family: sans-serif;
+}
+.ref {
+  font-size: 14px;
+  color: #93c5fd;
+  margin-bottom: 6px;
+  font-family: monospace;
+}
