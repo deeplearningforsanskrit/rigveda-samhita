@@ -11,13 +11,32 @@
 </head>
 <body>
   <header class="topbar">
-    <h1>ऋग्वेद संहिता </h1>
-    <input id="search" type="text" placeholder="Search in Devanagari..." autocomplete="off" />
+    <h1>ऋग्वेद</h1>
+
+    <div class="reader-toolbar">
+      <button id="prevTop">← Previous Sukta</button>
+      <div id="pageInfo" class="page-info">Loading...</div>
+      <button id="nextTop">Next Sukta →</button>
+    </div>
+
+    <input
+      id="search"
+      type="text"
+      placeholder="Search in Devanagari or transliteration..."
+      autocomplete="off"
+    />
+
+    <div id="status">Loading...</div>
   </header>
 
   <main>
-    <div id="status">Loading...</div>
     <div id="results"></div>
+
+    <div class="reader-toolbar bottom-toolbar">
+      <button id="prevBottom">← Previous Sukta</button>
+      <div id="pageInfoBottom" class="page-info">Loading...</div>
+      <button id="nextBottom">Next Sukta →</button>
+    </div>
   </main>
 
   <script src="app.js"></script>

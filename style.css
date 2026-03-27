@@ -8,6 +8,7 @@ body {
 .topbar {
   position: sticky;
   top: 0;
+  z-index: 1000;
   background: #020617;
   padding: 16px;
   border-bottom: 1px solid #1e293b;
@@ -16,6 +17,45 @@ body {
 h1 {
   margin: 0 0 12px 0;
   font-size: 32px;
+}
+
+.reader-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.reader-toolbar button {
+  padding: 10px 14px;
+  border: 1px solid #334155;
+  background: #111827;
+  color: #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.reader-toolbar button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.reader-toolbar button:first-child {
+  justify-self: start;
+}
+
+.reader-toolbar button:last-child {
+  justify-self: end;
+}
+
+.page-info {
+  font-family: sans-serif;
+  font-size: 14px;
+  color: #93c5fd;
+  text-align: center;
+  white-space: nowrap;
 }
 
 input {
@@ -27,6 +67,7 @@ input {
   border: 1px solid #334155;
   background: #111827;
   color: #e2e8f0;
+  margin-bottom: 10px;
 }
 
 main {
@@ -34,9 +75,9 @@ main {
 }
 
 #status {
-  margin-bottom: 12px;
   color: #94a3b8;
   font-size: 15px;
+  font-family: sans-serif;
 }
 
 .mantra {
@@ -47,6 +88,22 @@ main {
   border-radius: 14px;
   line-height: 1.9;
   font-size: 24px;
+  scroll-margin-top: 180px;
+}
+
+.mantra.clickable {
+  cursor: pointer;
+}
+
+.mantra.clickable:hover {
+  border-color: #475569;
+  background: #172033;
+}
+
+.mantra.highlight {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 1px #93c5fd inset;
+  background: #1a2640;
 }
 
 .ref {
@@ -54,11 +111,14 @@ main {
   margin-bottom: 8px;
   color: #93c5fd;
   font-size: 14px;
-  font-family: sans-serif;
-}
-.ref {
-  font-size: 14px;
-  color: #93c5fd;
-  margin-bottom: 6px;
   font-family: monospace;
+}
+
+.bottom-toolbar {
+  margin-top: 16px;
+  padding-bottom: 18px;
+}
+
+.hidden {
+  display: none !important;
 }
