@@ -1,6 +1,7 @@
 let ENTRIES = [];
 let SUKTA_PAGES = [];
 let CURRENT_PAGE_INDEX = 0;
+let searchDebounceTimer = null;
 
 const MAX_RESULTS = 200;
 
@@ -146,10 +147,31 @@ function buildSuktaPages(entries) {
 
   return pages;
 }
-
 function bindEvents() {
   const search = document.getElementById("search");
-  if (search) search.addEventListener("input", onSearchInput);
+  if (search) {
+    search.addEventListener("input", (e) => {
+      const rawQuery = e.target.value.trim();
+      const status = document.getElementById("status");
+
+      if (searchDebounceTimer) {
+        clearTimeout(searchDebounceTimer);
+      }
+
+      if (!rawQuery) {
+        renderBrowseMode();
+        return;
+      }
+
+      if (status) {
+        status.textContent = "Waiting for typing to stop...";
+      }
+
+      searchDebounceTimer = setTimeout(() => {
+        onSearchInput(e);
+      }, 2000);
+    });
+  }
 
   const prevTop = document.getElementById("prevTop");
   const nextTop = document.getElementById("nextTop");
@@ -168,6 +190,11 @@ function onSearchInput(e) {
   if (!rawQuery) {
     renderBrowseMode();
     return;
+  }
+
+  const status = document.getElementById("status");
+  if (status) {
+    status.textContent = "Searching...";
   }
 
   const { mode, results } = searchEntries(rawQuery);
