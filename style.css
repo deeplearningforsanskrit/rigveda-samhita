@@ -58,6 +58,36 @@ h1 {
   white-space: nowrap;
 }
 
+.search-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.search-toolbar input {
+  margin-bottom: 0;
+}
+
+.search-toolbar button {
+  padding: 12px 14px;
+  border: 1px solid #334155;
+  background: #111827;
+  color: #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: sans-serif;
+}
+
+.search-toolbar button.active {
+  background: #1d4ed8;
+  border-color: #60a5fa;
+  color: #ffffff;
+}
+
 input {
   width: 100%;
   box-sizing: border-box;
@@ -114,6 +144,19 @@ main {
   font-family: monospace;
 }
 
+.samhita-text {
+  color: #e2e8f0;
+}
+
+.pada-patha {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #243041;
+  color: #fca5a5;
+  font-size: 22px;
+  line-height: 1.9;
+}
+
 .bottom-toolbar {
   margin-top: 16px;
   padding-bottom: 18px;
@@ -127,12 +170,10 @@ main {
   margin-top: 40px;
   padding: 24px 12px;
   border-top: 1px solid #1e293b;
-
   display: flex;
   flex-direction: column;
-  align-items: center;   /* horizontal centering */
+  align-items: center;
   justify-content: center;
-
   text-align: center;
   opacity: 0.75;
   font-family: sans-serif;

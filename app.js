@@ -2,8 +2,9 @@ let ENTRIES = [];
 let SUKTA_PAGES = [];
 let CURRENT_PAGE_INDEX = 0;
 let searchDebounceTimer = null;
+let SHOW_PADA_PATHA = false;
 
-const MAX_RESULTS = 200;
+const MAX_RESULTS = 100;
 
 async function loadData() {
   const status = document.getElementById("status");
@@ -25,6 +26,7 @@ async function loadData() {
     }
 
     bindEvents();
+    updatePadaToggleButton();
     renderBrowseMode();
   } catch (err) {
     status.textContent = `Error: ${err.message}`;
@@ -41,11 +43,17 @@ function flattenFlatRigvedaData(data) {
         ? value
         : (value?.text ?? `${value?.a ?? ""} ${value?.c ?? ""}`).trim();
 
+    const padaPatha =
+      typeof value === "string"
+        ? ""
+        : String(value?.pada_dev_acc ?? "").trim();
+
     const parsed = parseRef(ref, text);
 
     entries.push(makeEntryObject({
       ref: String(ref),
       text: String(text),
+      padaPatha,
       mandala: parsed.mandala,
       sukta: parsed.sukta,
       mantra: parsed.mantra,
@@ -66,7 +74,7 @@ function flattenFlatRigvedaData(data) {
   return entries;
 }
 
-function makeEntryObject({ ref, text, mandala, sukta, mantra, entryId }) {
+function makeEntryObject({ ref, text, padaPatha, mandala, sukta, mantra, entryId }) {
   const searchRef = normalizeForSearch(ref);
   const searchText = normalizeForSearch(text);
   const latinRef = normalizeLatinQuery(ref);
@@ -75,6 +83,7 @@ function makeEntryObject({ ref, text, mandala, sukta, mantra, entryId }) {
   return {
     ref,
     text,
+    padaPatha,
     mandala,
     sukta,
     mantra,
@@ -147,6 +156,7 @@ function buildSuktaPages(entries) {
 
   return pages;
 }
+
 function bindEvents() {
   const search = document.getElementById("search");
   if (search) {
@@ -182,6 +192,32 @@ function bindEvents() {
   if (nextTop) nextTop.addEventListener("click", () => goToPage(CURRENT_PAGE_INDEX + 1));
   if (prevBottom) prevBottom.addEventListener("click", () => goToPage(CURRENT_PAGE_INDEX - 1));
   if (nextBottom) nextBottom.addEventListener("click", () => goToPage(CURRENT_PAGE_INDEX + 1));
+
+  const togglePadaBtn = document.getElementById("togglePadaBtn");
+  if (togglePadaBtn) {
+    togglePadaBtn.addEventListener("click", () => {
+      SHOW_PADA_PATHA = !SHOW_PADA_PATHA;
+      updatePadaToggleButton();
+
+      const search = document.getElementById("search");
+      const rawQuery = search ? search.value.trim() : "";
+
+      if (rawQuery) {
+        const { mode, results } = searchEntries(rawQuery);
+        renderSearchMode(rawQuery, mode, results);
+      } else {
+        renderBrowseMode();
+      }
+    });
+  }
+}
+
+function updatePadaToggleButton() {
+  const btn = document.getElementById("togglePadaBtn");
+  if (!btn) return;
+
+  btn.textContent = SHOW_PADA_PATHA ? "Pada Patha: ON" : "Pada Patha: OFF";
+  btn.classList.toggle("active", SHOW_PADA_PATHA);
 }
 
 function onSearchInput(e) {
@@ -236,7 +272,12 @@ function renderBrowseMode(targetRef = null) {
 
     card.innerHTML = `
       <div class="ref">${escapeHtml(item.ref)}</div>
-      <div>${escapeHtml(item.text)}</div>
+      <div class="samhita-text">${escapeHtml(item.text)}</div>
+      ${
+        SHOW_PADA_PATHA && item.padaPatha
+          ? `<div class="pada-patha">${escapeHtml(item.padaPatha)}</div>`
+          : ""
+      }
     `;
 
     root.appendChild(card);
@@ -279,7 +320,12 @@ function renderSearchMode(rawQuery, mode, results) {
 
     card.innerHTML = `
       <div class="ref">${escapeHtml(item.ref)} · Mandala ${item.mandala} · Sukta ${String(item.sukta).padStart(3, "0")}</div>
-      <div>${escapeHtml(item.text)}</div>
+      <div class="samhita-text">${escapeHtml(item.text)}</div>
+      ${
+        SHOW_PADA_PATHA && item.padaPatha
+          ? `<div class="pada-patha">${escapeHtml(item.padaPatha)}</div>`
+          : ""
+      }
     `;
 
     card.addEventListener("click", () => openEntryInContext(item.ref));
@@ -562,6 +608,7 @@ function fuzzyScore(queryCompact, targetCompact) {
 
   return best;
 }
+
 function searchEntries(rawQuery) {
   const q = normalizeForSearch(rawQuery);
   const qCompact = compactForSearch(q);

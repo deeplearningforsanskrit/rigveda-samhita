@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rigveda</title>
+  <title>ऋग्वेद संहिता</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Sanskrit&display=swap" rel="stylesheet">
@@ -19,12 +19,15 @@
       <button id="nextTop">Next Sukta →</button>
     </div>
 
-    <input
-      id="search"
-      type="text"
-      placeholder="Search in Devanagari or transliteration..."
-      autocomplete="off"
-    />
+    <div class="search-toolbar">
+      <input
+        id="search"
+        type="text"
+        placeholder="Search in Devanagari or transliteration..."
+        autocomplete="off"
+      />
+      <button id="togglePadaBtn" type="button">Pada Patha: OFF</button>
+    </div>
 
     <div id="status">Loading...</div>
   </header>
@@ -37,28 +40,27 @@
       <div id="pageInfoBottom" class="page-info">Loading...</div>
       <button id="nextBottom">Next Sukta →</button>
     </div>
-
   </main>
 
   <script src="app.js"></script>
 
   <footer class="footer" align="center">
-  <div>
-    Developed by 
-    <a href="https://abhi-glitchhg.github.io/" target="_blank">
-      Abhijit Deo
-    </a>
-  </div>
+    <div>
+      Developed by 
+      <a href="https://abhi-glitchhg.github.io/" target="_blank">
+        Abhijit Deo
+      </a>
+    </div>
 
-  <div>
-    <a href="https://deeplearningforsanskrit.github.io/" target="_blank">
-      Project Website
-    </a>
-  </div>
+    <div>
+      <a href="https://deeplearningforsanskrit.github.io/" target="_blank">
+        Project Website
+      </a>
+    </div>
 
-  <div class="tagline">
-    वन्दे गुरु परम्पराम्
-  </div>
-</footer>
+    <div class="tagline">
+      वन्दे गुरु परम्पराम्
+    </div>
+  </footer>
 </body>
 </html>
