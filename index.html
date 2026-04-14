@@ -28,7 +28,20 @@
       />
       <button id="togglePadaBtn" type="button">Pada Patha: OFF</button>
     </div>
+<div class="jump-toolbar">
+  <select id="jumpMode">
+    
+    <option value="ashtaka">Ashtaka / Adhyaya / Varga / Richa</option>
+    <option value="rik">Mandala / Sukta / Richa</option>
+  </select>
 
+  <input id="jump1" type="number" min="1" value="1" placeholder="Mandala" />
+  <input id="jump2" type="number" min="1" value="1" placeholder="Sukta" />
+  <input id="jump3" type="number" min="1" value="1" placeholder="Richa" />
+  <input id="jump4" type="number" min="1" value="1" placeholder="Richa" class="hidden" />
+
+  <button id="jumpGo" type="button">Go</button>
+</div>
     <div id="status">Loading...</div>
   </header>
 
@@ -46,7 +59,7 @@
 
   <footer class="footer" align="center">
     <div>
-      Developed by 
+      Developed by
       <a href="https://abhi-glitchhg.github.io/" target="_blank">
         Abhijit Deo
       </a>

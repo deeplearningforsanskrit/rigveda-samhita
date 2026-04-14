@@ -4,13 +4,17 @@ let CURRENT_PAGE_INDEX = 0;
 let searchDebounceTimer = null;
 let SHOW_PADA_PATHA = false;
 
-const MAX_RESULTS = 100;
+let RIK_INDEX = new Map();       // "06.064.04" -> entry
+let ASHTAKA_INDEX = new Map();   // "5.1.05.04" -> entry
+let PAGE_INDEX = new Map();      // "6-64" -> pageIndex
+
+const MAX_RESULTS = 200;
 
 async function loadData() {
   const status = document.getElementById("status");
 
   try {
-    status.textContent = "Loading data...";
+    setStatus("Loading data...");
 
     const res = await fetch("rigveda.json");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -19,45 +23,69 @@ async function loadData() {
 
     ENTRIES = flattenFlatRigvedaData(data);
     SUKTA_PAGES = buildSuktaPages(ENTRIES);
+    buildIndexes();
 
     if (SUKTA_PAGES.length === 0) {
-      status.textContent = "No data found";
+      setStatus("No data found");
       return;
     }
 
     bindEvents();
     updatePadaToggleButton();
+    updateJumpModeUI();
     renderBrowseMode();
   } catch (err) {
-    status.textContent = `Error: ${err.message}`;
+    setStatus(`Error: ${err.message}`);
     console.error(err);
   }
+}
+
+function setStatus(message) {
+  const status = document.getElementById("status");
+  if (status) status.textContent = message;
 }
 
 function flattenFlatRigvedaData(data) {
   const entries = [];
 
   for (const [ref, value] of Object.entries(data || {})) {
-    const text =
-      typeof value === "string"
-        ? value
-        : (value?.text ?? `${value?.a ?? ""} ${value?.c ?? ""}`).trim();
+    const rikNum = String(value?.rik_num ?? ref ?? "").trim();
+    const ashtakaRef = String(value?.ashtaka_ref ?? "").trim();
+    const anuvakaRef = String(value?.anuvaka_ref ?? "").trim();
 
-    const padaPatha =
-      typeof value === "string"
-        ? ""
-        : String(value?.pada_dev_acc ?? "").trim();
+    const text = String(
+      value?.text ??
+      value?.samh_dev_acc ??
+      ""
+    ).trim();
 
-    const parsed = parseRef(ref, text);
+    const padaPatha = String(
+      value?.pada_dev_acc ??
+      value?.pada_patha ??
+      ""
+    ).trim();
+
+    const rikParsed = parseRikRef(rikNum);
+    const ashtakaParsed = parseAshtakaRef(ashtakaRef);
 
     entries.push(makeEntryObject({
-      ref: String(ref),
-      text: String(text),
+      ref: rikNum || String(ref),
+      rikNum,
+      ashtakaRef,
+      anuvakaRef,
+      text,
       padaPatha,
-      mandala: parsed.mandala,
-      sukta: parsed.sukta,
-      mantra: parsed.mantra,
-      entryId: parsed.mantra ?? 0,
+
+      mandala: rikParsed.mandala,
+      sukta: rikParsed.sukta,
+      mantra: rikParsed.mantra,
+
+      ashtaka: ashtakaParsed.ashtaka,
+      adhyaya: ashtakaParsed.adhyaya,
+      varga: ashtakaParsed.varga,
+      ashtakaRicha: ashtakaParsed.richa,
+
+      entryId: rikParsed.mantra ?? 0,
     }));
   }
 
@@ -74,7 +102,22 @@ function flattenFlatRigvedaData(data) {
   return entries;
 }
 
-function makeEntryObject({ ref, text, padaPatha, mandala, sukta, mantra, entryId }) {
+function makeEntryObject({
+  ref,
+  rikNum,
+  ashtakaRef,
+  anuvakaRef,
+  text,
+  padaPatha,
+  mandala,
+  sukta,
+  mantra,
+  ashtaka,
+  adhyaya,
+  varga,
+  ashtakaRicha,
+  entryId
+}) {
   const searchRef = normalizeForSearch(ref);
   const searchText = normalizeForSearch(text);
   const latinRef = normalizeLatinQuery(ref);
@@ -82,11 +125,21 @@ function makeEntryObject({ ref, text, padaPatha, mandala, sukta, mantra, entryId
 
   return {
     ref,
+    rikNum,
+    ashtakaRef,
+    anuvakaRef,
     text,
     padaPatha,
+
     mandala,
     sukta,
     mantra,
+
+    ashtaka,
+    adhyaya,
+    varga,
+    ashtakaRicha,
+
     entryId,
 
     searchRef,
@@ -101,25 +154,39 @@ function makeEntryObject({ ref, text, padaPatha, mandala, sukta, mantra, entryId
   };
 }
 
-function parseRef(ref, text) {
-  const source = `${ref} ${text}`;
-  const m = source.match(/([0-9०-९]+)\.([0-9०-९]+)\.([0-9०-९]+)/);
-
+function parseRikRef(ref) {
+  const m = String(ref ?? "").match(/^(\d+)\.(\d+)\.(\d+)$/);
   if (!m) {
     return {
-      mandala: 1,
+      mandala: null,
       sukta: null,
       mantra: null,
     };
   }
 
-  const toAscii = (s) =>
-    String(s).replace(/[०-९]/g, (d) => String("०१२३४५६७८९".indexOf(d)));
+  return {
+    mandala: Number(m[1]),
+    sukta: Number(m[2]),
+    mantra: Number(m[3]),
+  };
+}
+
+function parseAshtakaRef(ref) {
+  const m = String(ref ?? "").match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+  if (!m) {
+    return {
+      ashtaka: null,
+      adhyaya: null,
+      varga: null,
+      richa: null,
+    };
+  }
 
   return {
-    mandala: Number(toAscii(m[1])),
-    sukta: Number(toAscii(m[2])),
-    mantra: Number(toAscii(m[3])),
+    ashtaka: Number(m[1]),
+    adhyaya: Number(m[2]),
+    varga: Number(m[3]),
+    richa: Number(m[4]),
   };
 }
 
@@ -157,12 +224,30 @@ function buildSuktaPages(entries) {
   return pages;
 }
 
+function buildIndexes() {
+  RIK_INDEX = new Map();
+  ASHTAKA_INDEX = new Map();
+  PAGE_INDEX = new Map();
+
+  for (const item of ENTRIES) {
+    if (item.rikNum) {
+      RIK_INDEX.set(normalizeDotRef(item.rikNum), item);
+    }
+    if (item.ashtakaRef) {
+      ASHTAKA_INDEX.set(normalizeDotRef(item.ashtakaRef), item);
+    }
+  }
+
+  SUKTA_PAGES.forEach((page, index) => {
+    PAGE_INDEX.set(`${page.mandala}-${page.sukta}`, index);
+  });
+}
+
 function bindEvents() {
   const search = document.getElementById("search");
   if (search) {
     search.addEventListener("input", (e) => {
       const rawQuery = e.target.value.trim();
-      const status = document.getElementById("status");
 
       if (searchDebounceTimer) {
         clearTimeout(searchDebounceTimer);
@@ -173,9 +258,7 @@ function bindEvents() {
         return;
       }
 
-      if (status) {
-        status.textContent = "Waiting for typing to stop...";
-      }
+      setStatus("Waiting for typing to stop...");
 
       searchDebounceTimer = setTimeout(() => {
         onSearchInput(e);
@@ -210,6 +293,29 @@ function bindEvents() {
       }
     });
   }
+
+  const jumpMode = document.getElementById("jumpMode");
+  if (jumpMode) {
+    jumpMode.addEventListener("change", () => {
+      updateJumpModeUI();
+    });
+  }
+
+  const jumpGo = document.getElementById("jumpGo");
+  if (jumpGo) {
+    jumpGo.addEventListener("click", onJumpGo);
+  }
+
+  const jumpInputs = ["jump1", "jump2", "jump3", "jump4"];
+  for (const id of jumpInputs) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        onJumpGo();
+      }
+    });
+  }
 }
 
 function updatePadaToggleButton() {
@@ -220,6 +326,102 @@ function updatePadaToggleButton() {
   btn.classList.toggle("active", SHOW_PADA_PATHA);
 }
 
+function updateJumpModeUI() {
+  const mode = document.getElementById("jumpMode")?.value || "rik";
+
+  const jump1 = document.getElementById("jump1");
+  const jump2 = document.getElementById("jump2");
+  const jump3 = document.getElementById("jump3");
+  const jump4 = document.getElementById("jump4");
+
+  if (!jump1 || !jump2 || !jump3 || !jump4) return;
+
+  jump1.value = "1";
+  jump2.value = "1";
+  jump3.value = "1";
+  jump4.value = "1";
+
+  if (mode === "rik") {
+    jump1.placeholder = "Mandala";
+    jump2.placeholder = "Sukta";
+    jump3.placeholder = "Richa";
+    jump4.classList.add("hidden");
+  } else {
+    jump1.placeholder = "Ashtaka";
+    jump2.placeholder = "Adhyaya";
+    jump3.placeholder = "Varga";
+    jump4.placeholder = "Richa";
+    jump4.classList.remove("hidden");
+  }
+}
+
+function onJumpGo() {
+  const mode = document.getElementById("jumpMode")?.value || "rik";
+
+  const v1 = document.getElementById("jump1")?.value.trim();
+  const v2 = document.getElementById("jump2")?.value.trim();
+  const v3 = document.getElementById("jump3")?.value.trim();
+  const v4 = document.getElementById("jump4")?.value.trim();
+
+  if (mode === "rik") {
+    if (!v1 || !v2 || !v3) {
+      setStatus("Please enter Mandala, Sukta, and Richa.");
+      return;
+    }
+
+    const key = buildRikKey(v1, v2, v3);
+    const entry = RIK_INDEX.get(key);
+
+    if (!entry) {
+      setStatus(`Not found: ${key}`);
+      return;
+    }
+
+    openEntryInContext(entry.ref);
+    return;
+  }
+
+  if (!v1 || !v2 || !v3 || !v4) {
+    setStatus("Please enter Ashtaka, Adhyaya, Varga, and Richa.");
+    return;
+  }
+
+  const key = buildAshtakaKey(v1, v2, v3, v4);
+  const entry = ASHTAKA_INDEX.get(key);
+
+  if (!entry) {
+    setStatus(`Not found: ${key}`);
+    return;
+  }
+
+  openEntryInContext(entry.ref);
+}
+
+function buildRikKey(mandala, sukta, richa) {
+  return [
+    padInt(mandala, 2),
+    padInt(sukta, 3),
+    padInt(richa, 2)
+  ].join(".");
+}
+
+function buildAshtakaKey(ashtaka, adhyaya, varga, richa) {
+  return [
+    String(Number(ashtaka)),
+    String(Number(adhyaya)),
+    padInt(varga, 2),
+    padInt(richa, 2)
+  ].join(".");
+}
+
+function normalizeDotRef(ref) {
+  return String(ref ?? "").trim();
+}
+
+function padInt(value, width) {
+  return String(Number(value)).padStart(width, "0");
+}
+
 function onSearchInput(e) {
   const rawQuery = e.target.value.trim();
 
@@ -228,10 +430,7 @@ function onSearchInput(e) {
     return;
   }
 
-  const status = document.getElementById("status");
-  if (status) {
-    status.textContent = "Searching...";
-  }
+  setStatus("Searching...");
 
   const { mode, results } = searchEntries(rawQuery);
   renderSearchMode(rawQuery, mode, results);
@@ -246,7 +445,6 @@ function goToPage(index) {
 }
 
 function renderBrowseMode(targetRef = null) {
-  const status = document.getElementById("status");
   const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
   const root = document.getElementById("results");
 
@@ -259,9 +457,9 @@ function renderBrowseMode(targetRef = null) {
   enablePagerButtons();
   updatePagerButtons();
 
-  if (status) {
-    status.textContent = `${page.items.length} mantras · Mandala ${page.mandala} · Sukta ${String(page.sukta).padStart(3, "0")}`;
-  }
+  setStatus(
+    `${page.items.length} mantras · Mandala ${page.mandala} · Sukta ${String(page.sukta).padStart(3, "0")}`
+  );
 
   root.innerHTML = "";
 
@@ -272,6 +470,9 @@ function renderBrowseMode(targetRef = null) {
 
     card.innerHTML = `
       <div class="ref">${escapeHtml(item.ref)}</div>
+      <div class="meta-ref">
+        ${item.ashtakaRef ? `Ashtaka: ${escapeHtml(item.ashtakaRef)}` : ""}
+      </div>
       <div class="samhita-text">${escapeHtml(item.text)}</div>
       ${
         SHOW_PADA_PATHA && item.padaPatha
@@ -290,21 +491,18 @@ function renderBrowseMode(targetRef = null) {
 
 function renderSearchMode(rawQuery, mode, results) {
   const root = document.getElementById("results");
-  const status = document.getElementById("status");
 
   if (!root) return;
 
   updatePageInfo("Search results");
   disablePagerButtons();
 
-  if (status) {
-    if (mode === "exact") {
-      status.textContent = `${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}"`;
-    } else if (mode === "compact") {
-      status.textContent = `${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}" (space-insensitive / transliteration match)`;
-    } else {
-      status.textContent = `${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}" (fuzzy fallback)`;
-    }
+  if (mode === "exact") {
+    setStatus(`${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}"`);
+  } else if (mode === "compact") {
+    setStatus(`${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}" (space-insensitive / transliteration match)`);
+  } else {
+    setStatus(`${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}" (fuzzy fallback)`);
   }
 
   root.innerHTML = "";
@@ -320,6 +518,9 @@ function renderSearchMode(rawQuery, mode, results) {
 
     card.innerHTML = `
       <div class="ref">${escapeHtml(item.ref)} · Mandala ${item.mandala} · Sukta ${String(item.sukta).padStart(3, "0")}</div>
+      <div class="meta-ref">
+        ${item.ashtakaRef ? `Ashtaka: ${escapeHtml(item.ashtakaRef)}` : ""}
+      </div>
       <div class="samhita-text">${escapeHtml(item.text)}</div>
       ${
         SHOW_PADA_PATHA && item.padaPatha
@@ -334,11 +535,13 @@ function renderSearchMode(rawQuery, mode, results) {
 }
 
 function openEntryInContext(ref) {
-  const pageIndex = SUKTA_PAGES.findIndex((page) =>
-    page.items.some((item) => item.ref === ref)
-  );
+  const entry = RIK_INDEX.get(normalizeDotRef(ref));
+  if (!entry) return;
 
-  if (pageIndex === -1) return;
+  const pageKey = `${entry.mandala}-${entry.sukta}`;
+  const pageIndex = PAGE_INDEX.get(pageKey);
+
+  if (pageIndex == null) return;
 
   CURRENT_PAGE_INDEX = pageIndex;
 
@@ -413,7 +616,7 @@ function enablePagerButtons() {
 
 function escapeHtml(text) {
   const div = document.createElement("div");
-  div.textContent = String(text);
+  div.textContent = String(text ?? "");
   return div.innerHTML;
 }
 
