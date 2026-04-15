@@ -332,26 +332,22 @@ function updateJumpModeUI() {
   const jump1 = document.getElementById("jump1");
   const jump2 = document.getElementById("jump2");
   const jump3 = document.getElementById("jump3");
-  const jump4 = document.getElementById("jump4");
 
-  if (!jump1 || !jump2 || !jump3 || !jump4) return;
+  if (!jump1 || !jump2 || !jump3) return;
 
   jump1.value = "1";
   jump2.value = "1";
   jump3.value = "1";
-  jump4.value = "1";
 
   if (mode === "rik") {
     jump1.placeholder = "Mandala";
     jump2.placeholder = "Sukta";
-    jump3.placeholder = "Richa";
-    jump4.classList.add("hidden");
+    jump3.classList.add("hidden");
   } else {
     jump1.placeholder = "Ashtaka";
     jump2.placeholder = "Adhyaya";
     jump3.placeholder = "Varga";
-    jump4.placeholder = "Richa";
-    jump4.classList.remove("hidden");
+    jump3.classList.remove("hidden");
   }
 }
 
@@ -361,15 +357,15 @@ function onJumpGo() {
   const v1 = document.getElementById("jump1")?.value.trim();
   const v2 = document.getElementById("jump2")?.value.trim();
   const v3 = document.getElementById("jump3")?.value.trim();
-  const v4 = document.getElementById("jump4")?.value.trim();
 
   if (mode === "rik") {
-    if (!v1 || !v2 || !v3) {
-      setStatus("Please enter Mandala, Sukta, and Richa.");
+    if (!v1 || !v2) {
+      setStatus("Please enter Mandala and Sukta.");
       return;
     }
 
-    const key = buildRikKey(v1, v2, v3);
+    // default richa = 1
+    const key = buildRikKey(v1, v2, 1);
     const entry = RIK_INDEX.get(key);
 
     if (!entry) {
@@ -381,17 +377,18 @@ function onJumpGo() {
     return;
   }
 
-  if (!v1 || !v2 || !v3 || !v4) {
-    setStatus("Please enter Ashtaka, Adhyaya, Varga, and Richa.");
+  if (!v1 || !v2 || !v3) {
+    setStatus("Please enter Ashtaka, Adhyaya, and Varga.");
     return;
   }
 
-  const key = buildAshtakaKey(v1, v2, v3, v4);
+  // default richa = 1
+  const key = buildAshtakaKey(v1, v2, v3, 1);
   const entry = ASHTAKA_INDEX.get(key);
 
   if (!entry) {
     setStatus(`Not found: ${key}`);
-    return;
+      return;
   }
 
   openEntryInContext(entry.ref);
