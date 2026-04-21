@@ -13,17 +13,39 @@ const MAX_RESULTS = 200;
 const topbar = document.getElementById("topbar");
 const headerToggle = document.getElementById("headerToggle");
 
-headerToggle.addEventListener("click", () => {
-  const collapsed = topbar.classList.toggle("collapsed");
-  headerToggle.setAttribute(
-    "aria-label",
-    collapsed ? "Show header" : "Hide header"
-  );
-});
+if (headerToggle && topbar) {
+  headerToggle.addEventListener("click", () => {
+    const collapsed = topbar.classList.toggle("collapsed");
+    headerToggle.setAttribute(
+      "aria-label",
+      collapsed ? "Show header" : "Hide header"
+    );
+  });
+}
 
+function syncHeaderFieldsFromCurrentPage() {
+  const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
+  if (!page) return;
+
+  const jumpMode = document.getElementById("jumpMode")?.value || "rik";
+  const jump1 = document.getElementById("jump1");
+  const jump2 = document.getElementById("jump2");
+  const jump3 = document.getElementById("jump3");
+
+  if (!jump1 || !jump2 || !jump3) return;
+
+  if (jumpMode === "rik") {
+    jump1.value = String(page.mandala ?? 1);
+    jump2.value = String(page.sukta ?? 1);
+    jump3.value = "1";
+  } else {
+    const firstItem = page.items?.[0];
+    jump1.value = String(firstItem?.ashtaka ?? 1);
+    jump2.value = String(firstItem?.adhyaya ?? 1);
+    jump3.value = String(firstItem?.varga ?? 1);
+  }
+}
 async function loadData() {
-  const status = document.getElementById("status");
-
   try {
     setStatus("Loading data...");
 
@@ -309,6 +331,7 @@ function bindEvents() {
   if (jumpMode) {
     jumpMode.addEventListener("change", () => {
       updateJumpModeUI();
+      syncHeaderFieldsFromCurrentPage();
     });
   }
 
@@ -346,10 +369,6 @@ function updateJumpModeUI() {
 
   if (!jump1 || !jump2 || !jump3) return;
 
-  jump1.value = "1";
-  jump2.value = "1";
-  jump3.value = "1";
-
   if (mode === "rik") {
     jump1.placeholder = "Mandala";
     jump2.placeholder = "Sukta";
@@ -360,6 +379,30 @@ function updateJumpModeUI() {
     jump3.placeholder = "Varga";
     jump3.classList.remove("hidden");
   }
+}
+
+function syncHeaderFieldsFromCurrentPage() {
+  const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
+  if (!page) return;
+
+  const jumpMode = document.getElementById("jumpMode")?.value || "rik";
+  const jump1 = document.getElementById("jump1");
+  const jump2 = document.getElementById("jump2");
+  const jump3 = document.getElementById("jump3");
+
+  if (!jump1 || !jump2 || !jump3) return;
+
+  if (jumpMode === "rik") {
+    jump1.value = page.mandala ?? 1;
+    jump2.value = page.sukta ?? 1;
+    jump3.value = "1";
+    return;
+  }
+
+  const firstItem = page.items?.[0];
+  jump1.value = firstItem?.ashtaka ?? 1;
+  jump2.value = firstItem?.adhyaya ?? 1;
+  jump3.value = firstItem?.varga ?? 1;
 }
 
 function onJumpGo() {
@@ -375,7 +418,6 @@ function onJumpGo() {
       return;
     }
 
-    // default richa = 1
     const key = buildRikKey(v1, v2, 1);
     const entry = RIK_INDEX.get(key);
 
@@ -393,13 +435,12 @@ function onJumpGo() {
     return;
   }
 
-  // default richa = 1
   const key = buildAshtakaKey(v1, v2, v3, 1);
   const entry = ASHTAKA_INDEX.get(key);
 
   if (!entry) {
     setStatus(`Not found: ${key}`);
-      return;
+    return;
   }
 
   openEntryInContext(entry.ref);
@@ -448,10 +489,12 @@ function goToPage(index) {
   if (index < 0 || index >= SUKTA_PAGES.length) return;
 
   CURRENT_PAGE_INDEX = index;
+
+  syncHeaderFieldsFromCurrentPage();   // important
   renderBrowseMode();
+
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
-
 function renderBrowseMode(targetRef = null) {
   const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
   const root = document.getElementById("results");
@@ -461,6 +504,7 @@ function renderBrowseMode(targetRef = null) {
     return;
   }
 
+  syncHeaderFieldsFromCurrentPage();   // important
   updatePageInfo();
   enablePagerButtons();
   updatePagerButtons();
@@ -499,7 +543,6 @@ function renderBrowseMode(targetRef = null) {
 
 function renderSearchMode(rawQuery, mode, results) {
   const root = document.getElementById("results");
-
   if (!root) return;
 
   updatePageInfo("Search results");
