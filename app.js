@@ -619,13 +619,13 @@ function updateJumpModeUI() {
 
   if (mode === "rik") {
     // 1. Reset text elements to Rik mode values
-    if (lblJump1) lblJump1.textContent = "मण्डल:";
-    if (lblJump2) lblJump2.textContent = "सुक्त:";
-    if (lblJump3) lblJump3.textContent = "मण्डल  :";
+    // if (lblJump1) lblJump1.textContent = "";
+    // if (lblJump2) lblJump2.textContent = "सुक्त:";
+    // if (lblJump3) lblJump3.textContent = "मण्डल  :";
 
-    jump1.placeholder = "मण्डल";
-    jump2.placeholder = "सूक्त";
-    jump3.placeholder = "मन्त्र";
+    // jump1.placeholder = "मण्डल";
+    // jump2.placeholder = "सूक्त";
+    // jump3.placeholder = "मन्त्र";
 
     populateDatalist("listJump1", 10);
     populateDatalist("listJump2", rikSuktaMapping[v1] || 191);
@@ -635,9 +635,9 @@ function updateJumpModeUI() {
     else jump3.classList.add("hidden");
   } else {
     // 2. Change text elements to Ashtaka mode values
-    if (lblJump1) lblJump1.textContent = "अष्टक:";
-    if (lblJump2) lblJump2.textContent = "अध्याय:"; // Or just "अ:" depending on preference
-    if (lblJump3) lblJump3.textContent = "वर्ग:";
+    // if (lblJump1) lblJump1.textContent = "अष्टक:";
+    // if (lblJump2) lblJump2.textContent = "अध्याय:"; // Or just "अ:" depending on preference
+    // if (lblJump3) lblJump3.textContent = "वर्ग:";
 
     jump1.placeholder = "अष्टक";
     jump2.placeholder = "अध्याय";
