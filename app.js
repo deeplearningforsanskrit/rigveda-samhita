@@ -10,6 +10,26 @@ let PAGE_INDEX = new Map();      // "6-64" -> pageIndex
 
 const MAX_RESULTS = 200;
 
+let CURRENT_FILTERS = {
+  ashtaka: "",
+  adhyaya: "",
+  mandala: ""
+};
+
+let LAST_SEARCH_RESULTS = [];
+let LAST_SEARCH_MODE = null;
+let LAST_SEARCH_QUERY = "";
+
+let ADHYAYA_DROPDOWN_CACHE = new Map();
+
+// Rigveda Mapping: Mandala index (1 to 10) -> Total Suktas
+const rikSuktaMapping = {
+  1: 191, 2: 43, 3: 62, 4: 58, 5: 87, 
+  6: 75, 7: 104, 8: 103, 9: 114, 10: 191
+};
+
+const MAX_MANTRA_FALLBACK = 100; 
+
 const topbar = document.getElementById("topbar");
 const headerToggle = document.getElementById("headerToggle");
 
@@ -45,6 +65,7 @@ function syncHeaderFieldsFromCurrentPage() {
     jump3.value = String(firstItem?.varga ?? 1);
   }
 }
+
 async function loadData() {
   try {
     setStatus("Loading data...");
@@ -63,7 +84,9 @@ async function loadData() {
       return;
     }
 
+    populateFilterDropdowns();
     bindEvents();
+    setupFilterModal();
     updatePadaToggleButton();
     updateJumpModeUI();
     renderBrowseMode();
@@ -276,6 +299,200 @@ function buildIndexes() {
   });
 }
 
+function populateFilterDropdowns() {
+  const ashtakaSet = new Set();
+  const mandalaSet = new Set();
+  const adhyayaByAshtaka = new Map();
+
+  for (const entry of ENTRIES) {
+    if (entry.ashtaka) {
+      ashtakaSet.add(entry.ashtaka);
+      if (!adhyayaByAshtaka.has(entry.ashtaka)) {
+        adhyayaByAshtaka.set(entry.ashtaka, new Set());
+      }
+      if (entry.adhyaya) {
+        adhyayaByAshtaka.get(entry.ashtaka).add(entry.adhyaya);
+      }
+    }
+    if (entry.mandala) {
+      mandalaSet.add(entry.mandala);
+    }
+  }
+
+  const ashtakaSelect = document.getElementById("filterAshtaka");
+  const ashtakaValues = Array.from(ashtakaSet).sort((a, b) => a - b);
+  for (const val of ashtakaValues) {
+    const option = document.createElement("option");
+    option.value = val;
+    option.textContent = val;
+    ashtakaSelect.appendChild(option);
+  }
+
+  const mandalaSelect = document.getElementById("filterMandala");
+  const mandalaValues = Array.from(mandalaSet).sort((a, b) => a - b);
+  for (const val of mandalaValues) {
+    const option = document.createElement("option");
+    option.value = val;
+    option.textContent = val;
+    mandalaSelect.appendChild(option);
+  }
+
+  window.ADHYAYA_BY_ASHTAKA = adhyayaByAshtaka;
+}
+
+function populateAdhyayaDropdown(ashtaka) {
+  const adhyayaSelect = document.getElementById("filterAdhyaya");
+
+  if (!ashtaka) {
+    adhyayaSelect.innerHTML = '<option value="">All</option>';
+    return;
+  }
+
+  if (ADHYAYA_DROPDOWN_CACHE.has(ashtaka)) {
+    adhyayaSelect.innerHTML = ADHYAYA_DROPDOWN_CACHE.get(ashtaka);
+    return;
+  }
+
+  if (!window.ADHYAYA_BY_ASHTAKA) {
+    adhyayaSelect.innerHTML = '<option value="">All</option>';
+    return;
+  }
+
+  const values = window.ADHYAYA_BY_ASHTAKA.get(Number(ashtaka));
+  if (!values) {
+    adhyayaSelect.innerHTML = '<option value="">All</option>';
+    return;
+  }
+
+  const sortedValues = Array.from(values).sort((a, b) => a - b);
+  let html = '<option value="">All</option>';
+  for (const val of sortedValues) {
+    html += `<option value="${val}">${val}</option>`;
+  }
+
+  ADHYAYA_DROPDOWN_CACHE.set(ashtaka, html);
+  adhyayaSelect.innerHTML = html;
+}
+
+function filterSearchResults(results) {
+  if (!CURRENT_FILTERS.ashtaka && !CURRENT_FILTERS.adhyaya && !CURRENT_FILTERS.mandala) {
+    return results;
+  }
+
+  return results.filter((item) => {
+    if (CURRENT_FILTERS.ashtaka && Number(item.ashtaka) !== Number(CURRENT_FILTERS.ashtaka)) {
+      return false;
+    }
+    if (CURRENT_FILTERS.adhyaya && Number(item.adhyaya) !== Number(CURRENT_FILTERS.adhyaya)) {
+      return false;
+    }
+    if (CURRENT_FILTERS.mandala && Number(item.mandala) !== Number(CURRENT_FILTERS.mandala)) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function updateFilterButton() {
+  const btn = document.getElementById("filterBtn");
+  const count = Object.values(CURRENT_FILTERS).filter(v => v !== "").length;
+
+  if (count > 0) {
+    btn.classList.add("active");
+    btn.setAttribute("data-count", count);
+    btn.textContent = `Filter (${count})`;
+  } else {
+    btn.classList.remove("active");
+    btn.removeAttribute("data-count");
+    btn.textContent = "Filter";
+  }
+}
+
+function setupFilterModal() {
+  const filterBtn = document.getElementById("filterBtn");
+  const filterModal = document.getElementById("filterModal");
+  const closeBtn = document.getElementById("closeFilterModal");
+  const applyBtn = document.getElementById("applyFiltersBtn");
+  const clearBtn = document.getElementById("clearFiltersBtn");
+  const ashtakaSelect = document.getElementById("filterAshtaka");
+
+  filterBtn.addEventListener("click", () => {
+    filterModal.classList.remove("hidden");
+  });
+
+  closeBtn.addEventListener("click", () => {
+    filterModal.classList.add("hidden");
+  });
+
+  filterModal.addEventListener("click", (e) => {
+    if (e.target === filterModal) {
+      filterModal.classList.add("hidden");
+    }
+  });
+
+  ashtakaSelect.addEventListener("change", (e) => {
+    const adhyayaSelect = document.getElementById("filterAdhyaya");
+    if (e.target.value) {
+      adhyayaSelect.disabled = false;
+      populateAdhyayaDropdown(e.target.value);
+      adhyayaSelect.value = "";
+    } else {
+      adhyayaSelect.disabled = true;
+      adhyayaSelect.innerHTML = '<option value="">All</option>';
+    }
+  });
+
+  applyBtn.addEventListener("click", () => {
+    CURRENT_FILTERS.ashtaka = document.getElementById("filterAshtaka").value;
+    CURRENT_FILTERS.adhyaya = document.getElementById("filterAdhyaya").value;
+    CURRENT_FILTERS.mandala = document.getElementById("filterMandala").value;
+
+    updateFilterButton();
+    filterModal.classList.add("hidden");
+
+    const search = document.getElementById("search");
+    const rawQuery = search ? search.value.trim() : "";
+
+    if (rawQuery && LAST_SEARCH_RESULTS.length > 0) {
+      const filteredResults = filterSearchResults(LAST_SEARCH_RESULTS);
+      renderSearchMode(rawQuery, LAST_SEARCH_MODE, filteredResults);
+    }
+  });
+
+  clearBtn.addEventListener("click", () => {
+    document.getElementById("filterAshtaka").value = "";
+    document.getElementById("filterAdhyaya").value = "";
+    document.getElementById("filterAdhyaya").disabled = true;
+    document.getElementById("filterMandala").value = "";
+
+    CURRENT_FILTERS.ashtaka = "";
+    CURRENT_FILTERS.adhyaya = "";
+    CURRENT_FILTERS.mandala = "";
+
+    updateFilterButton();
+    filterModal.classList.add("hidden");
+
+    const search = document.getElementById("search");
+    const rawQuery = search ? search.value.trim() : "";
+
+    if (rawQuery && LAST_SEARCH_RESULTS.length > 0) {
+      renderSearchMode(rawQuery, LAST_SEARCH_MODE, LAST_SEARCH_RESULTS);
+    }
+  });
+}
+
+// Helper function to populate data-lists with options up to max limit
+function populateDatalist(datalistId, maxLimit) {
+  const datalistElement = document.getElementById(datalistId);
+  if (!datalistElement) return;
+  datalistElement.innerHTML = '';
+  for (let i = 1; i <= maxLimit; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    datalistElement.appendChild(option);
+  }
+}
+
 function bindEvents() {
   const search = document.getElementById("search");
   if (search) {
@@ -318,9 +535,9 @@ function bindEvents() {
       const search = document.getElementById("search");
       const rawQuery = search ? search.value.trim() : "";
 
-      if (rawQuery) {
-        const { mode, results } = searchEntries(rawQuery);
-        renderSearchMode(rawQuery, mode, results);
+      if (rawQuery && LAST_SEARCH_RESULTS.length > 0) {
+        const filteredResults = filterSearchResults(LAST_SEARCH_RESULTS);
+        renderSearchMode(rawQuery, LAST_SEARCH_MODE, filteredResults);
       } else {
         renderBrowseMode();
       }
@@ -340,15 +557,38 @@ function bindEvents() {
     jumpGo.addEventListener("click", onJumpGo);
   }
 
-  const jumpInputs = ["jump1", "jump2", "jump3", "jump4"];
+  // Monitor alterations inside jump1 input to rebuild dynamic options of listJump2 immediately
+  const jump1El = document.getElementById("jump1");
+  if (jump1El) {
+    jump1El.addEventListener("input", () => {
+      const mode = document.getElementById("jumpMode")?.value || "rik";
+      if (mode === "rik") {
+        const v1 = parseInt(jump1El.value) || 1;
+        populateDatalist("listJump2", rikSuktaMapping[v1] || 191);
+      }
+    });
+  }
+
+  const jumpInputs = ["jump1", "jump2", "jump3"];
   for (const id of jumpInputs) {
     const el = document.getElementById(id);
     if (!el) continue;
+    
     el.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         onJumpGo();
       }
     });
+
+    // Automatically wipes value on element selection focus so the picker scrolls cleanly from start
+    el.addEventListener("focus", function() {
+      this.value = '';
+    });
+  }
+
+  const copyAllBtn = document.getElementById("copyAllBtn");
+  if (copyAllBtn) {
+    copyAllBtn.addEventListener("click", copyAllVisible);
   }
 }
 
@@ -356,7 +596,7 @@ function updatePadaToggleButton() {
   const btn = document.getElementById("togglePadaBtn");
   if (!btn) return;
 
-  btn.textContent = SHOW_PADA_PATHA ? "Pada Patha: ON" : "Pada Patha: OFF";
+  btn.textContent = SHOW_PADA_PATHA ? "पद पाठ: ON" : "पद पाठ: OFF";
   btn.classList.toggle("active", SHOW_PADA_PATHA);
 }
 
@@ -366,43 +606,50 @@ function updateJumpModeUI() {
   const jump1 = document.getElementById("jump1");
   const jump2 = document.getElementById("jump2");
   const jump3 = document.getElementById("jump3");
+  const wrapperJump3 = document.getElementById("wrapperJump3");
+
+  // Fetch the label elements to alter their text dynamically
+  const lblJump1 = document.getElementById("lblJump1");
+  const lblJump2 = document.getElementById("lblJump2");
+  const lblJump3 = document.getElementById("lblJump3");
 
   if (!jump1 || !jump2 || !jump3) return;
+
+  const v1 = parseInt(jump1.value) || 1;
 
   if (mode === "rik") {
-    jump1.placeholder = "Mandala";
-    jump2.placeholder = "Sukta";
-    jump3.classList.add("hidden");
+    // 1. Reset text elements to Rik mode values
+    if (lblJump1) lblJump1.textContent = "म:";
+    if (lblJump2) lblJump2.textContent = "सु:";
+    if (lblJump3) lblJump3.textContent = "मं:";
+
+    jump1.placeholder = "मण्डल";
+    jump2.placeholder = "सूक्त";
+    jump3.placeholder = "मन्त्र";
+
+    populateDatalist("listJump1", 10);
+    populateDatalist("listJump2", rikSuktaMapping[v1] || 191);
+    populateDatalist("listJump3", MAX_MANTRA_FALLBACK);
+
+    if (wrapperJump3) wrapperJump3.classList.add("hidden"); 
+    else jump3.classList.add("hidden");
   } else {
-    jump1.placeholder = "Ashtaka";
-    jump2.placeholder = "Adhyaya";
-    jump3.placeholder = "Varga";
-    jump3.classList.remove("hidden");
+    // 2. Change text elements to Ashtaka mode values
+    if (lblJump1) lblJump1.textContent = "अष्टक:";
+    if (lblJump2) lblJump2.textContent = "अध्याय:"; // Or just "अ:" depending on preference
+    if (lblJump3) lblJump3.textContent = "वर्ग:";
+
+    jump1.placeholder = "अष्टक";
+    jump2.placeholder = "अध्याय";
+    jump3.placeholder = "वर्ग";
+
+    populateDatalist("listJump1", 8);
+    populateDatalist("listJump2", 8);
+    populateDatalist("listJump3", 64); 
+
+    if (wrapperJump3) wrapperJump3.classList.remove("hidden");
+    else jump3.classList.remove("hidden");
   }
-}
-
-function syncHeaderFieldsFromCurrentPage() {
-  const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
-  if (!page) return;
-
-  const jumpMode = document.getElementById("jumpMode")?.value || "rik";
-  const jump1 = document.getElementById("jump1");
-  const jump2 = document.getElementById("jump2");
-  const jump3 = document.getElementById("jump3");
-
-  if (!jump1 || !jump2 || !jump3) return;
-
-  if (jumpMode === "rik") {
-    jump1.value = page.mandala ?? 1;
-    jump2.value = page.sukta ?? 1;
-    jump3.value = "1";
-    return;
-  }
-
-  const firstItem = page.items?.[0];
-  jump1.value = firstItem?.ashtaka ?? 1;
-  jump2.value = firstItem?.adhyaya ?? 1;
-  jump3.value = firstItem?.varga ?? 1;
 }
 
 function onJumpGo() {
@@ -410,15 +657,18 @@ function onJumpGo() {
 
   const v1 = document.getElementById("jump1")?.value.trim();
   const v2 = document.getElementById("jump2")?.value.trim();
-  const v3 = document.getElementById("jump3")?.value.trim();
+  let v3 = document.getElementById("jump3")?.value.trim();
 
   if (mode === "rik") {
     if (!v1 || !v2) {
       setStatus("Please enter Mandala and Sukta.");
       return;
     }
+    
+    // Default to first mantra if omitted by interface configurations
+    if (!v3) v3 = "1";
 
-    const key = buildRikKey(v1, v2, 1);
+    const key = buildRikKey(v1, v2, v3);
     const entry = RIK_INDEX.get(key);
 
     if (!entry) {
@@ -475,6 +725,9 @@ function onSearchInput(e) {
   const rawQuery = e.target.value.trim();
 
   if (!rawQuery) {
+    LAST_SEARCH_RESULTS = [];
+    LAST_SEARCH_MODE = null;
+    LAST_SEARCH_QUERY = "";
     renderBrowseMode();
     return;
   }
@@ -482,7 +735,12 @@ function onSearchInput(e) {
   setStatus("Searching...");
 
   const { mode, results } = searchEntries(rawQuery);
-  renderSearchMode(rawQuery, mode, results);
+  LAST_SEARCH_RESULTS = results;
+  LAST_SEARCH_MODE = mode;
+  LAST_SEARCH_QUERY = rawQuery;
+
+  const filteredResults = filterSearchResults(results);
+  renderSearchMode(rawQuery, mode, filteredResults);
 }
 
 function goToPage(index) {
@@ -495,6 +753,7 @@ function goToPage(index) {
 
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
 function renderBrowseMode(targetRef = null) {
   const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
   const root = document.getElementById("results");
@@ -533,6 +792,33 @@ function renderBrowseMode(targetRef = null) {
       }
     `;
 
+    const refEl = card.querySelector(".ref");
+    if (refEl) {
+      refEl.style.cursor = "pointer";
+      refEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        copyToClipboard(item.ref, refEl);
+      });
+    }
+
+    const textEl = card.querySelector(".samhita-text");
+    if (textEl) {
+      textEl.style.cursor = "pointer";
+      textEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        copyToClipboard(item.text, textEl);
+      });
+    }
+
+    const padaEl = card.querySelector(".pada-patha");
+    if (padaEl) {
+      padaEl.style.cursor = "pointer";
+      padaEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        copyToClipboard(item.padaPatha, padaEl);
+      });
+    }
+
     root.appendChild(card);
   }
 
@@ -548,13 +834,21 @@ function renderSearchMode(rawQuery, mode, results) {
   updatePageInfo("Search results");
   disablePagerButtons();
 
+  let statusText = "";
   if (mode === "exact") {
-    setStatus(`${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}"`);
+    statusText = `${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}"`;
   } else if (mode === "compact") {
-    setStatus(`${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}" (space-insensitive / transliteration match)`);
+    statusText = `${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}" (space-insensitive / transliteration match)`;
   } else {
-    setStatus(`${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}" (fuzzy fallback)`);
+    statusText = `${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}" (fuzzy fallback)`;
   }
+
+  const activeFilters = Object.values(CURRENT_FILTERS).filter(v => v !== "").length;
+  if (activeFilters > 0) {
+    statusText += ` [${activeFilters} filter${activeFilters === 1 ? "" : "s"} applied]`;
+  }
+
+  setStatus(statusText);
 
   root.innerHTML = "";
 
@@ -579,6 +873,33 @@ function renderSearchMode(rawQuery, mode, results) {
           : ""
       }
     `;
+
+    const refEl = card.querySelector(".ref");
+    if (refEl) {
+      refEl.style.cursor = "pointer";
+      refEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        copyToClipboard(item.ref, refEl);
+      });
+    }
+
+    const textEl = card.querySelector(".samhita-text");
+    if (textEl) {
+      textEl.style.cursor = "pointer";
+      textEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        copyToClipboard(item.text, textEl);
+      });
+    }
+
+    const padaEl = card.querySelector(".pada-patha");
+    if (padaEl) {
+      padaEl.style.cursor = "pointer";
+      padaEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        copyToClipboard(item.padaPatha, padaEl);
+      });
+    }
 
     card.addEventListener("click", () => openEntryInContext(item.ref));
     root.appendChild(card);
@@ -666,9 +987,8 @@ function enablePagerButtons() {
 }
 
 function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = String(text ?? "");
-  return div.innerHTML;
+  const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+  return String(text ?? "").replace(/[&<>"']/g, c => map[c]);
 }
 
 function cssEscape(value) {
@@ -676,6 +996,68 @@ function cssEscape(value) {
     return window.CSS.escape(value);
   }
   return String(value).replace(/["\\]/g, "\\$&");
+}
+
+async function copyToClipboard(text, el) {
+  try {
+    await navigator.clipboard.writeText(text);
+    const originalText = el.textContent;
+    el.textContent = "Copied!";
+    el.style.opacity = "0.7";
+    setTimeout(() => {
+      el.textContent = originalText;
+      el.style.opacity = "1";
+    }, 1500);
+  } catch (err) {
+    console.error("Failed to copy:", err);
+  }
+}
+
+function getAllVisibleText() {
+  const resultsDiv = document.getElementById("results");
+  if (!resultsDiv) return "";
+
+  const mantras = resultsDiv.querySelectorAll(".mantra");
+  const lines = [];
+
+  for (const mantra of mantras) {
+    const samhita = mantra.querySelector(".samhita-text")?.textContent || "";
+    const pada = mantra.querySelector(".pada-patha")?.textContent || "";
+
+    lines.push(samhita);
+    if (pada) lines.push(pada);
+    lines.push("");
+  }
+
+  return lines.join("\n");
+}
+
+async function copyAllVisible() {
+  const btn = document.getElementById("copyAllBtn");
+  const text = getAllVisibleText();
+
+  if (!text.trim()) {
+    if (btn) {
+      btn.textContent = "Nothing to copy";
+      setTimeout(() => {
+        btn.textContent = "Copy All";
+      }, 1500);
+    }
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(text);
+    if (btn) {
+      const originalText = btn.textContent;
+      btn.textContent = `Copied ${text.split("\n").length} lines!`;
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 2000);
+    }
+  } catch (err) {
+    console.error("Failed to copy all:", err);
+  }
 }
 
 function normalizeForSearch(input) {
@@ -702,7 +1084,7 @@ function normalizeLatinQuery(input) {
     .replace(/[ūúùûü]/g, "uu")
     .replace(/[ṛŕ]/g, "r")
     .replace(/[ṝ]/g, "rr")
-    .replace(/[ḷ]/g, "l")
+    .replace(/[ळ]/g, "l")
     .replace(/[ḹ]/g, "ll")
     .replace(/[ṅñṇ]/g, "n")
     .replace(/[ṭ]/g, "t")

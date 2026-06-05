@@ -19,12 +19,6 @@
   </div>
 
   <div id="topbarContent" class="topbar-content">
-    <div class="reader-toolbar">
-      <button id="prevTop">← Previous Sukta</button>
-      <div id="pageInfo" class="page-info">Loading...</div>
-      <button id="nextTop">Next Sukta →</button>
-    </div>
-
     <div class="search-toolbar">
       <input
         id="search"
@@ -32,23 +26,75 @@
         placeholder="Search in Devanagari or transliteration..."
         autocomplete="off"
       />
-      <button id="togglePadaBtn" type="button">Pada Patha: OFF</button>
+      <button id="filterBtn" type="button">Filter</button>
     </div>
 
-    <div class="jump-toolbar">
-      <select id="jumpMode">
-        <option value="rik">Mandala / Sukta</option>
-        <option value="ashtaka">Ashtaka / Adhyaya / Varga</option>
-      </select>
-
-      <input id="jump1" type="number" min="1" value="1" placeholder="Mandala" />
-      <input id="jump2" type="number" min="1" value="1" placeholder="Sukta" />
-      <input id="jump3" type="number" min="1" value="1" placeholder="Varga" class="hidden" />
-
-      <button id="jumpGo" type="button">Go</button>
+    <div class="nav-toolbar">
+      <button id="prevTop" class="nav-btn">← Prev</button>
+      <div id="pageInfo" class="page-info">Loading...</div>
+      <button id="nextTop" class="nav-btn">Next →</button>
+      <button id="copyAllBtn" class="nav-btn" type="button">Copy Page</button>
     </div>
+<div class="options-toolbar">
+  <button id="togglePadaBtn" type="button">पद पाठ: OFF</button>
+
+  <select id="jumpMode">
+    <option value="rik">मण्डल/सुक्त</option>
+    <option value="ashtaka">अष्टक/अध्याय/वर्ग</option>
+  </select>
+
+  <div class="input-list-wrapper">
+    <label for="jump1" id="lblJump1">मण्डल:</label> <input id="jump1" list="listJump1" type="number" min="1" value="1" placeholder="मण्डल" autocomplete="off" />
+    <datalist id="listJump1"></datalist>
+  </div>
+
+  <div class="input-list-wrapper">
+    <label for="jump2" id="lblJump2">सुक्त:</label> <input id="jump2" list="listJump2" type="number" min="1" value="1" placeholder="सूक्त" autocomplete="off" />
+    <datalist id="listJump2"></datalist>
+  </div>
+  
+  <div class="input-list-wrapper hidden" id="wrapperJump3">
+    <label for="jump3" id="lblJump3">वर्ग:</label> <input id="jump3" list="listJump3" type="number" min="1" value="1" placeholder="वर्ग" autocomplete="off" />
+    <datalist id="listJump3"></datalist>
+  </div>
+
+  <button id="jumpGo" type="button">Go</button>
+
 
     <div id="status">Loading...</div>
+  </div>
+
+  <div id="filterModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Search Filters</h2>
+        <button id="closeFilterModal" class="close-btn" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="filter-group">
+          <label for="filterAshtaka">Ashtaka:</label>
+          <select id="filterAshtaka">
+            <option value="">All</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterAdhyaya">Adhyaya:</label>
+          <select id="filterAdhyaya" disabled>
+            <option value="">All</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterMandala">Mandala:</label>
+          <select id="filterMandala">
+            <option value="">All</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="clearFiltersBtn" type="button" class="secondary-btn">Clear Filters</button>
+        <button id="applyFiltersBtn" type="button" class="primary-btn">Apply Filters</button>
+      </div>
+    </div>
   </div>
 </header>
   <main>
