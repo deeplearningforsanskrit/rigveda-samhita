@@ -619,9 +619,9 @@ function updateJumpModeUI() {
 
   if (mode === "rik") {
     // 1. Reset text elements to Rik mode values
-    if (lblJump1) lblJump1.textContent = "म:";
-    if (lblJump2) lblJump2.textContent = "सु:";
-    if (lblJump3) lblJump3.textContent = "मं:";
+    if (lblJump1) lblJump1.textContent = "मण्डल:";
+    if (lblJump2) lblJump2.textContent = "सुक्त:";
+    if (lblJump3) lblJump3.textContent = "मण्डल  :";
 
     jump1.placeholder = "मण्डल";
     jump2.placeholder = "सूक्त";
@@ -769,7 +769,7 @@ function renderBrowseMode(targetRef = null) {
   updatePagerButtons();
 
   setStatus(
-    `${page.items.length} mantras · Mandala ${page.mandala} · Sukta ${String(page.sukta).padStart(3, "0")}`
+    `\n${page.items.length} mantras · Mandala ${page.mandala} · Sukta ${String(page.sukta).padStart(3, "0")}`
   );
 
   root.innerHTML = "";
@@ -848,7 +848,7 @@ function renderSearchMode(rawQuery, mode, results) {
     statusText += ` [${activeFilters} filter${activeFilters === 1 ? "" : "s"} applied]`;
   }
 
-  setStatus(statusText);
+  // setStatus(statusText);
 
   root.innerHTML = "";
 
