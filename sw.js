@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rigveda-v1';
+const CACHE_NAME = 'rigveda-v1.1';
 
 // All paths are relative to the location of sw.js
 const ASSETS_TO_CACHE = [

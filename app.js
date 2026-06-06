@@ -827,6 +827,7 @@ function renderBrowseMode(targetRef = null) {
   }
 }
 
+
 function renderSearchMode(rawQuery, mode, results) {
   const root = document.getElementById("results");
   if (!root) return;
@@ -847,8 +848,6 @@ function renderSearchMode(rawQuery, mode, results) {
   if (activeFilters > 0) {
     statusText += ` [${activeFilters} filter${activeFilters === 1 ? "" : "s"} applied]`;
   }
-
-  // setStatus(statusText);
 
   root.innerHTML = "";
 
@@ -874,34 +873,68 @@ function renderSearchMode(rawQuery, mode, results) {
       }
     `;
 
-    const refEl = card.querySelector(".ref");
-    if (refEl) {
-      refEl.style.cursor = "pointer";
-      refEl.addEventListener("click", (e) => {
-        e.stopPropagation();
-        copyToClipboard(item.ref, refEl);
-      });
-    }
+    // --- LONG PRESS & CLICK HANDLING FOR MOBILE/DESKTOP ---
+    let touchTimer = null;
+    let isLongPress = false;
 
-    const textEl = card.querySelector(".samhita-text");
-    if (textEl) {
-      textEl.style.cursor = "pointer";
-      textEl.addEventListener("click", (e) => {
-        e.stopPropagation();
-        copyToClipboard(item.text, textEl);
-      });
-    }
+    // Helper function to attach handlers to copyable text elements
+    const setupLongPressCopy = (element, textToCopy) => {
+      if (!element) return;
+      
+      element.style.cursor = "pointer";
 
-    const padaEl = card.querySelector(".pada-patha");
-    if (padaEl) {
-      padaEl.style.cursor = "pointer";
-      padaEl.addEventListener("click", (e) => {
-        e.stopPropagation();
-        copyToClipboard(item.padaPatha, padaEl);
-      });
-    }
+      // 1. Mobile Touch Events
+      element.addEventListener("touchstart", (e) => {
+        isLongPress = false;
+        // Start a timer for 600ms to detect a long press
+        touchTimer = setTimeout(() => {
+          isLongPress = true;
+          copyToClipboard(textToCopy, element);
+          
+          // Provide a light haptic feedback vibration if supported
+          if (navigator.vibrate) navigator.vibrate(50); 
+        }, 600);
+      }, { passive: true });
 
-    card.addEventListener("click", () => openEntryInContext(item.ref));
+      element.addEventListener("touchend", (e) => {
+        // If they lift their finger before 600ms, clear the timer
+        if (touchTimer) {
+          clearTimeout(touchTimer);
+        }
+        // If it was a long press, stop the event so it doesn't trigger card navigation
+        if (isLongPress) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      });
+
+      element.addEventListener("touchmove", () => {
+        // If they scroll or drag away, cancel the copy timer
+        if (touchTimer) clearTimeout(touchTimer);
+      });
+
+      // 2. Desktop Click Event Fallback
+      element.addEventListener("click", (e) => {
+        // On mobile touchend handles it; on desktop, standard clicks copy text without navigation
+        if (e.pointerType === "mouse" || !("ontouchstart" in window)) {
+          e.stopPropagation(); 
+          copyToClipboard(textToCopy, element);
+        }
+      });
+    };
+
+    // Apply the setup to all three pieces of text
+    setupLongPressCopy(card.querySelector(".ref"), item.ref);
+    setupLongPressCopy(card.querySelector(".samhita-text"), item.text);
+    setupLongPressCopy(card.querySelector(".pada-patha"), item.padaPatha);
+
+    // Clicking anywhere else (or a standard quick tap on mobile) opens the context
+    card.addEventListener("click", (e) => {
+      if (!isLongPress) {
+        openEntryInContext(item.ref);
+      }
+    });
+
     root.appendChild(card);
   }
 }
