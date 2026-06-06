@@ -8,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Sanskrit&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  
+  <link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#8B0000">
+
 </head>
 <body>
 <header class="topbar" id="topbar">
@@ -128,5 +132,16 @@
       वन्दे गुरु परम्पराम्
     </div>
   </footer>
+
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // Point directly to the subfolder path
+      navigator.serviceWorker.register('./sw.js', { scope: '/rigveda-samhita/' })
+        .then(reg => console.log('Service Worker registered successfully for scope:', reg.scope))
+        .catch(err => console.error('Service Worker registration failed:', err));
+    });
+  }
+</script>
 </body>
 </html>

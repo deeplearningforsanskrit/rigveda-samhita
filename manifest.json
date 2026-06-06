@@ -1,0 +1,12 @@
+{
+  "name": "Rigveda Samhita",
+  "short_name": "Rigveda",
+  "start_url": "/rigveda-samhita/",
+  "scope": "/rigveda-samhita/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8B0000",
+  "icons": [
+ 
+  ]
+}
