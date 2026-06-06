@@ -135,11 +135,33 @@
 
   <script>
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // Point directly to the subfolder path
-      navigator.serviceWorker.register('./sw.js', { scope: '/rigveda-samhita/' })
-        .then(reg => console.log('Service Worker registered successfully for scope:', reg.scope))
-        .catch(err => console.error('Service Worker registration failed:', err));
+    window.addEventListener('load', async () => {
+      try {
+        const reg = await navigator.serviceWorker.register('./sw.js', {
+          scope: '/rigveda-samhita/'
+        });
+        console.log('[Page] SW registered, scope:', reg.scope);
+
+        // When online: tell the active SW to re-check the version.
+        // The SW will delete stale caches and re-cache if the version changed.
+        if (navigator.onLine && reg.active) {
+          reg.active.postMessage({ type: 'CHECK_UPDATE' });
+        }
+
+        // Also handle the case where a brand-new SW just finished activating
+        // (e.g. first load or after an update) — reload so the page uses the
+        // freshly cached assets.
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+
+      } catch (err) {
+        console.error('[Page] SW registration failed:', err);
+      }
     });
   }
 </script>
