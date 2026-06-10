@@ -28,7 +28,12 @@ const rikSuktaMapping = {
   6: 75, 7: 104, 8: 103, 9: 114, 10: 191
 };
 
-const MAX_MANTRA_FALLBACK = 100; 
+const MAX_MANTRA_FALLBACK = 100;
+
+// Vasishtha-Dveshinī flagged mantras (Mandala.Sukta.Mantra)
+const VASISHTHA_DVESHINI = new Set([
+  "3.53.21", "3.53.22", "3.53.23", "3.53.24"
+]);
 
 const topbar = document.getElementById("topbar");
 const headerToggle = document.getElementById("headerToggle");
@@ -776,11 +781,13 @@ function renderBrowseMode(targetRef = null) {
 
   for (const item of page.items) {
     const card = document.createElement("div");
-    card.className = "mantra";
+    const vdKey = `${item.mandala}.${item.sukta}.${item.mantra}`;
+    const isVD = VASISHTHA_DVESHINI.has(vdKey);
+    card.className = "mantra" + (isVD ? " vasishtha-dveshini" : "");
     card.setAttribute("data-ref", item.ref);
 
     card.innerHTML = `
-      <div class="ref">${escapeHtml(item.ref)}</div>
+      <div class="ref">${escapeHtml(item.ref)}${isVD ? ' <span class="vd-badge">वसिष्ठ-द्वेषिणी</span>' : ""}</div>
       <div class="meta-ref">
         ${item.ashtakaRef ? `Ashtaka: ${escapeHtml(item.ashtakaRef)}` : ""}
       </div>
@@ -858,10 +865,12 @@ function renderSearchMode(rawQuery, mode, results) {
 
   for (const item of results) {
     const card = document.createElement("div");
-    card.className = "mantra clickable";
+    const vdKey = `${item.mandala}.${item.sukta}.${item.mantra}`;
+    const isVD = VASISHTHA_DVESHINI.has(vdKey);
+    card.className = "mantra clickable" + (isVD ? " vasishtha-dveshini" : "");
 
     card.innerHTML = `
-      <div class="ref">${escapeHtml(item.ref)} · Mandala ${item.mandala} · Sukta ${String(item.sukta).padStart(3, "0")}</div>
+      <div class="ref">${escapeHtml(item.ref)} · Mandala ${item.mandala} · Sukta ${String(item.sukta).padStart(3, "0")}${isVD ? ' <span class="vd-badge">वसिष्ठ-द्वेषिणी</span>' : ""}</div>
       <div class="meta-ref">
         ${item.ashtakaRef ? `Ashtaka: ${escapeHtml(item.ashtakaRef)}` : ""}
       </div>
