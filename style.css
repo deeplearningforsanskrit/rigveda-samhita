@@ -50,6 +50,7 @@ h1 {
   justify-self: end;
 }
 
+
 .nav-toolbar {
   display: grid;
   grid-template-columns: auto 1fr auto auto;
@@ -166,6 +167,16 @@ main {
   line-height: 1.9;
   font-size: 24px;
   scroll-margin-top: 180px;
+
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.mantra.khanda {
+  border: 2px solid #facc15;   /* yellow border */
+  background: #1a1a10;         /* slightly warm dark tone */
 }
 
 .mantra.clickable {
@@ -202,6 +213,10 @@ main {
   color: #fca5a5;
   font-size: 22px;
   line-height: 1.9;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .bottom-toolbar {
@@ -691,4 +706,9 @@ main {
   margin-left: 6px;
   vertical-align: middle;
   letter-spacing: 0.02em;
+}
+
+body, html {
+  max-width: 100%;
+  overflow-x: hidden;
 }

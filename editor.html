@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Vedic Swar Editor</title>
+
+<style>
+body {
+    font-family: "Noto Sans Devanagari", sans-serif;
+    margin: 20px;
+}
+
+textarea {
+    width: 100%;
+    height: 300px;
+    font-size: 32px;
+}
+
+button {
+    margin: 10px 0;
+    padding: 8px 12px;
+    font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Vedic Swar Editor</h2>
+
+<p>
+Alt+↑ = ॑ (Udātta)<br>
+Alt+↓ = ॒ (Anudātta)<br>
+Alt+Delete = Remove swara
+</p>
+
+<button onclick="removeSpaces()">Remove All Spaces</button>
+
+<textarea id="editor"></textarea>
+
+<script>
+
+const UDATTA   = "\u0951"; // ॑
+const ANUDATTA = "\u0952"; // ॒
+
+const editor = document.getElementById("editor");
+
+editor.addEventListener("keydown", (e) => {
+
+    if (!e.altKey) return;
+
+    let start = editor.selectionStart;
+
+    if (e.key === "ArrowUp") {
+        e.preventDefault();
+        insertMark(UDATTA);
+    }
+
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        insertMark(ANUDATTA);
+    }
+
+    if (e.key === "Delete") {
+        e.preventDefault();
+        removeMark();
+    }
+
+    function insertMark(mark) {
+        let text = editor.value;
+
+        // insert WITHOUT deleting other swaras
+        editor.value =
+            text.slice(0, start) +
+            mark +
+            text.slice(start);
+
+        editor.selectionStart =
+        editor.selectionEnd = start + 1;
+    }
+
+    function removeMark() {
+        let text = editor.value;
+
+        if (
+            text[start - 1] === UDATTA ||
+            text[start - 1] === ANUDATTA
+        ) {
+            editor.value =
+                text.slice(0, start - 1) +
+                text.slice(start);
+
+            editor.selectionStart =
+            editor.selectionEnd = start - 1;
+        }
+    }
+});
+
+// Remove spaces (unchanged)
+function removeSpaces() {
+    editor.value = editor.value.replace(/ /g, "");
+}
+
+</script>
+</body>
+</html>
+
+<!-- नसिमिं द्रे हि गायति द्वादशा नुष्टुभं त्विं॑द्रम ष्टौ जेता माधुच्छंद सो ग्निं द्वादश मेधातिथि: काण्व आग्नेयमग्नि नेति पा दो
+द्वग्नि दैवतो निर्मथ्या हवनीयाभ्यां सुसमिद्ध इती ध्मः समिद्धो वाग्नि स्तनूनपा न्न राश सइळो बर्हिर्देवी र्द्वार उषा सानक्ता दै व्यौ होतारौ प्रचेतसौ तिस्त्रो देव्यः सरस्वती ळा भारत्य स्त्वष्टा वनस्पतिः स्वाहा कृतय इति प्रत्यु चं देवता एतदा प्री सूक्त मेते नान्या न्युक्त देवता न्येकादशका नित्व नाराशं सा न्या प्रशब्दो कता नित्व तनूनपांत्यै
+ भिर्वैश्वदेवमिंद्र सोममृत व्य तत्रैं द्री मारुती त्वा ष्ट्या ग्ने य्यैं द्री मैत्रावरुणी चतस्रो द्रविणोदस आश्विन्या ग्ने यृ तु देवता सर्वत्रा त्वान वेंद्रावरुणयो रैंद्रा वरुणं युवा कुपा दनि चूतौ ( इंद्रो ऱ्ह सीयसी वा ) सोमानमिति पंच ब्राह्मणस्पत्या श्चतुर्थ्या मिंद्रश्च सोमश्च पंचम्यां दक्षिणा चान्या : सा दस स्पत्या नाराशंसी वांत्या प्रतित्य माग्नि मारुतं ॥all -->

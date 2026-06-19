@@ -127,6 +127,8 @@ function flattenFlatRigvedaData(data) {
     ).trim();
 
     const rikParsed = parseRikRef(rikNum);
+    
+    const isKhanda = value?.is_khanda === true;
     const ashtakaParsed = parseAshtakaRef(ashtakaRef);
 
     entries.push(makeEntryObject({
@@ -145,7 +147,7 @@ function flattenFlatRigvedaData(data) {
       adhyaya: ashtakaParsed.adhyaya,
       varga: ashtakaParsed.varga,
       ashtakaRicha: ashtakaParsed.richa,
-
+      is_khanda: isKhanda,
       entryId: rikParsed.mantra ?? 0,
     }));
   }
@@ -177,6 +179,7 @@ function makeEntryObject({
   adhyaya,
   varga,
   ashtakaRicha,
+  is_khanda,
   entryId
 }) {
   const searchRef = normalizeForSearch(ref);
@@ -200,6 +203,7 @@ function makeEntryObject({
     adhyaya,
     varga,
     ashtakaRicha,
+    is_khanda,
 
     entryId,
 
@@ -783,11 +787,18 @@ function renderBrowseMode(targetRef = null) {
     const card = document.createElement("div");
     const vdKey = `${item.mandala}.${item.sukta}.${item.mantra}`;
     const isVD = VASISHTHA_DVESHINI.has(vdKey);
-    card.className = "mantra" + (isVD ? " vasishtha-dveshini" : "");
+    card.className =
+    "mantra" +
+    (item.is_khanda ? " khanda" : "") +
+    (isVD ? " vasishtha-dveshini" : "");
+    
     card.setAttribute("data-ref", item.ref);
 
     card.innerHTML = `
-      <div class="ref">${escapeHtml(item.ref)}${isVD ? ' <span class="vd-badge">वसिष्ठ-द्वेषिणी</span>' : ""}</div>
+      <div class="ref">${escapeHtml(item.ref)}${isVD ? ' <span class="vd-badge">वसिष्ठ-द्वेषिणी</span>' : ""}
+        ${item.is_khanda ? ' <span class="khanda-badge">| खण्ड</span>' : ""}
+
+      </div>
       <div class="meta-ref">
         ${item.ashtakaRef ? `Ashtaka: ${escapeHtml(item.ashtakaRef)}` : ""}
       </div>
@@ -867,10 +878,15 @@ function renderSearchMode(rawQuery, mode, results) {
     const card = document.createElement("div");
     const vdKey = `${item.mandala}.${item.sukta}.${item.mantra}`;
     const isVD = VASISHTHA_DVESHINI.has(vdKey);
-    card.className = "mantra clickable" + (isVD ? " vasishtha-dveshini" : "");
-
-    card.innerHTML = `
-      <div class="ref">${escapeHtml(item.ref)} · Mandala ${item.mandala} · Sukta ${String(item.sukta).padStart(3, "0")}${isVD ? ' <span class="vd-badge">वसिष्ठ-द्वेषिणी</span>' : ""}</div>
+    card.className =
+  "mantra" +
+  (item.is_khanda ? " khanda" : "") +
+  (isVD ? " vasishtha-dveshini" : "");
+   
+  card.innerHTML = `
+      <div class="ref">${escapeHtml(item.ref)} · Mandala ${item.mandala} · Sukta ${String(item.sukta).padStart(3, "0")}${isVD ? ' <span class="vd-badge">वसिष्ठ-द्वेषिणी</span>' : ""}
+        ${item.is_khanda ? ' <span class="khanda-badge">| खण्ड </span>' : ""}
+</div>
       <div class="meta-ref">
         ${item.ashtakaRef ? `Ashtaka: ${escapeHtml(item.ashtakaRef)}` : ""}
       </div>
