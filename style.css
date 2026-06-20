@@ -50,26 +50,6 @@ h1 {
   justify-self: end;
 }
 
-
-.nav-toolbar {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.nav-btn {
-  padding: 10px 14px;
-  font-size: 14px;
-  border: 1px solid #334155;
-  background: #111827;
-  color: #e2e8f0;
-  border-radius: 8px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
 .nav-btn:hover {
   background: #172033;
   border-color: #475569;
@@ -90,15 +70,38 @@ h1 {
   background: transparent;
   border-radius: 0;
 }
-
-.page-info {
-  font-family: sans-serif;
-  font-size: 14px;
-  color: #93c5fd;
-  text-align: center;
-  white-space: nowrap;
+.nav-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
 }
 
+.nav-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.nav-btn {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid #334155;
+  background: #111827;
+  color: #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.page-info {
+  text-align: center;
+  font-weight: 600;
+  width: 100%;
+}
 .search-toolbar {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -582,17 +585,7 @@ main {
     font-size: 13px;
   }
 
-  .nav-toolbar {
-    grid-template-columns: auto 1fr auto auto;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .nav-btn {
-    padding: 8px 10px;
-    font-size: 12px;
-  }
-
+ 
   .options-toolbar {
     grid-template-columns: auto auto auto auto auto;
     gap: 8px;
@@ -653,16 +646,6 @@ main {
     font-size: 12px;
   }
 
-  .nav-toolbar {
-    grid-template-columns: auto 1fr auto auto;
-    gap: 6px;
-    margin-bottom: 6px;
-  }
-
-  .nav-btn {
-    padding: 6px 8px;
-    font-size: 11px;
-  }
 
   .options-toolbar {
     grid-template-columns: 1fr 1fr;
