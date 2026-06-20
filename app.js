@@ -89,12 +89,14 @@ async function loadData() {
       return;
     }
 
-    populateFilterDropdowns();
-    bindEvents();
-    setupFilterModal();
-    updatePadaToggleButton();
-    updateJumpModeUI();
-    renderBrowseMode();
+   populateFilterDropdowns();
+  bindEvents();
+  setupFilterModal();
+  updatePadaToggleButton();
+  updateJumpModeUI();
+  loadPageFromUrl();
+  renderBrowseMode();
+
   } catch (err) {
     setStatus(`Error: ${err.message}`);
     console.error(err);
@@ -756,6 +758,7 @@ function goToPage(index) {
   if (index < 0 || index >= SUKTA_PAGES.length) return;
 
   CURRENT_PAGE_INDEX = index;
+  updateUrlFromCurrentPage();
 
   syncHeaderFieldsFromCurrentPage();   // important
   renderBrowseMode();
@@ -1403,5 +1406,47 @@ function searchEntries(rawQuery) {
     results: fuzzyCandidates.slice(0, MAX_RESULTS).map((x) => x.item),
   };
 }
+function updateUrlFromCurrentPage() {
+  const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
+  if (!page) return;
 
+  const url = new URL(window.location);
+
+  url.searchParams.set("mandala", page.mandala);
+  url.searchParams.set("sukta", page.sukta);
+
+  history.replaceState(
+    {
+      mandala: page.mandala,
+      sukta: page.sukta
+    },
+    "",
+    url
+  );
+}
+
+function loadPageFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+
+  const mandala = Number(params.get("mandala"));
+  const sukta = Number(params.get("sukta"));
+
+  if (!mandala || !sukta) {
+    return false;
+  }
+
+  const pageIndex = PAGE_INDEX.get(`${mandala}-${sukta}`);
+
+  if (pageIndex == null) {
+    return false;
+  }
+
+  CURRENT_PAGE_INDEX = pageIndex;
+  return true;
+}
+window.addEventListener("popstate", () => {
+  if (loadPageFromUrl()) {
+    renderBrowseMode();
+  }
+});
 loadData();
