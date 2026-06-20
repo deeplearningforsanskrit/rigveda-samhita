@@ -505,6 +505,11 @@ function populateDatalist(datalistId, maxLimit) {
 }
 
 function bindEvents() {
+const shareBtn = document.getElementById("shareBtn");
+
+if (shareBtn) {
+  shareBtn.addEventListener("click", shareCurrentSukta);
+}
   const search = document.getElementById("search");
   if (search) {
     search.addEventListener("input", (e) => {
@@ -1423,6 +1428,38 @@ function updateUrlFromCurrentPage() {
     "",
     url
   );
+}
+function getCurrentShareUrl() {
+  const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
+  if (!page) return location.href;
+
+  const mandala = String(page.mandala).padStart(2, "0");
+  const sukta = String(page.sukta).padStart(3, "0");
+
+  return `https://deeplearningforsanskrit.github.io/rigveda-samhita/preview/sukta/${mandala}-${sukta}.html`;
+}
+
+async function shareCurrentSukta() {
+  const url = getCurrentShareUrl();
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: "ऋग्वेद",
+        url
+      });
+      return;
+    } catch (_) {}
+  }
+
+  await navigator.clipboard.writeText(url);
+
+  const btn = document.getElementById("shareBtn");
+  if (btn) {
+    const old = btn.textContent;
+    btn.textContent = "Link Copied!";
+    setTimeout(() => btn.textContent = old, 1500);
+  }
 }
 
 function loadPageFromUrl() {
