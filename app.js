@@ -858,7 +858,18 @@ function renderSearchMode(rawQuery, mode, results) {
   const root = document.getElementById("results");
   if (!root) return;
 
-  updatePageInfo("Search results");
+  // Display search method in page info
+  let modeLabel = "Search results";
+  if (mode === "exact") {
+    modeLabel = "Search results (Exact match)";
+  } else if (mode === "compact") {
+    modeLabel = "Search results (Space-insensitive / Transliteration)";
+  } else if (mode === "fuzzy") {
+    modeLabel = "Search results (Fuzzy match)";
+  }
+  setStatus(`Found ${results.length} result${results.length === 1 ? "" : "s"} for "${rawQuery}"`);
+  updatePageInfo(modeLabel);
+
   disablePagerButtons();
 
   let statusText = "";
