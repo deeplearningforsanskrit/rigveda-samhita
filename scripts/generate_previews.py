@@ -18,8 +18,9 @@ for key, item in data.items():
 
     rik = item.get("rik_num", "")
     text = item.get("text", "")
+    is_khanda = item.get("is_khanda", False)
 
-    if text == "":
+    if is_khanda:
         # we got khanda, and we will skip it for preview.
         continue
 
