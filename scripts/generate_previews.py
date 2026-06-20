@@ -9,11 +9,19 @@ with open(DATA, encoding="utf-8") as f:
 
 preview_root = ROOT / "preview" / "sukta"
 preview_root.mkdir(parents=True, exist_ok=True)
+for file in preview_root.glob("*"):
+    file.unlink()
+
+done_parts = {}
 
 for key, item in data.items():
 
     rik = item.get("rik_num", "")
     text = item.get("text", "")
+
+    if text == "":
+        # we got khanda, and we will skip it for preview.
+        continue
 
     parts = rik.split(".")
     if len(parts) != 3:
@@ -22,10 +30,15 @@ for key, item in data.items():
     mandala = parts[0]
     sukta = parts[1]
 
+    # Skip if this combination has already been processed
+    if (mandala, sukta) in done_parts:
+        continue
+    done_parts[(mandala, sukta)] = True
+
     filename = f"{mandala}-{sukta}.html"
 
-    title = f"Rigveda {mandala}.{sukta}"
-    description = text[:250]
+    title = f"ऋग्वेद संहिता: मण्डल {mandala}, सुक्त -{sukta}"
+    description = text[:150]
 
     html = f"""<!DOCTYPE html>
 <html lang="sa">
