@@ -853,103 +853,12 @@ function renderBrowseMode(targetRef = null) {
   }
 }
 
-// ========== MATCH POSITION SCORING FUNCTIONS ==========
-/**
- * Find the position score of a fuzzy match by checking:
- * 1. Does text start with something similar to query?
- * 2. Does text have space + something similar?
- * 3. Otherwise search middle
- */
-function findFuzzyMatchPosition(haystack, needle) {
-  if (!haystack || !needle) return Infinity;
-  
-  const needleLen = needle.length;
-  const threshold = needleLen <= 4 ? 1 : needleLen <= 8 ? 2 : 3;
-  
-  // Check 1: Does it START with something similar to the needle?
-  const startWindow = Math.min(haystack.length, needleLen + 2);
-  const startSubstring = haystack.substring(0, startWindow);
-  const startScore = levenshtein(needle, startSubstring);
-  
-  if (startScore <= threshold) {
-    return 0; // Starts with it!
-  }
-  
-  // Check 2: Does it have space + something similar?
-  const spacePos = haystack.indexOf(" ");
-  if (spacePos > 0 && spacePos + needleLen <= haystack.length) {
-    const afterSpaceWindow = Math.min(haystack.length - spacePos - 1, needleLen + 2);
-    const afterSpaceSubstring = haystack.substring(spacePos + 1, spacePos + 1 + afterSpaceWindow);
-    const afterSpaceScore = levenshtein(needle, afterSpaceSubstring);
-    
-    if (afterSpaceScore <= threshold) {
-      return 1; // After word boundary
-    }
-  }
-  
-  // Check 3: Search for best match in middle
-  let bestScore = Infinity;
-  let bestPos = Infinity;
-  
-  const minWindow = Math.max(1, needleLen - 2);
-  const maxWindow = Math.min(haystack.length, needleLen + 2);
-  
-  for (let windowSize = minWindow; windowSize <= maxWindow; windowSize++) {
-    for (let i = 0; i + windowSize <= haystack.length; i++) {
-      const substring = haystack.substring(i, i + windowSize);
-      const score = levenshtein(needle, substring);
-      
-      if (score < bestScore) {
-        bestScore = score;
-        bestPos = i;
-      }
-    }
-  }
-  
-  if (bestScore <= threshold && bestPos !== Infinity) {
-    return 2 + (bestPos / haystack.length);
-  }
-  
-  return Infinity;
-}
-
-/**
- * Gets the best (lowest) match score for an item against a query.
- * Checks both reference and text fields, including Latin variants.
- */
-function getItemMatchScore(item, query, hasLatinQuery, latinQuery) {
-  let bestScore = Infinity;
-  
-  // Check against searchRef and searchText
-  const refScore = getMatchPositionScore(item.searchRef, query);
-  const textScore = getMatchPositionScore(item.searchText, query);
-  bestScore = Math.min(refScore, textScore);
-  
-  // Check against Latin variants if applicable
-  if (hasLatinQuery) {
-    const latinRefScore = getMatchPositionScore(item.latinRef, latinQuery);
-    const latinTextScore = getMatchPositionScore(item.latinText, latinQuery);
-    bestScore = Math.min(bestScore, latinRefScore, latinTextScore);
-  }
-  
-  return bestScore;
-}
 
 function renderSearchMode(rawQuery, mode, results) {
   const root = document.getElementById("results");
   if (!root) return;
 
-  // Display search method in page info
-  let modeLabel = "Search results";
-  if (mode === "exact") {
-    modeLabel = "Search results (Exact match)";
-  } else if (mode === "compact") {
-    modeLabel = "Search results (Space-insensitive / Transliteration)";
-  } else if (mode === "fuzzy") {
-    modeLabel = "Search results (Fuzzy match)";
-  }
-
-  updatePageInfo(modeLabel);
+  updatePageInfo("Search results");
   disablePagerButtons();
 
   let statusText = "";
@@ -965,8 +874,6 @@ function renderSearchMode(rawQuery, mode, results) {
   if (activeFilters > 0) {
     statusText += ` [${activeFilters} filter${activeFilters === 1 ? "" : "s"} applied]`;
   }
-
-  setStatus(statusText);
 
   root.innerHTML = "";
 
@@ -1226,7 +1133,7 @@ function normalizeForSearch(input) {
     .normalize("NFC")
     .replace(/[०-९]/g, (d) => "०१२३४५६७८९".indexOf(d))
     .replace(/[\u0951\u0952\u1CD0-\u1CFA\uA8E0-\uA8F1]/g, "")
-    .replace(/[।॥.,;:!?'"""''()[\]{}\-—_/\\]/g, " ")
+    .replace(/[।॥.,;:!?'"“”‘’()[\]{}\-—_/\\]/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
@@ -1330,7 +1237,7 @@ function transliterateForSearch(input) {
       continue;
     }
 
-    if (/[।॥.,;:!?'"""''()[\]{}\-—_/\\\s]/.test(ch)) {
+    if (/[।॥.,;:!?'"“”‘’()[\]{}\-—_/\\\s]/.test(ch)) {
       out += " ";
       continue;
     }
@@ -1437,15 +1344,6 @@ function searchEntries(rawQuery) {
   }
 
   if (exact.length > 0) {
-    // Sort by match position priority, then by ref
-    exact.sort((a, b) => {
-      const scoreA = getItemMatchScore(a, q, hasLatinQuery, latinQ);
-      const scoreB = getItemMatchScore(b, q, hasLatinQuery, latinQ);
-      
-      if (scoreA !== scoreB) return scoreA - scoreB;
-      return a.ref.localeCompare(b.ref);
-    });
-    
     return {
       mode: "exact",
       results: exact,
@@ -1468,15 +1366,6 @@ function searchEntries(rawQuery) {
   }
 
   if (compact.length > 0) {
-    // Sort by match position priority, then by ref
-    compact.sort((a, b) => {
-      const scoreA = getItemMatchScore(a, qCompact, hasLatinCompactQuery, latinCompactQ);
-      const scoreB = getItemMatchScore(b, qCompact, hasLatinCompactQuery, latinCompactQ);
-      
-      if (scoreA !== scoreB) return scoreA - scoreB;
-      return a.ref.localeCompare(b.ref);
-    });
-    
     return {
       mode: "compact",
       results: compact,
@@ -1508,46 +1397,22 @@ function searchEntries(rawQuery) {
       baseLen <= 8 ? 2 : 3;
 
     if (score <= allowed) {
-      // Use fuzzy position finder since exact string may not exist
-      const latinRefPosition = findFuzzyMatchPosition(item.compactLatinRef, latinCompactQ);
-      const latinTextPosition = findFuzzyMatchPosition(item.compactLatinText, latinCompactQ);
-      const positionScore = Math.min(latinRefPosition, latinTextPosition);
-      
-      fuzzyCandidates.push({ item, score, positionScore });
+      fuzzyCandidates.push({ item, score });
     }
   }
 
   fuzzyCandidates.sort((a, b) => {
-    // PRIMARY: Position score (where match appears in text)
-    // Beginning > Word boundary > Middle
-    if (a.positionScore !== b.positionScore) {
-      return a.positionScore - b.positionScore;
-    }
-    
-    // SECONDARY: Fuzzy score (how well it matches)
     if (a.score !== b.score) return a.score - b.score;
-    
-    // TERTIARY: Reference number (alphabetically)
     return a.item.ref.localeCompare(b.item.ref);
   });
 
-  // DEBUG: Log only top 10 results after sorting
-  console.log(`🔍 Fuzzy search for "${rawQuery}" - Top 10 results:`);
-  for (let i = 0; i < Math.min(10, fuzzyCandidates.length); i++) {
-    const c = fuzzyCandidates[i];
-    console.log(`[${i + 1}] ${c.item.ref}`, {
-      compactLatinText: c.item.compactLatinText.substring(0, 60),
-      fuzzyScore: c.score.toFixed(2),
-      positionScore: c.positionScore.toFixed(2)
-    });
-  }
+
 
   return {
     mode: "fuzzy",
     results: fuzzyCandidates.slice(0, MAX_RESULTS).map((x) => x.item),
   };
 }
-
 function updateUrlFromCurrentPage() {
   const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
   if (!page) return;
@@ -1566,7 +1431,6 @@ function updateUrlFromCurrentPage() {
     url
   );
 }
-
 function getCurrentShareUrl() {
   const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
   if (!page) return location.href;
@@ -1619,11 +1483,9 @@ function loadPageFromUrl() {
   CURRENT_PAGE_INDEX = pageIndex;
   return true;
 }
-
 window.addEventListener("popstate", () => {
   if (loadPageFromUrl()) {
     renderBrowseMode();
   }
 });
-
 loadData();
