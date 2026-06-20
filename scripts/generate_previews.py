@@ -63,10 +63,9 @@ const isBot =
     ua.includes("whatsapp") ||
     ua.includes("telegrambot") ||
     ua.includes("slackbot");
-
 if (!isBot) {{
     location.replace(
-      "https://deeplearningforsanskrit.github.io/rigveda-samhita/#rik={rik}"
+      "https://deeplearningforsanskrit.github.io/rigveda-samhita/?mandala={mandala}&sukta={sukta}"
     );
 }}
 </script>
