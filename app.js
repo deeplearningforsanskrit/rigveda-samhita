@@ -3,7 +3,13 @@ let SUKTA_PAGES = [];
 let CURRENT_PAGE_INDEX = 0;
 let searchDebounceTimer = null;
 let SHOW_PADA_PATHA = false;
-
+let CURRENT_SCRIPT = "devanagari";
+const DATA_FILES = {
+  devanagari: "rigveda.json",
+  kannada: "rigveda_kannada.json",
+  telugu: "rigveda_telugu.json"
+};
+const DATA_CACHE = {};
 let RIK_INDEX = new Map();       // "06.064.04" -> entry
 let ASHTAKA_INDEX = new Map();   // "5.1.05.04" -> entry
 let PAGE_INDEX = new Map();      // "6-64" -> pageIndex
@@ -71,37 +77,75 @@ function syncHeaderFieldsFromCurrentPage() {
   }
 }
 
-async function loadData() {
+async function loadData(script = CURRENT_SCRIPT) {
   try {
-    setStatus("Loading data...");
+    CURRENT_SCRIPT = script;
 
-    const res = await fetch("rigveda.json");
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    setStatus(`Loading ${getScriptName(script)}...`);
 
-    const data = await res.json();
-
-    ENTRIES = flattenFlatRigvedaData(data);
-    SUKTA_PAGES = buildSuktaPages(ENTRIES);
-    buildIndexes();
-
-    if (SUKTA_PAGES.length === 0) {
-      setStatus("No data found");
+    // Use already downloaded data if available
+    if (DATA_CACHE[script]) {
+      applyLoadedData(DATA_CACHE[script]);
       return;
     }
 
-   populateFilterDropdowns();
-  bindEvents();
-  setupFilterModal();
-  updatePadaToggleButton();
-  updateJumpModeUI();
-  loadPageFromUrl();
-  renderBrowseMode();
+    const filename = DATA_FILES[script];
+
+    if (!filename) {
+      throw new Error(`Unknown script: ${script}`);
+    }
+
+    const res = await fetch(filename);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    // Cache the downloaded dataset
+    DATA_CACHE[script] = data;
+
+    applyLoadedData(data);
 
   } catch (err) {
     setStatus(`Error: ${err.message}`);
     console.error(err);
   }
 }
+
+function applyLoadedData(data) {
+  ENTRIES = flattenFlatRigvedaData(data);
+  SUKTA_PAGES = buildSuktaPages(ENTRIES);
+  buildIndexes();
+
+  if (SUKTA_PAGES.length === 0) {
+    setStatus("No data found");
+    return;
+  }
+
+  populateFilterDropdowns();
+  ADHYAYA_DROPDOWN_CACHE.clear();
+
+  updateScriptFont();
+  updatePadaToggleButton();
+  updateJumpModeUI();
+
+  loadPageFromUrl();
+  renderBrowseMode();
+}
+
+function getScriptName(script) {
+  switch (script) {
+    case "kannada":
+      return "Kannada";
+    case "telugu":
+      return "Telugu";
+    default:
+      return "Devanagari";
+  }
+}
+
 
 function setStatus(message) {
   const status = document.getElementById("status");
@@ -184,8 +228,8 @@ function makeEntryObject({
   is_khanda,
   entryId
 }) {
-  const searchRef = normalizeForSearch(ref);
-  const searchText = normalizeForSearch(text);
+  const searchRef = normalizeForSearch(ref, CURRENT_SCRIPT);
+  const searchText = normalizeForSearch(text, CURRENT_SCRIPT);
   const latinRef = normalizeLatinQuery(ref);
   const latinText = transliterateForSearch(text);
 
@@ -503,8 +547,31 @@ function populateDatalist(datalistId, maxLimit) {
     datalistElement.appendChild(option);
   }
 }
+function updateScriptFont() {
+  document.body.classList.remove(
+    "script-devanagari",
+    "script-kannada",
+    "script-telugu"
+  );
 
+  document.body.classList.add(`script-${CURRENT_SCRIPT}`);
+}
 function bindEvents() {
+  const scriptSelect = document.getElementById("scriptSelect");
+
+if (scriptSelect) {
+  scriptSelect.addEventListener("change", async (e) => {
+    const newScript = e.target.value;
+
+    if (!DATA_FILES[newScript]) return;
+
+    CURRENT_SCRIPT = newScript;
+
+    localStorage.setItem("rigvedaScript", newScript);
+
+    await loadData(newScript);
+  });
+}
 const shareBtn = document.getElementById("shareBtn");
 
 if (shareBtn) {
@@ -1499,4 +1566,5 @@ window.addEventListener("popstate", () => {
     renderBrowseMode();
   }
 });
+bindEvents();
 loadData();
