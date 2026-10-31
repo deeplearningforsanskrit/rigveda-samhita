@@ -1404,6 +1404,12 @@ function transliterateForSearch(input) {
       continue;
     }
 
+    // Latin letters inserted above for anusvara / visarga / candrabindu
+    if (/[a-z]/.test(ch)) {
+      out += ch;
+      continue;
+    }
+
     if (independentVowels[ch]) {
       out += independentVowels[ch];
       continue;
@@ -1502,6 +1508,33 @@ function fuzzyScore(queryCompact, targetCompact) {
   return best;
 }
 
+// Earlier in the mantra ranks higher; a ref match (e.g. "1.1.1") ranks first.
+// Returns Infinity when the item does not match.
+function matchPosition(item, devQ, latinQ, compact) {
+  const refs = compact
+    ? [[item.compactRef, devQ], [item.compactLatinRef, latinQ]]
+    : [[item.searchRef, devQ], [item.latinRef, latinQ]];
+  const texts = compact
+    ? [[item.compactText, devQ], [item.compactLatinText, latinQ]]
+    : [[item.searchText, devQ], [item.latinText, latinQ]];
+
+  for (const [hay, needle] of refs) {
+    if (needle && hay.includes(needle)) return -1;
+  }
+
+  let best = Infinity;
+  for (const [hay, needle] of texts) {
+    if (!needle) continue;
+    const i = hay.indexOf(needle);
+    if (i !== -1 && i < best) best = i;
+  }
+  return best;
+}
+
+function sortByPosition(list) {
+  list.sort((a, b) => a.pos - b.pos);
+}
+
 function searchEntries(rawQuery) {
   const devQuery = toDevanagari(rawQuery);
   const q = normalizeForSearch(devQuery);
@@ -1526,45 +1559,29 @@ function searchEntries(rawQuery) {
 
   const exact = [];
   for (const item of ENTRIES) {
-    if (
-      item.searchRef.includes(q) ||
-      item.searchText.includes(q) ||
-      (hasLatinQuery && (
-        item.latinRef.includes(latinQ) ||
-        item.latinText.includes(latinQ)
-      ))
-    ) {
-      exact.push(item);
-      if (exact.length >= MAX_RESULTS) break;
-    }
+    const pos = matchPosition(item, q, latinQ, false);
+    if (pos !== Infinity) exact.push({ item, pos });
   }
+  sortByPosition(exact);
 
   if (exact.length > 0) {
     return {
       mode: "exact",
-      results: exact,
+      results: exact.slice(0, MAX_RESULTS).map((x) => x.item),
     };
   }
 
   const compact = [];
   for (const item of ENTRIES) {
-    if (
-      item.compactRef.includes(qCompact) ||
-      item.compactText.includes(qCompact) ||
-      (hasLatinCompactQuery && (
-        item.compactLatinRef.includes(latinCompactQ) ||
-        item.compactLatinText.includes(latinCompactQ)
-      ))
-    ) {
-      compact.push(item);
-      if (compact.length >= MAX_RESULTS) break;
-    }
+    const pos = matchPosition(item, qCompact, latinCompactQ, true);
+    if (pos !== Infinity) compact.push({ item, pos });
   }
+  sortByPosition(compact);
 
   if (compact.length > 0) {
     return {
       mode: "compact",
-      results: compact,
+      results: compact.slice(0, MAX_RESULTS).map((x) => x.item),
     };
   }
 
