@@ -10,7 +10,19 @@ const ASSETS_TO_CACHE = [
   './style.css',
   './rigveda.json',
   './app.js',
-  './version.json'
+  './version.json',
+  './fonts/TiroDevanagariSanskrit-devanagari.woff2',
+  './fonts/TiroDevanagariSanskrit-latin-ext.woff2',
+  './fonts/TiroDevanagariSanskrit-latin.woff2',
+  './fonts/TiroKannada-kannada.woff2',
+  './fonts/TiroKannada-latin-ext.woff2',
+  './fonts/TiroKannada-latin.woff2',
+  './fonts/TiroTelugu-latin-ext.woff2',
+  './fonts/TiroTelugu-latin.woff2',
+  './fonts/TiroTelugu-telugu.woff2',
+  './fonts/fonts.css',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 // ─── INSTALL ────────────────────────────────────────────────────────────────

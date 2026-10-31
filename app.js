@@ -1,6 +1,8 @@
 let ENTRIES = [];
 let SUKTA_PAGES = [];
 let CURRENT_PAGE_INDEX = 0;
+let LOADED_LAST_PAGE_INDEX = 0;     // last sukta appended to #results while scrolling
+let INFINITE_SCROLL_ACTIVE = false; // true only while browsing (not showing search results)
 let searchDebounceTimer = null;
 let SHOW_PADA_PATHA = false;
 let CURRENT_SCRIPT = "devanagari";
@@ -228,10 +230,12 @@ function makeEntryObject({
   is_khanda,
   entryId
 }) {
-  const searchRef = normalizeForSearch(ref, CURRENT_SCRIPT);
-  const searchText = normalizeForSearch(text, CURRENT_SCRIPT);
+  // Search index is always built from the Devanagari form, so every
+  // display script (and every query script) shares one index.
+  const searchRef = normalizeForSearch(ref);
+  const searchText = normalizeForSearch(toDevanagari(text));
   const latinRef = normalizeLatinQuery(ref);
-  const latinText = transliterateForSearch(text);
+  const latinText = transliterateForSearch(toDevanagari(text));
 
   return {
     ref,
@@ -838,6 +842,143 @@ function goToPage(index) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function buildMantraCard(item) {
+  const card = document.createElement("div");
+  const vdKey = `${item.mandala}.${item.sukta}.${item.mantra}`;
+  const isVD = VASISHTHA_DVESHINI.has(vdKey);
+  card.className =
+  "mantra" +
+  (item.is_khanda ? " khanda" : "") +
+  (isVD ? " vasishtha-dveshini" : "");
+  
+  card.setAttribute("data-ref", item.ref);
+
+  card.innerHTML = `
+    <div class="ref">${escapeHtml(item.ref)}${isVD ? ' <span class="vd-badge">वसिष्ठ-द्वेषिणी</span>' : ""}
+      ${item.is_khanda ? ' <span class="khanda-badge">| खण्ड</span>' : ""}
+
+    </div>
+    <div class="meta-ref">
+      ${item.ashtakaRef ? `Ashtaka: ${escapeHtml(item.ashtakaRef)}` : ""}
+    </div>
+    <div class="samhita-text">${escapeHtml(item.text)}</div>
+    ${
+      SHOW_PADA_PATHA && item.padaPatha
+        ? `<div class="pada-patha">${escapeHtml(item.padaPatha)}</div>`
+        : ""
+    }
+  `;
+
+  const refEl = card.querySelector(".ref");
+  if (refEl) {
+    refEl.style.cursor = "pointer";
+    refEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      copyToClipboard(item.ref, refEl);
+    });
+  }
+
+  const textEl = card.querySelector(".samhita-text");
+  if (textEl) {
+    textEl.style.cursor = "pointer";
+    textEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      copyToClipboard(item.text, textEl);
+    });
+  }
+
+  const padaEl = card.querySelector(".pada-patha");
+  if (padaEl) {
+    padaEl.style.cursor = "pointer";
+    padaEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      copyToClipboard(item.padaPatha, padaEl);
+    });
+  }
+
+  return card;
+}
+
+function appendSuktaSection(pageIndex, withDivider) {
+  const page = SUKTA_PAGES[pageIndex];
+  const root = document.getElementById("results");
+  if (!page || !root) return;
+
+  const section = document.createElement("section");
+  section.className = "sukta-section";
+  section.setAttribute("data-page-index", pageIndex);
+
+  if (withDivider) {
+    const divider = document.createElement("div");
+    divider.className = "sukta-divider";
+    divider.textContent = `Mandala ${page.mandala} · Sukta ${String(page.sukta).padStart(3, "0")}`;
+    section.appendChild(divider);
+  }
+
+  for (const item of page.items) {
+    section.appendChild(buildMantraCard(item));
+  }
+
+  root.appendChild(section);
+  LOADED_LAST_PAGE_INDEX = pageIndex;
+}
+
+// Infinite scroll: append the next sukta as the reader nears the end of
+// what is loaded, and keep the page counter / URL in step with whichever
+// sukta is under the top of the viewport.
+const SCROLL_PRELOAD_PX = 800;
+
+function fillIfNeeded() {
+  if (!INFINITE_SCROLL_ACTIVE) return;
+  const sentinel = document.getElementById("scrollSentinel");
+  if (!sentinel) return;
+
+  while (
+    LOADED_LAST_PAGE_INDEX < SUKTA_PAGES.length - 1 &&
+    sentinel.getBoundingClientRect().top < window.innerHeight + SCROLL_PRELOAD_PX
+  ) {
+    appendSuktaSection(LOADED_LAST_PAGE_INDEX + 1, true);
+  }
+}
+
+function syncCurrentPageFromScroll() {
+  if (!INFINITE_SCROLL_ACTIVE) return;
+
+  const sections = document.querySelectorAll("#results > .sukta-section");
+  if (sections.length < 2) return;
+
+  const probe = (topbar ? topbar.getBoundingClientRect().bottom : 0) + 40;
+  let active = sections[0];
+  for (const sec of sections) {
+    if (sec.getBoundingClientRect().top <= probe) active = sec;
+    else break;
+  }
+
+  const index = Number(active.getAttribute("data-page-index"));
+  if (index === CURRENT_PAGE_INDEX) return;
+
+  CURRENT_PAGE_INDEX = index;
+  const page = SUKTA_PAGES[index];
+  updateUrlFromCurrentPage();
+  syncHeaderFieldsFromCurrentPage();
+  updatePageInfo();
+  updatePagerButtons();
+  setStatus(
+    `\n${page.items.length} mantras · Mandala ${page.mandala} · Sukta ${String(page.sukta).padStart(3, "0")}`
+  );
+}
+
+let scrollTicking = false;
+window.addEventListener("scroll", () => {
+  if (scrollTicking || !INFINITE_SCROLL_ACTIVE) return;
+  scrollTicking = true;
+  requestAnimationFrame(() => {
+    scrollTicking = false;
+    fillIfNeeded();
+    syncCurrentPageFromScroll();
+  });
+}, { passive: true });
+
 function renderBrowseMode(targetRef = null) {
   const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
   const root = document.getElementById("results");
@@ -857,63 +998,10 @@ function renderBrowseMode(targetRef = null) {
   );
 
   root.innerHTML = "";
-
-  for (const item of page.items) {
-    const card = document.createElement("div");
-    const vdKey = `${item.mandala}.${item.sukta}.${item.mantra}`;
-    const isVD = VASISHTHA_DVESHINI.has(vdKey);
-    card.className =
-    "mantra" +
-    (item.is_khanda ? " khanda" : "") +
-    (isVD ? " vasishtha-dveshini" : "");
-    
-    card.setAttribute("data-ref", item.ref);
-
-    card.innerHTML = `
-      <div class="ref">${escapeHtml(item.ref)}${isVD ? ' <span class="vd-badge">वसिष्ठ-द्वेषिणी</span>' : ""}
-        ${item.is_khanda ? ' <span class="khanda-badge">| खण्ड</span>' : ""}
-
-      </div>
-      <div class="meta-ref">
-        ${item.ashtakaRef ? `Ashtaka: ${escapeHtml(item.ashtakaRef)}` : ""}
-      </div>
-      <div class="samhita-text">${escapeHtml(item.text)}</div>
-      ${
-        SHOW_PADA_PATHA && item.padaPatha
-          ? `<div class="pada-patha">${escapeHtml(item.padaPatha)}</div>`
-          : ""
-      }
-    `;
-
-    const refEl = card.querySelector(".ref");
-    if (refEl) {
-      refEl.style.cursor = "pointer";
-      refEl.addEventListener("click", (e) => {
-        e.stopPropagation();
-        copyToClipboard(item.ref, refEl);
-      });
-    }
-
-    const textEl = card.querySelector(".samhita-text");
-    if (textEl) {
-      textEl.style.cursor = "pointer";
-      textEl.addEventListener("click", (e) => {
-        e.stopPropagation();
-        copyToClipboard(item.text, textEl);
-      });
-    }
-
-    const padaEl = card.querySelector(".pada-patha");
-    if (padaEl) {
-      padaEl.style.cursor = "pointer";
-      padaEl.addEventListener("click", (e) => {
-        e.stopPropagation();
-        copyToClipboard(item.padaPatha, padaEl);
-      });
-    }
-
-    root.appendChild(card);
-  }
+  INFINITE_SCROLL_ACTIVE = true;
+  LOADED_LAST_PAGE_INDEX = CURRENT_PAGE_INDEX;
+  appendSuktaSection(CURRENT_PAGE_INDEX, false);
+  fillIfNeeded();
 
   if (targetRef) {
     centerAndHighlight(targetRef);
@@ -924,6 +1012,8 @@ function renderBrowseMode(targetRef = null) {
 function renderSearchMode(rawQuery, mode, results) {
   const root = document.getElementById("results");
   if (!root) return;
+
+  INFINITE_SCROLL_ACTIVE = false;
 
   // Display search method in page info
   let modeLabel = "Search results";
@@ -1161,7 +1251,10 @@ function getAllVisibleText() {
   const resultsDiv = document.getElementById("results");
   if (!resultsDiv) return "";
 
-  const mantras = resultsDiv.querySelectorAll(".mantra");
+  const scope =
+    resultsDiv.querySelector(`.sukta-section[data-page-index="${CURRENT_PAGE_INDEX}"]`) ||
+    resultsDiv;
+  const mantras = scope.querySelectorAll(".mantra");
   const lines = [];
 
   for (const mantra of mantras) {
@@ -1202,6 +1295,26 @@ async function copyAllVisible() {
   } catch (err) {
     console.error("Failed to copy all:", err);
   }
+}
+
+// Telugu (U+0C00) and Kannada (U+0C80) blocks are laid out in parallel with
+// Devanagari (U+0900), so conversion is a fixed codepoint shift. To support
+// another Indic script, add its block start here.
+const INDIC_BLOCKS = [
+  { start: 0x0c00, end: 0x0c7f, shift: 0x0c00 - 0x0900 }, // Telugu
+  { start: 0x0c80, end: 0x0cff, shift: 0x0c80 - 0x0900 }, // Kannada
+];
+
+function toDevanagari(input) {
+  return String(input ?? "").replace(/[\u0c00-\u0cff]/g, (ch) => {
+    const cp = ch.codePointAt(0);
+    const block = INDIC_BLOCKS.find((b) => cp >= b.start && cp <= b.end);
+    return block ? String.fromCodePoint(cp - block.shift) : ch;
+  }).replace(/\u0900/g, "\u0901"); // Telugu candrabindu maps one slot low
+}
+
+function hasIndicScript(input) {
+  return /[\u0900-\u097f\u0c00-\u0cff]/.test(String(input ?? ""));
 }
 
 function normalizeForSearch(input) {
@@ -1390,10 +1503,15 @@ function fuzzyScore(queryCompact, targetCompact) {
 }
 
 function searchEntries(rawQuery) {
-  const q = normalizeForSearch(rawQuery);
+  const devQuery = toDevanagari(rawQuery);
+  const q = normalizeForSearch(devQuery);
   const qCompact = compactForSearch(q);
 
-  const latinQ = normalizeLatinQuery(rawQuery);
+  // Indic-script queries are also transliterated to Latin so they get
+  // the same space-insensitive and fuzzy matching as Latin queries.
+  const latinQ = hasIndicScript(rawQuery)
+    ? transliterateForSearch(devQuery)
+    : normalizeLatinQuery(rawQuery);
   const latinCompactQ = compactForSearch(latinQ);
 
   const hasLatinQuery = latinQ.length > 0;
