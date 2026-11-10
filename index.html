@@ -153,33 +153,46 @@
     <button id="pwaInstallClose" class="pwa-install-close" type="button" aria-label="Dismiss install suggestion">&times;</button>
     <div class="pwa-install-icon" aria-hidden="true">ऋ</div>
     <div class="pwa-install-copy">
-      <strong id="pwaInstallTitle">Take Rigveda Samhita with you</strong>
-      <p id="pwaInstallDescription">Install the app for a convenient, app-like reading experience.</p>
-      <p id="pwaInstallHelp" class="pwa-install-help" hidden></p>
+      <strong id="pwaInstallTitle">Read Rigveda Samhita anywhere</strong>
+      <p id="pwaInstallDescription">Add the reader to your device for quick access and offline reading.</p>
+      <div id="pwaInstallGuide" class="pwa-install-guide" hidden>
+        <p id="pwaInstallGuideIntro"></p>
+        <ol id="pwaInstallSteps"></ol>
+      </div>
       <div class="pwa-install-actions">
-        <button id="pwaInstallButton" class="pwa-install-button" type="button">Install app</button>
-        <button id="pwaInstallLater" class="pwa-install-later" type="button">Maybe later</button>
+        <button id="pwaInstallButton" class="pwa-install-button" type="button">How to install</button>
+        <button id="pwaInstallLater" class="pwa-install-later" type="button">Not now</button>
       </div>
     </div>
   </aside>
 
   <script>
-  // PWA install suggestion: use the native prompt where supported and
-  // provide browser-specific instructions on platforms that require manual install.
+  // Offer the browser's native PWA install dialog when available. Otherwise,
+  // show concise, platform-specific steps without pretending browser menus
+  // can be controlled by a webpage.
   (() => {
     const promptEl = document.getElementById('pwaInstallPrompt');
     const installButton = document.getElementById('pwaInstallButton');
-    const helpEl = document.getElementById('pwaInstallHelp');
+    const guideEl = document.getElementById('pwaInstallGuide');
+    const guideIntro = document.getElementById('pwaInstallGuideIntro');
+    const stepsEl = document.getElementById('pwaInstallSteps');
     const descriptionEl = document.getElementById('pwaInstallDescription');
     const closeButton = document.getElementById('pwaInstallClose');
     const laterButton = document.getElementById('pwaInstallLater');
-    if (!promptEl || !installButton) return;
+    if (!promptEl || !installButton || !guideEl || !stepsEl) return;
 
     const DISMISS_KEY = 'rigveda-pwa-install-dismissed-until';
     const DISMISS_DAYS = 30;
-    let deferredInstallPrompt = null;
-    let isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+    const ua = navigator.userAgent;
+    const isIOS = /iphone|ipad|ipod/i.test(ua)
       || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isSafari = isIOS && /safari/i.test(ua) && !/crios|fxios|edgios|opios/i.test(ua);
+    const isAndroid = /android/i.test(ua);
+    const isSamsung = /samsungbrowser/i.test(ua);
+    const isChrome = /chrome|crios/i.test(ua) && !/edg|opr|samsungbrowser/i.test(ua);
+    const isEdge = /edg/i.test(ua);
+    const isFirefox = /firefox|fxios/i.test(ua);
+    let deferredInstallPrompt = null;
     let isStandalone = window.matchMedia('(display-mode: standalone)').matches
       || window.navigator.standalone === true;
 
@@ -190,17 +203,44 @@
     const dismiss = () => {
       promptEl.hidden = true;
       try { localStorage.setItem(DISMISS_KEY, String(Date.now() + DISMISS_DAYS * 86400000)); }
-      catch (_) { /* Storage may be unavailable; the prompt still closes. */ }
+      catch (_) { /* Storage may be unavailable. */ }
     };
     const showPrompt = () => {
       if (!isStandalone && !wasDismissed()) promptEl.hidden = false;
+    };
+    const showGuide = () => {
+      guideEl.hidden = false;
+      installButton.textContent = 'Got it';
+      laterButton.textContent = 'Close';
+      if (isIOS && isSafari) {
+        guideIntro.textContent = 'In Safari, add this reader to your Home Screen:';
+        stepsEl.innerHTML = '<li>Tap the <strong>Share</strong> button <span class="pwa-share-symbol" aria-label="Share">↑</span> at the bottom of Safari (or top on iPad).</li><li>Scroll the share sheet and tap <strong>Add to Home Screen</strong>.</li><li>Tap <strong>Add</strong> to finish.</li>';
+      } else if (isIOS) {
+        guideIntro.textContent = 'To install on iPhone or iPad, open this page in Safari:';
+        stepsEl.innerHTML = '<li>Copy this page address and open it in <strong>Safari</strong>.</li><li>Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</li><li>Tap <strong>Add</strong>.</li>';
+      } else if (isAndroid && isSamsung) {
+        guideIntro.textContent = 'In Samsung Internet:';
+        stepsEl.innerHTML = '<li>Open the browser menu (☰).</li><li>Choose <strong>Add page to</strong>, then <strong>Home screen</strong> (wording may vary).</li>';
+      } else if (isAndroid && isChrome) {
+        guideIntro.textContent = 'In Chrome for Android:';
+        stepsEl.innerHTML = '<li>Tap the three-dot menu (⋮) in the top-right corner.</li><li>Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li><li>Confirm by tapping <strong>Install</strong> or <strong>Add</strong>.</li>';
+      } else if (!isAndroid && (isChrome || isEdge)) {
+        guideIntro.textContent = 'In your desktop browser:';
+        stepsEl.innerHTML = '<li>Look for the install icon in the address bar and select it, or open the browser menu (⋮).</li><li>Choose <strong>Install Rigveda Samhita</strong> or <strong>Apps → Install this site as an app</strong>.</li><li>Confirm the installation.</li>';
+      } else if (isAndroid && isFirefox) {
+        guideIntro.textContent = 'Installation options depend on your Firefox version:';
+        stepsEl.innerHTML = '<li>Open the browser menu (⋮).</li><li>If available, choose <strong>Install</strong> or <strong>Add to Home screen</strong>.</li><li>If no install option appears, open this page in Chrome for the native install experience.</li>';
+      } else {
+        guideIntro.textContent = 'Use a browser that supports installing web apps:';
+        stepsEl.innerHTML = '<li>On Android, open this page in <strong>Chrome</strong>.</li><li>On desktop, use <strong>Chrome</strong> or <strong>Edge</strong>.</li><li>Use the browser menu or address-bar install icon to install the app.</li>';
+      }
     };
 
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       deferredInstallPrompt = event;
       installButton.textContent = 'Install app';
-      helpEl.hidden = true;
+      guideEl.hidden = true;
       showPrompt();
     });
 
@@ -212,31 +252,32 @@
 
     installButton.addEventListener('click', async () => {
       if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        const choice = await deferredInstallPrompt.userChoice;
+        const installEvent = deferredInstallPrompt;
         deferredInstallPrompt = null;
-        if (choice && choice.outcome === 'accepted') promptEl.hidden = true;
-        else dismiss();
+        installEvent.prompt();
+        const choice = await installEvent.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          promptEl.hidden = true;
+          return;
+        }
+        // A dismissed native dialog cannot be opened a second time; offer
+        // the appropriate browser instructions instead.
+        descriptionEl.textContent = 'You can install it whenever you are ready:';
+        showGuide();
         return;
       }
-
-      helpEl.hidden = false;
-      if (isIOS) {
-        helpEl.textContent = 'In Safari, tap Share, then choose “Add to Home Screen”.';
+      if (guideEl.hidden) {
+        descriptionEl.textContent = 'Follow these steps in your browser:';
+        showGuide();
       } else {
-        helpEl.textContent = 'Open your browser menu (⋮ or ⋯) and choose “Install app” or “Add to Home screen”.';
+        promptEl.hidden = true;
       }
-      descriptionEl.textContent = 'Follow these steps to add Rigveda Samhita to your device.';
-      installButton.textContent = 'Got it';
-      installButton.addEventListener('click', dismiss, { once: true });
     });
 
     closeButton.addEventListener('click', dismiss);
     laterButton.addEventListener('click', dismiss);
 
-    if (!isStandalone && !wasDismissed()) {
-      window.setTimeout(showPrompt, 5000);
-    }
+    if (!isStandalone && !wasDismissed()) window.setTimeout(showPrompt, 5000);
   })();
 
   if ('serviceWorker' in navigator) {
