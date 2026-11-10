@@ -843,3 +843,39 @@ body, html {
 @media (max-width: 480px) {
   .pwa-install-prompt { right: 12px; bottom: 12px; width: calc(100vw - 24px); }
 }
+
+
+/* Platform-specific installation guide inside the PWA prompt */
+.pwa-install-guide {
+  margin-top: 10px;
+  padding: 10px 11px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.07);
+}
+.pwa-install-guide[hidden] { display: none; }
+.pwa-install-guide p {
+  margin: 0 0 6px;
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: 600;
+}
+.pwa-install-guide ol {
+  margin: 0;
+  padding-left: 19px;
+  color: #cbd5e1;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.pwa-install-guide li + li { margin-top: 4px; }
+.pwa-install-guide strong { color: #fff; }
+.pwa-share-symbol {
+  display: inline-grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  margin: 0 2px;
+  border: 1px solid #94a3b8;
+  border-radius: 5px;
+  color: #f8fafc;
+  font-weight: 700;
+}
