@@ -149,7 +149,96 @@
     </div>
   </footer>
 
+  <aside id="pwaInstallPrompt" class="pwa-install-prompt" aria-labelledby="pwaInstallTitle" aria-describedby="pwaInstallDescription" hidden>
+    <button id="pwaInstallClose" class="pwa-install-close" type="button" aria-label="Dismiss install suggestion">&times;</button>
+    <div class="pwa-install-icon" aria-hidden="true">ऋ</div>
+    <div class="pwa-install-copy">
+      <strong id="pwaInstallTitle">Take Rigveda Samhita with you</strong>
+      <p id="pwaInstallDescription">Install the app for a convenient, app-like reading experience.</p>
+      <p id="pwaInstallHelp" class="pwa-install-help" hidden></p>
+      <div class="pwa-install-actions">
+        <button id="pwaInstallButton" class="pwa-install-button" type="button">Install app</button>
+        <button id="pwaInstallLater" class="pwa-install-later" type="button">Maybe later</button>
+      </div>
+    </div>
+  </aside>
+
   <script>
+  // PWA install suggestion: use the native prompt where supported and
+  // provide browser-specific instructions on platforms that require manual install.
+  (() => {
+    const promptEl = document.getElementById('pwaInstallPrompt');
+    const installButton = document.getElementById('pwaInstallButton');
+    const helpEl = document.getElementById('pwaInstallHelp');
+    const descriptionEl = document.getElementById('pwaInstallDescription');
+    const closeButton = document.getElementById('pwaInstallClose');
+    const laterButton = document.getElementById('pwaInstallLater');
+    if (!promptEl || !installButton) return;
+
+    const DISMISS_KEY = 'rigveda-pwa-install-dismissed-until';
+    const DISMISS_DAYS = 30;
+    let deferredInstallPrompt = null;
+    let isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    let isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+
+    const wasDismissed = () => {
+      try { return Number(localStorage.getItem(DISMISS_KEY) || 0) > Date.now(); }
+      catch (_) { return false; }
+    };
+    const dismiss = () => {
+      promptEl.hidden = true;
+      try { localStorage.setItem(DISMISS_KEY, String(Date.now() + DISMISS_DAYS * 86400000)); }
+      catch (_) { /* Storage may be unavailable; the prompt still closes. */ }
+    };
+    const showPrompt = () => {
+      if (!isStandalone && !wasDismissed()) promptEl.hidden = false;
+    };
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      installButton.textContent = 'Install app';
+      helpEl.hidden = true;
+      showPrompt();
+    });
+
+    window.addEventListener('appinstalled', () => {
+      isStandalone = true;
+      promptEl.hidden = true;
+      deferredInstallPrompt = null;
+    });
+
+    installButton.addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        if (choice && choice.outcome === 'accepted') promptEl.hidden = true;
+        else dismiss();
+        return;
+      }
+
+      helpEl.hidden = false;
+      if (isIOS) {
+        helpEl.textContent = 'In Safari, tap Share, then choose “Add to Home Screen”.';
+      } else {
+        helpEl.textContent = 'Open your browser menu (⋮ or ⋯) and choose “Install app” or “Add to Home screen”.';
+      }
+      descriptionEl.textContent = 'Follow these steps to add Rigveda Samhita to your device.';
+      installButton.textContent = 'Got it';
+      installButton.addEventListener('click', dismiss, { once: true });
+    });
+
+    closeButton.addEventListener('click', dismiss);
+    laterButton.addEventListener('click', dismiss);
+
+    if (!isStandalone && !wasDismissed()) {
+      window.setTimeout(showPrompt, 5000);
+    }
+  })();
+
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
       try {
