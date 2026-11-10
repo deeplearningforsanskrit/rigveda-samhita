@@ -599,7 +599,7 @@ if (shareBtn) {
 
       searchDebounceTimer = setTimeout(() => {
         onSearchInput(e);
-      }, 2000);
+      }, 300);
     });
   }
 
@@ -1452,60 +1452,102 @@ function compactForSearch(text) {
   return text.replace(/\s+/g, "");
 }
 
-function levenshtein(a, b) {
-  if (a === b) return 0;
-  if (!a.length) return b.length;
-  if (!b.length) return a.length;
+function levenshteinWithinLimit(a, b, maxDistance) {
+  if (Math.abs(a.length - b.length) > maxDistance) return Infinity;
 
-  const prev = new Array(b.length + 1);
-  const curr = new Array(b.length + 1);
+  let prev = new Array(b.length + 1).fill(Infinity);
+  let curr = new Array(b.length + 1).fill(Infinity);
 
-  for (let j = 0; j <= b.length; j++) {
+  for (let j = 0; j <= Math.min(b.length, maxDistance); j++) {
     prev[j] = j;
   }
 
   for (let i = 1; i <= a.length; i++) {
-    curr[0] = i;
+    curr.fill(Infinity);
+    if (i <= maxDistance) curr[0] = i;
 
-    for (let j = 1; j <= b.length; j++) {
+    const start = Math.max(1, i - maxDistance);
+    const end = Math.min(b.length, i + maxDistance);
+    let rowMin = Infinity;
+
+    for (let j = start; j <= end; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
       curr[j] = Math.min(
         prev[j] + 1,
         curr[j - 1] + 1,
         prev[j - 1] + cost
       );
+      rowMin = Math.min(rowMin, curr[j]);
     }
 
-    for (let j = 0; j <= b.length; j++) {
-      prev[j] = curr[j];
-    }
+    if (rowMin > maxDistance) return Infinity;
+    [prev, curr] = [curr, prev];
   }
 
-  return prev[b.length];
+  return prev[b.length] <= maxDistance ? prev[b.length] : Infinity;
 }
 
-function fuzzyScore(queryCompact, targetCompact) {
+function fuzzyScore(queryCompact, targetCompact, maxDistance) {
   if (!queryCompact || !targetCompact) return Infinity;
   if (targetCompact.includes(queryCompact)) return 0;
 
   const qLen = queryCompact.length;
-  if (qLen === 0) return Infinity;
-
   let best = Infinity;
-
-  const minWindow = Math.max(1, qLen - 2);
-  const maxWindow = Math.min(targetCompact.length, qLen + 2);
+  const minWindow = Math.max(1, qLen - 2, qLen - maxDistance);
+  const maxWindow = Math.min(targetCompact.length, qLen + 2, qLen + maxDistance);
 
   for (let win = minWindow; win <= maxWindow; win++) {
     for (let i = 0; i + win <= targetCompact.length; i++) {
       const slice = targetCompact.slice(i, i + win);
-      const dist = levenshtein(queryCompact, slice);
+      const dist = levenshteinWithinLimit(queryCompact, slice, maxDistance);
       if (dist < best) best = dist;
       if (best === 0) return 0;
     }
   }
 
   return best;
+}
+
+function fuzzySubstringScore(queryCompact, targetCompact, maxDistance) {
+  if (!queryCompact || !targetCompact) return Infinity;
+
+  // Match against any substring in one pass instead of recomputing each window.
+  const limit = maxDistance + 1;
+  let previous = new Uint8Array(targetCompact.length + 1);
+  let current = new Uint8Array(targetCompact.length + 1);
+  let best = limit;
+
+  for (let i = 1; i <= queryCompact.length; i++) {
+    current[0] = Math.min(i, limit);
+    let rowBest = limit;
+
+    for (let j = 1; j <= targetCompact.length; j++) {
+      const cost = queryCompact[i - 1] === targetCompact[j - 1] ? 0 : 1;
+      const score = Math.min(
+        previous[j] + 1,
+        current[j - 1] + 1,
+        previous[j - 1] + cost,
+        limit
+      );
+      current[j] = score;
+      rowBest = Math.min(rowBest, score);
+
+      if (i === queryCompact.length && score < best) {
+        best = score;
+        if (best === 0) return 0;
+      }
+    }
+
+    if (rowBest > maxDistance) return Infinity;
+    [previous, current] = [current, previous];
+  }
+
+  if (best > maxDistance) return Infinity;
+
+  // The legacy matcher only considers windows within two characters of the query.
+  return maxDistance === 3 && best === 3
+    ? fuzzyScore(queryCompact, targetCompact, maxDistance)
+    : best;
 }
 
 // Earlier in the mantra ranks higher; a ref match (e.g. "1.1.1") ranks first.
@@ -1594,20 +1636,20 @@ function searchEntries(rawQuery) {
   }
 
   const fuzzyCandidates = [];
+  const allowed =
+    baseLen <= 4 ? 1 :
+    baseLen <= 8 ? 2 : 3;
+
   for (const item of ENTRIES) {
     const latinRefScore = hasLatinCompactQuery
-      ? fuzzyScore(latinCompactQ, item.compactLatinRef)
+      ? fuzzySubstringScore(latinCompactQ, item.compactLatinRef, allowed)
       : Infinity;
 
     const latinTextScore = hasLatinCompactQuery
-      ? fuzzyScore(latinCompactQ, item.compactLatinText)
+      ? fuzzySubstringScore(latinCompactQ, item.compactLatinText, allowed)
       : Infinity;
 
     const score = Math.min(latinRefScore, latinTextScore);
-
-    const allowed =
-      baseLen <= 4 ? 1 :
-      baseLen <= 8 ? 2 : 3;
 
     if (score <= allowed) {
       fuzzyCandidates.push({ item, score });
