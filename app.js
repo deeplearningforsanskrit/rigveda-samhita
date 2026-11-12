@@ -1770,7 +1770,8 @@ function stopAutoScroll() {
 }
 
 function scrollToMantra(card) {
-  const headerHeight = topbar ? topbar.getBoundingClientRect().height : 0;
+  const stickyHeader = document.querySelector(".sticky-topbar-head");
+  const headerHeight = stickyHeader ? stickyHeader.getBoundingClientRect().height : 0;
   const targetTop = window.scrollY + card.getBoundingClientRect().top - headerHeight - 12;
   window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
 }
@@ -1794,7 +1795,8 @@ function advanceAutoScroll() {
   } else {
     // On the first tick, bring the first mantra not yet passed by the sticky
     // header into position.
-    const headerBottom = topbar ? Math.max(0, topbar.getBoundingClientRect().bottom) : 0;
+    const stickyHeader = document.querySelector(".sticky-topbar-head");
+    const headerBottom = stickyHeader ? Math.max(0, stickyHeader.getBoundingClientRect().bottom) : 0;
     const firstVisibleIndex = cards.findIndex(
       card => card.getBoundingClientRect().bottom > headerBottom + 8
     );
