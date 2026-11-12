@@ -1743,5 +1743,90 @@ window.addEventListener("popstate", () => {
     renderBrowseMode();
   }
 });
+
+let autoScrollTimer = null;
+
+function stopAutoScroll() {
+  if (autoScrollTimer !== null) {
+    window.clearInterval(autoScrollTimer);
+    autoScrollTimer = null;
+  }
+  const button = document.getElementById("autoScrollToggle");
+  if (button) {
+    button.textContent = "▶ Auto-scroll";
+    button.setAttribute("aria-pressed", "false");
+  }
+}
+
+function scrollToMantra(card) {
+  const headerHeight = topbar ? topbar.getBoundingClientRect().height : 0;
+  const targetTop = window.scrollY + card.getBoundingClientRect().top - headerHeight - 12;
+  window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+}
+
+function advanceAutoScroll() {
+  if (!INFINITE_SCROLL_ACTIVE) {
+    stopAutoScroll();
+    return;
+  }
+
+  let cards = Array.from(document.querySelectorAll("#results .sukta-section .mantra"));
+  if (!cards.length) return;
+
+  const headerBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
+  const probe = headerBottom + 12;
+  let currentIndex = -1;
+  for (let i = 0; i < cards.length; i++) {
+    if (cards[i].getBoundingClientRect().top <= probe) currentIndex = i;
+    else break;
+  }
+
+  let nextCard = cards[currentIndex + 1] || (currentIndex < 0 ? cards[0] : null);
+  if (!nextCard) {
+    fillIfNeeded();
+    cards = Array.from(document.querySelectorAll("#results .sukta-section .mantra"));
+    nextCard = cards[currentIndex + 1] || null;
+  }
+  if (!nextCard) {
+    stopAutoScroll();
+    return;
+  }
+  scrollToMantra(nextCard);
+}
+
+function startAutoScroll() {
+  if (!INFINITE_SCROLL_ACTIVE) return;
+  stopAutoScroll();
+  const interval = Number(document.getElementById("autoScrollInterval")?.value || 1200);
+  const button = document.getElementById("autoScrollToggle");
+  if (button) {
+    button.textContent = "Ⅱ Pause";
+    button.setAttribute("aria-pressed", "true");
+  }
+  autoScrollTimer = window.setInterval(advanceAutoScroll, interval);
+}
+
+function setupAutoScroll() {
+  const button = document.getElementById("autoScrollToggle");
+  const intervalSelect = document.getElementById("autoScrollInterval");
+  if (!button || !intervalSelect) return;
+
+  button.addEventListener("click", () => {
+    if (autoScrollTimer !== null) stopAutoScroll();
+    else startAutoScroll();
+  });
+  intervalSelect.addEventListener("change", () => {
+    if (autoScrollTimer !== null) startAutoScroll();
+  });
+  window.addEventListener("wheel", stopAutoScroll, { passive: true });
+  window.addEventListener("touchstart", stopAutoScroll, { passive: true });
+  window.addEventListener("keydown", (event) => {
+    if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) {
+      stopAutoScroll();
+    }
+  });
+}
+
 bindEvents();
+setupAutoScroll();
 loadData();
