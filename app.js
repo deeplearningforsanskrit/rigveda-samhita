@@ -1747,17 +1747,25 @@ window.addEventListener("popstate", () => {
 let autoScrollTimer = null;
 let autoScrollCurrentCard = null;
 
+function syncAutoScrollButtons(isRunning) {
+  const buttons = [
+    document.getElementById("autoScrollToggle"),
+    document.getElementById("floatingAutoScrollToggle")
+  ];
+  buttons.forEach(button => {
+    if (!button) return;
+    button.textContent = isRunning ? "Ⅱ Pause" : "▶ Auto-scroll";
+    button.setAttribute("aria-pressed", String(isRunning));
+  });
+}
+
 function stopAutoScroll() {
   if (autoScrollTimer !== null) {
     window.clearInterval(autoScrollTimer);
     autoScrollTimer = null;
   }
   autoScrollCurrentCard = null;
-  const button = document.getElementById("autoScrollToggle");
-  if (button) {
-    button.textContent = "▶ Auto-scroll";
-    button.setAttribute("aria-pressed", "false");
-  }
+  syncAutoScrollButtons(false);
 }
 
 function scrollToMantra(card) {
@@ -1814,28 +1822,34 @@ function startAutoScroll() {
   if (!INFINITE_SCROLL_ACTIVE) return;
   stopAutoScroll();
   const interval = Number(document.getElementById("autoScrollInterval")?.value || 1200);
-  const button = document.getElementById("autoScrollToggle");
-  if (button) {
-    button.textContent = "Ⅱ Pause";
-    button.setAttribute("aria-pressed", "true");
-  }
+  syncAutoScrollButtons(true);
   autoScrollTimer = window.setInterval(advanceAutoScroll, interval);
 }
 
 function setupAutoScroll() {
-  const button = document.getElementById("autoScrollToggle");
+  const buttons = [
+    document.getElementById("autoScrollToggle"),
+    document.getElementById("floatingAutoScrollToggle")
+  ].filter(Boolean);
   const intervalSelect = document.getElementById("autoScrollInterval");
-  if (!button || !intervalSelect) return;
+  if (!buttons.length || !intervalSelect) return;
 
-  button.addEventListener("click", () => {
-    if (autoScrollTimer !== null) stopAutoScroll();
-    else startAutoScroll();
+  buttons.forEach(button => {
+    button.addEventListener("click", () => {
+      if (autoScrollTimer !== null) stopAutoScroll();
+      else startAutoScroll();
+    });
   });
   intervalSelect.addEventListener("change", () => {
     if (autoScrollTimer !== null) startAutoScroll();
   });
   window.addEventListener("wheel", stopAutoScroll, { passive: true });
-  window.addEventListener("touchstart", stopAutoScroll, { passive: true });
+  window.addEventListener("touchstart", event => {
+    // Tapping either auto-scroll control should toggle playback, not be
+    // interpreted as a manual gesture that immediately pauses it.
+    if (event.target.closest("#autoScrollToggle, #floatingAutoScrollToggle, #autoScrollInterval")) return;
+    stopAutoScroll();
+  }, { passive: true });
   window.addEventListener("keydown", (event) => {
     if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) {
       stopAutoScroll();
