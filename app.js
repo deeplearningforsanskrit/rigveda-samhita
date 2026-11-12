@@ -46,6 +46,25 @@ const VASISHTHA_DVESHINI = new Set([
 const topbar = document.getElementById("topbar");
 const headerToggle = document.getElementById("headerToggle");
 
+// Show the deployed app version in the pinned title row.
+(async () => {
+  const versionLabel = document.getElementById("appVersion");
+  if (!versionLabel) return;
+  try {
+    const response = await fetch("./version.json", { cache: "no-store" });
+    if (!response.ok) throw new Error("Version file unavailable");
+    const versionData = await response.json();
+    const cacheVersion = versionData?.cache_version;
+    if (typeof cacheVersion === "string" && cacheVersion.trim()) {
+      const displayVersion = cacheVersion.replace(/^rigveda-v?/i, "v");
+      versionLabel.textContent = displayVersion;
+      versionLabel.title = "App version " + displayVersion;
+    }
+  } catch (error) {
+    console.warn("[App] Could not read app version:", error);
+  }
+})();
+
 if (headerToggle && topbar) {
   headerToggle.addEventListener("click", () => {
     const collapsed = topbar.classList.toggle("collapsed");
