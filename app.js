@@ -1756,6 +1756,7 @@ function syncAutoScrollButtons(isRunning) {
     if (!button) return;
     button.textContent = isRunning ? "Ⅱ Pause" : "▶ Auto-scroll";
     button.setAttribute("aria-pressed", String(isRunning));
+    button.setAttribute("aria-label", isRunning ? "Pause mantra auto-scroll" : "Start mantra auto-scroll");
   });
 }
 
