@@ -1745,12 +1745,14 @@ window.addEventListener("popstate", () => {
 });
 
 let autoScrollTimer = null;
+let autoScrollCurrentCard = null;
 
 function stopAutoScroll() {
   if (autoScrollTimer !== null) {
     window.clearInterval(autoScrollTimer);
     autoScrollTimer = null;
   }
+  autoScrollCurrentCard = null;
   const button = document.getElementById("autoScrollToggle");
   if (button) {
     button.textContent = "▶ Auto-scroll";
@@ -1773,24 +1775,38 @@ function advanceAutoScroll() {
   let cards = Array.from(document.querySelectorAll("#results .sukta-section .mantra"));
   if (!cards.length) return;
 
-  const headerBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
-  const probe = headerBottom + 12;
-  let currentIndex = -1;
-  for (let i = 0; i < cards.length; i++) {
-    if (cards[i].getBoundingClientRect().top <= probe) currentIndex = i;
-    else break;
+  let nextCard = null;
+
+  // Keep a stable reference to the last target. Recalculating from viewport
+  // geometry on every tick is unreliable when the sticky header is collapsed.
+  if (autoScrollCurrentCard) {
+    const currentIndex = cards.indexOf(autoScrollCurrentCard);
+    if (currentIndex >= 0) nextCard = cards[currentIndex + 1] || null;
+  } else {
+    // On the first tick, bring the first mantra not yet passed by the sticky
+    // header into position.
+    const headerBottom = topbar ? Math.max(0, topbar.getBoundingClientRect().bottom) : 0;
+    const firstVisibleIndex = cards.findIndex(
+      card => card.getBoundingClientRect().bottom > headerBottom + 8
+    );
+    nextCard = cards[firstVisibleIndex >= 0 ? firstVisibleIndex : 0] || null;
   }
 
-  let nextCard = cards[currentIndex + 1] || (currentIndex < 0 ? cards[0] : null);
   if (!nextCard) {
+    // The current target may be the final loaded mantra. Load the next Sukta
+    // when the infinite-scroll sentinel is close, then continue by DOM order.
     fillIfNeeded();
     cards = Array.from(document.querySelectorAll("#results .sukta-section .mantra"));
+    const currentIndex = autoScrollCurrentCard ? cards.indexOf(autoScrollCurrentCard) : -1;
     nextCard = cards[currentIndex + 1] || null;
   }
+
   if (!nextCard) {
     stopAutoScroll();
     return;
   }
+
+  autoScrollCurrentCard = nextCard;
   scrollToMantra(nextCard);
 }
 
