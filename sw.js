@@ -9,6 +9,8 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './style.css',
   './rigveda.json',
+  './rigveda_kannada.json',
+  './rigveda_telugu.json',
   './app.js',
   './version.json',
   './fonts/TiroDevanagariSanskrit-devanagari.woff2',
@@ -50,18 +52,30 @@ self.addEventListener('activate', (event) => {
 // If downloading any required asset fails, keep the previous cache available.
 async function refreshVersionCache(targetVersion) {
   const cacheNamesBeforeUpdate = await caches.keys();
-  const previousVersion = cacheNamesBeforeUpdate.find((name) => name !== targetVersion);
+  const previousVersion = cacheNamesBeforeUpdate.find((name) =>
+    name.startsWith('rigveda-') && name !== targetVersion
+  );
 
   try {
     const newCache = await caches.open(targetVersion);
-    await newCache.addAll(ASSETS_TO_CACHE);
+    const requiredRequests = ASSETS_TO_CACHE.map((asset) =>
+      new Request(new URL(asset, self.registration.scope).href)
+    );
+    const alreadyComplete = await Promise.all(
+      requiredRequests.map((request) => newCache.match(request))
+    ).then((matches) => matches.every(Boolean));
+
+    // Avoid downloading the full dataset again when this version is already complete.
+    if (!alreadyComplete) {
+      await newCache.addAll(requiredRequests);
+    }
     console.log('[SW] New version fully cached:', targetVersion);
 
     // Only reclaim storage after every required asset has been cached.
     const cacheNames = await caches.keys();
     await Promise.all(
       cacheNames.map((name) => {
-        if (name !== targetVersion) {
+        if (name.startsWith('rigveda-') && name !== targetVersion) {
           console.log('[SW] Deleting stale cache:', name);
           return caches.delete(name);
         }
@@ -160,8 +174,9 @@ async function fetchRemoteVersion() {
 
   // If we can't reach the network, try to find whichever cache we already have
   const existingCaches = await caches.keys();
-  if (existingCaches.length > 0) {
-    cachedVersion = existingCaches[0]; // use whatever is already there
+  const appCaches = existingCaches.filter((name) => name.startsWith('rigveda-'));
+  if (appCaches.length > 0) {
+    cachedVersion = appCaches[0]; // use an existing Rigveda cache while offline
     return cachedVersion;
   }
 
