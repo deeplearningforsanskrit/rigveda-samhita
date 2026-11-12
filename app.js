@@ -56,6 +56,27 @@ if (headerToggle && topbar) {
   });
 }
 
+// Collapse the expanded controls when the reader begins scrolling.
+let lastHeaderScrollY = window.scrollY;
+let headerToggleLockUntil = 0;
+
+window.addEventListener("scroll", () => {
+  const currentY = window.scrollY;
+  const moved = Math.abs(currentY - lastHeaderScrollY);
+  lastHeaderScrollY = currentY;
+
+  if (moved < 2 || !topbar || topbar.classList.contains("collapsed")) return;
+  if (Date.now() < headerToggleLockUntil) return;
+
+  topbar.classList.add("collapsed");
+  headerToggle?.setAttribute("aria-label", "Show header");
+}, { passive: true });
+
+headerToggle?.addEventListener("click", () => {
+  headerToggleLockUntil = Date.now() + 400;
+  lastHeaderScrollY = window.scrollY;
+});
+
 function syncHeaderFieldsFromCurrentPage() {
   const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
   if (!page) return;
@@ -947,7 +968,8 @@ function syncCurrentPageFromScroll() {
   const sections = document.querySelectorAll("#results > .sukta-section");
   if (sections.length < 2) return;
 
-  const probe = (topbar ? topbar.getBoundingClientRect().bottom : 0) + 40;
+  const stickyHeader = document.querySelector(".sticky-topbar-head");
+  const probe = (stickyHeader ? stickyHeader.getBoundingClientRect().bottom : 0) + 40;
   let active = sections[0];
   for (const sec of sections) {
     if (sec.getBoundingClientRect().top <= probe) active = sec;
@@ -1770,7 +1792,8 @@ function stopAutoScroll() {
 }
 
 function scrollToMantra(card) {
-  const headerHeight = topbar ? topbar.getBoundingClientRect().height : 0;
+  const stickyHeader = document.querySelector(".sticky-topbar-head");
+  const headerHeight = stickyHeader ? stickyHeader.getBoundingClientRect().height : 0;
   const targetTop = window.scrollY + card.getBoundingClientRect().top - headerHeight - 12;
   window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
 }
@@ -1794,7 +1817,8 @@ function advanceAutoScroll() {
   } else {
     // On the first tick, bring the first mantra not yet passed by the sticky
     // header into position.
-    const headerBottom = topbar ? Math.max(0, topbar.getBoundingClientRect().bottom) : 0;
+    const stickyHeader = document.querySelector(".sticky-topbar-head");
+    const headerBottom = stickyHeader ? Math.max(0, stickyHeader.getBoundingClientRect().bottom) : 0;
     const firstVisibleIndex = cards.findIndex(
       card => card.getBoundingClientRect().bottom > headerBottom + 8
     );
