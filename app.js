@@ -56,6 +56,27 @@ if (headerToggle && topbar) {
   });
 }
 
+// Collapse the expanded controls when the reader begins scrolling.
+let lastHeaderScrollY = window.scrollY;
+let headerToggleLockUntil = 0;
+
+window.addEventListener("scroll", () => {
+  const currentY = window.scrollY;
+  const moved = Math.abs(currentY - lastHeaderScrollY);
+  lastHeaderScrollY = currentY;
+
+  if (moved < 2 || !topbar || topbar.classList.contains("collapsed")) return;
+  if (Date.now() < headerToggleLockUntil) return;
+
+  topbar.classList.add("collapsed");
+  headerToggle?.setAttribute("aria-label", "Show header");
+}, { passive: true });
+
+headerToggle?.addEventListener("click", () => {
+  headerToggleLockUntil = Date.now() + 400;
+  lastHeaderScrollY = window.scrollY;
+});
+
 function syncHeaderFieldsFromCurrentPage() {
   const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
   if (!page) return;
