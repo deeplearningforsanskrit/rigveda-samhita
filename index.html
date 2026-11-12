@@ -130,6 +130,8 @@
   </div>
 </header>
   <main>
+  <button id="floatingAutoScrollToggle" class="floating-auto-scroll" type="button" aria-pressed="false" aria-label="Start mantra auto-scroll">▶ Auto-scroll</button>
+
     <div id="results"></div>
     <div id="scrollSentinel" aria-hidden="true"></div>
 
@@ -250,8 +252,6 @@
       window.setTimeout(showPrompt, 5000);
     }
   })();
-
-  <button id="floatingAutoScrollToggle" class="floating-auto-scroll" type="button" aria-pressed="false" aria-label="Start mantra auto-scroll">▶ Auto-scroll</button>
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
