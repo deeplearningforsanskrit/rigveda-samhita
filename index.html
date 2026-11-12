@@ -45,6 +45,18 @@
     Loading...
   </div>
 
+  <div class="auto-scroll-toolbar" role="group" aria-label="Mantra auto-scroll controls">
+    <button id="autoScrollToggle" type="button" aria-pressed="false">▶ Auto-scroll</button>
+    <label for="autoScrollInterval">ऋचा /</label>
+    <select id="autoScrollInterval" aria-label="Time per richa">
+      <option value="2000">2 seconds</option>
+      <option value="3000" selected>3 seconds</option>
+      <option value="4000">4 seconds</option>
+      <option value="5000">5 seconds</option>
+      <option value="6000">6 seconds</option>
+    </select>
+  </div>
+
 </div>
 <div class="options-toolbar">
   <button id="togglePadaBtn" type="button">पद पाठ: OFF</button>
@@ -118,6 +130,8 @@
   </div>
 </header>
   <main>
+  <button id="floatingAutoScrollToggle" class="floating-auto-scroll" type="button" aria-pressed="false" aria-label="Start mantra auto-scroll">▶ Auto-scroll</button>
+
     <div id="results"></div>
     <div id="scrollSentinel" aria-hidden="true"></div>
 

@@ -1743,5 +1743,121 @@ window.addEventListener("popstate", () => {
     renderBrowseMode();
   }
 });
+
+let autoScrollTimer = null;
+let autoScrollCurrentCard = null;
+
+function syncAutoScrollButtons(isRunning) {
+  const buttons = [
+    document.getElementById("autoScrollToggle"),
+    document.getElementById("floatingAutoScrollToggle")
+  ];
+  buttons.forEach(button => {
+    if (!button) return;
+    button.textContent = isRunning ? "Ⅱ Pause" : "▶ Auto-scroll";
+    button.setAttribute("aria-pressed", String(isRunning));
+    button.setAttribute("aria-label", isRunning ? "Pause mantra auto-scroll" : "Start mantra auto-scroll");
+  });
+}
+
+function stopAutoScroll() {
+  if (autoScrollTimer !== null) {
+    window.clearInterval(autoScrollTimer);
+    autoScrollTimer = null;
+  }
+  autoScrollCurrentCard = null;
+  syncAutoScrollButtons(false);
+}
+
+function scrollToMantra(card) {
+  const headerHeight = topbar ? topbar.getBoundingClientRect().height : 0;
+  const targetTop = window.scrollY + card.getBoundingClientRect().top - headerHeight - 12;
+  window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+}
+
+function advanceAutoScroll() {
+  if (!INFINITE_SCROLL_ACTIVE) {
+    stopAutoScroll();
+    return;
+  }
+
+  let cards = Array.from(document.querySelectorAll("#results .sukta-section .mantra"));
+  if (!cards.length) return;
+
+  let nextCard = null;
+
+  // Keep a stable reference to the last target. Recalculating from viewport
+  // geometry on every tick is unreliable when the sticky header is collapsed.
+  if (autoScrollCurrentCard) {
+    const currentIndex = cards.indexOf(autoScrollCurrentCard);
+    if (currentIndex >= 0) nextCard = cards[currentIndex + 1] || null;
+  } else {
+    // On the first tick, bring the first mantra not yet passed by the sticky
+    // header into position.
+    const headerBottom = topbar ? Math.max(0, topbar.getBoundingClientRect().bottom) : 0;
+    const firstVisibleIndex = cards.findIndex(
+      card => card.getBoundingClientRect().bottom > headerBottom + 8
+    );
+    nextCard = cards[firstVisibleIndex >= 0 ? firstVisibleIndex : 0] || null;
+  }
+
+  if (!nextCard) {
+    // The current target may be the final loaded mantra. Load the next Sukta
+    // when the infinite-scroll sentinel is close, then continue by DOM order.
+    fillIfNeeded();
+    cards = Array.from(document.querySelectorAll("#results .sukta-section .mantra"));
+    const currentIndex = autoScrollCurrentCard ? cards.indexOf(autoScrollCurrentCard) : -1;
+    nextCard = cards[currentIndex + 1] || null;
+  }
+
+  if (!nextCard) {
+    stopAutoScroll();
+    return;
+  }
+
+  autoScrollCurrentCard = nextCard;
+  scrollToMantra(nextCard);
+}
+
+function startAutoScroll() {
+  if (!INFINITE_SCROLL_ACTIVE) return;
+  stopAutoScroll();
+  const interval = Number(document.getElementById("autoScrollInterval")?.value || 1200);
+  syncAutoScrollButtons(true);
+  autoScrollTimer = window.setInterval(advanceAutoScroll, interval);
+}
+
+function setupAutoScroll() {
+  const buttons = [
+    document.getElementById("autoScrollToggle"),
+    document.getElementById("floatingAutoScrollToggle")
+  ].filter(Boolean);
+  const intervalSelect = document.getElementById("autoScrollInterval");
+  if (!buttons.length || !intervalSelect) return;
+
+  buttons.forEach(button => {
+    button.addEventListener("click", () => {
+      if (autoScrollTimer !== null) stopAutoScroll();
+      else startAutoScroll();
+    });
+  });
+  intervalSelect.addEventListener("change", () => {
+    if (autoScrollTimer !== null) startAutoScroll();
+  });
+  window.addEventListener("wheel", stopAutoScroll, { passive: true });
+  window.addEventListener("touchstart", event => {
+    // Tapping either auto-scroll control should toggle playback, not be
+    // interpreted as a manual gesture that immediately pauses it.
+    if (event.target.closest("#autoScrollToggle, #floatingAutoScrollToggle, #autoScrollInterval")) return;
+    stopAutoScroll();
+  }, { passive: true });
+  window.addEventListener("keydown", (event) => {
+    if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) {
+      stopAutoScroll();
+    }
+  });
+}
+
 bindEvents();
+setupAutoScroll();
 loadData();
