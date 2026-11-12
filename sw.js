@@ -9,6 +9,8 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './style.css',
   './rigveda.json',
+  './rigveda_kannada.json',
+  './rigveda_telugu.json',
   './app.js',
   './version.json',
   './fonts/TiroDevanagariSanskrit-devanagari.woff2',
@@ -38,32 +40,57 @@ self.addEventListener('activate', (event) => {
     (async () => {
       const targetVersion = await fetchRemoteVersion();
       console.log('[SW] Target cache version:', targetVersion);
-
-      // Delete every cache bucket that doesn't match the target version
-      const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames.map((name) => {
-          if (name !== targetVersion) {
-            console.log('[SW] Deleting stale cache:', name);
-            return caches.delete(name);
-          }
-        })
-      );
-
-      // Pre-cache all assets under the correct version name
-      const cache = await caches.open(targetVersion);
-      try {
-        await cache.addAll(ASSETS_TO_CACHE);
-        console.log('[SW] Assets cached under:', targetVersion);
-      } catch (err) {
-        console.warn('[SW] Pre-cache failed (possibly offline):', err);
-      }
-
-      // Take control of all open tabs immediately
+      await refreshVersionCache(targetVersion);
+      // Take control even if an update failed; refreshVersionCache keeps the
+      // previous cache selected when the new assets could not be downloaded.
       await self.clients.claim();
     })()
   );
 });
+
+// Build the new cache completely before removing any previous version.
+// If downloading any required asset fails, keep the previous cache available.
+async function refreshVersionCache(targetVersion) {
+  const cacheNamesBeforeUpdate = await caches.keys();
+  const previousVersion = cacheNamesBeforeUpdate.find((name) =>
+    name.startsWith('rigveda-') && name !== targetVersion
+  );
+
+  try {
+    const newCache = await caches.open(targetVersion);
+    const requiredRequests = ASSETS_TO_CACHE.map((asset) =>
+      new Request(new URL(asset, self.registration.scope).href)
+    );
+    const alreadyComplete = await Promise.all(
+      requiredRequests.map((request) => newCache.match(request))
+    ).then((matches) => matches.every(Boolean));
+
+    // Avoid downloading the full dataset again when this version is already complete.
+    if (!alreadyComplete) {
+      await newCache.addAll(requiredRequests);
+    }
+    console.log('[SW] New version fully cached:', targetVersion);
+
+    // Only reclaim storage after every required asset has been cached.
+    const cacheNames = await caches.keys();
+    await Promise.all(
+      cacheNames.map((name) => {
+        if (name.startsWith('rigveda-') && name !== targetVersion) {
+          console.log('[SW] Deleting stale cache:', name);
+          return caches.delete(name);
+        }
+      })
+    );
+    cachedVersion = targetVersion;
+    return true;
+  } catch (err) {
+    console.warn('[SW] Update cache failed; retaining previous cache:', err);
+    if (previousVersion) {
+      cachedVersion = previousVersion;
+    }
+    return false;
+  }
+}
 
 // ─── FETCH ───────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', (event) => {
@@ -109,10 +136,17 @@ self.addEventListener('fetch', (event) => {
 // The page can post { type: 'CHECK_UPDATE' } to force an immediate re-check.
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'CHECK_UPDATE') {
-    // Invalidate the in-memory version cache so next fetch re-reads version.json
-    cachedVersion = null;
+    event.waitUntil((async () => {
+      // Re-read the published version, then use the same safe cache-and-cleanup
+      // sequence as activation. Do not delete old data until the new cache is ready.
+      cachedVersion = null;
+      const targetVersion = await fetchRemoteVersion();
+      const updated = await refreshVersionCache(targetVersion);
+      event.source?.postMessage({
+        type: updated ? 'UPDATE_CHECK_COMPLETE' : 'UPDATE_CHECK_FAILED'
+      });
+    })());
     console.log('[SW] Manual update check triggered');
-    event.source?.postMessage({ type: 'UPDATE_CHECK_STARTED' });
   }
 });
 
@@ -140,8 +174,9 @@ async function fetchRemoteVersion() {
 
   // If we can't reach the network, try to find whichever cache we already have
   const existingCaches = await caches.keys();
-  if (existingCaches.length > 0) {
-    cachedVersion = existingCaches[0]; // use whatever is already there
+  const appCaches = existingCaches.filter((name) => name.startsWith('rigveda-'));
+  if (appCaches.length > 0) {
+    cachedVersion = appCaches[0]; // use an existing Rigveda cache while offline
     return cachedVersion;
   }
 
