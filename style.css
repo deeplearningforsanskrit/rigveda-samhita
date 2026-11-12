@@ -873,3 +873,35 @@ body, html {
   color: #fff;
 }
 .auto-scroll-toolbar select { cursor: pointer; }
+
+
+/* Floating auto-scroll control stays within reach while reading. */
+.floating-auto-scroll {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1500;
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid #60a5fa;
+  border-radius: 999px;
+  color: #fff;
+  background: #1d4ed8;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  font: 600 14px/1.2 sans-serif;
+  cursor: pointer;
+}
+.floating-auto-scroll[aria-pressed="true"] {
+  background: #334155;
+  border-color: #94a3b8;
+}
+.floating-auto-scroll:focus-visible {
+  outline: 3px solid #bfdbfe;
+  outline-offset: 3px;
+}
+@media (max-width: 480px) {
+  .floating-auto-scroll {
+    right: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}
