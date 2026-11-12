@@ -947,7 +947,8 @@ function syncCurrentPageFromScroll() {
   const sections = document.querySelectorAll("#results > .sukta-section");
   if (sections.length < 2) return;
 
-  const probe = (topbar ? topbar.getBoundingClientRect().bottom : 0) + 40;
+  const stickyHeader = document.querySelector(".sticky-topbar-head");
+  const probe = (stickyHeader ? stickyHeader.getBoundingClientRect().bottom : 0) + 40;
   let active = sections[0];
   for (const sec of sections) {
     if (sec.getBoundingClientRect().top <= probe) active = sec;
