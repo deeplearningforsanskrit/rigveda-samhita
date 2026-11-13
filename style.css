@@ -914,7 +914,9 @@ body, html {
 }
 
 body {
-  padding-top: var(--reader-header-height);
+  padding-top: calc(
+    var(--reader-header-height) + var(--reader-expanded-header-height, 0px)
+  );
 }
 
 .sticky-topbar-head {
