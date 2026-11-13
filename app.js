@@ -65,6 +65,47 @@ const headerToggle = document.getElementById("headerToggle");
   }
 })();
 
+// Reserve space for the expanded fixed header so it never covers the
+// first visible mantra. Keep the reader content stationary when the panel
+// opens or closes while the user is already scrolled down.
+function syncExpandedHeaderSpace() {
+  if (!topbar) return;
+
+  const headerHeight = parseFloat(
+    getComputedStyle(document.documentElement)
+      .getPropertyValue("--reader-header-height")
+  ) || 0;
+  const panelHeight = topbar.classList.contains("collapsed")
+    ? 0
+    : topbar.getBoundingClientRect().height;
+  const nextHeight = headerHeight + panelHeight;
+  const previousHeight = Number(
+    document.documentElement.dataset.readerReservedHeight || headerHeight
+  );
+  const delta = nextHeight - previousHeight;
+
+  document.documentElement.style.setProperty(
+    "--reader-expanded-header-height",
+    `${panelHeight}px`
+  );
+  document.documentElement.dataset.readerReservedHeight = String(nextHeight);
+
+  // Changing the reserved space shifts document content. Compensate only
+  // after scrolling so the mantra under the reader does not jump.
+  if (Math.abs(delta) > 0.5 && window.scrollY > 0) {
+    window.scrollBy(0, delta);
+  }
+}
+
+if (topbar) {
+  const headerSpaceObserver = new ResizeObserver(() => {
+    requestAnimationFrame(syncExpandedHeaderSpace);
+  });
+  headerSpaceObserver.observe(topbar);
+  window.addEventListener("resize", syncExpandedHeaderSpace, { passive: true });
+  requestAnimationFrame(syncExpandedHeaderSpace);
+}
+
 if (headerToggle && topbar) {
   headerToggle.addEventListener("click", () => {
     const collapsed = topbar.classList.toggle("collapsed");
@@ -72,6 +113,7 @@ if (headerToggle && topbar) {
       "aria-label",
       collapsed ? "Show header" : "Hide header"
     );
+    requestAnimationFrame(syncExpandedHeaderSpace);
   });
 }
 
