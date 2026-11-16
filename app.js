@@ -66,8 +66,7 @@ function applyUiLanguage() {
   const search = document.getElementById("search");
   if (search) search.placeholder = t.searchPlaceholder;
   setText("uiLanguageLabel", t.language);
-  const scriptLabel = document.querySelector('label[for="scriptSelect"]');
-  if (scriptLabel) scriptLabel.textContent = t.script;
+  setText("scriptLabel", t.script);
   const selector = document.getElementById("uiLanguageSelect");
   if (selector && selector.value !== language) selector.value = language;
   updatePadaToggleButton();
