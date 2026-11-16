@@ -255,7 +255,10 @@ function syncHeaderFieldsFromCurrentPage() {
     const firstItem = page.items?.[0];
     jump1.value = String(firstItem?.ashtaka ?? 1);
     jump2.value = String(firstItem?.adhyaya ?? 1);
-    jump3.value = String(firstItem?.varga ?? 1);
+    // A zero/missing Varga in the current page metadata must not prefill
+    // the navigation field; Varga numbering starts at 1.
+    const currentVarga = Number(firstItem?.varga);
+    jump3.value = String(Number.isInteger(currentVarga) && currentVarga > 0 ? currentVarga : 1);
   }
 }
 
@@ -914,7 +917,7 @@ function onJumpGo() {
 
   // Varga defaults to the first section when the field is left blank.
   // The input focus handler clears fields to make datalist selection easier.
-  if (!v3) {
+  if (!v3 || !Number.isInteger(Number(v3)) || Number(v3) < 1) {
     v3 = "1";
     const vargaInput = document.getElementById("jump3");
     if (vargaInput) vargaInput.value = v3;
