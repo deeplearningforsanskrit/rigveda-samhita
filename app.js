@@ -14,25 +14,33 @@ const UI_TRANSLATIONS = {
     language: "भाषा:", previous: "← मागे", next: "पुढे →",
     previousSukta: "← मागील सूक्त", nextSukta: "पुढील सूक्त →",
     share: "शेअर करा", go: "जा", padaOn: "पदपाठ: सुरू", padaOff: "पदपाठ: बंद",
-    searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", script: "लिपी:", linkCopied: "दुवा नक्कल केला!"
+    searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", script: "लिपी:", linkCopied: "दुवा नक्कल केला!",
+    autoScrollStart: "▶ स्वयंस्क्रोल सुरू करा", autoScrollPause: "Ⅱ थांबवा",
+    autoScrollStartLabel: "स्वयंस्क्रोल सुरू करा", autoScrollPauseLabel: "स्वयंस्क्रोल थांबवा"
   },
   en: {
     language: "Language:", previous: "← Previous", next: "Next →",
     previousSukta: "← Previous Sukta", nextSukta: "Next Sukta →",
     share: "Share", go: "Go", padaOn: "Padapatha: On", padaOff: "Padapatha: Off",
-    searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", script: "Script:", linkCopied: "Link copied!"
+    searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", script: "Script:", linkCopied: "Link copied!",
+    autoScrollStart: "▶ Auto-scroll", autoScrollPause: "Ⅱ Pause",
+    autoScrollStartLabel: "Start mantra auto-scroll", autoScrollPauseLabel: "Pause mantra auto-scroll"
   },
   te: {
     language: "భాష:", previous: "← వెనుకకు", next: "తదుపరి →",
     previousSukta: "← మునుపటి సూక్తం", nextSukta: "తదుపరి సూక్తం →",
     share: "పంచుకోండి", go: "వెళ్ళండి", padaOn: "పదపాఠం: ప్రారంభం", padaOff: "పదపాఠం: నిలిపివేత",
-    searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", script: "లిపి:", linkCopied: "లింక్ కాపీ చేయబడింది!"
+    searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", script: "లిపి:", linkCopied: "లింక్ కాపీ చేయబడింది!",
+    autoScrollStart: "▶ ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPause: "Ⅱ ఆపండి",
+    autoScrollStartLabel: "ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPauseLabel: "ఆటో స్క్రోల్ ఆపండి"
   },
   kn: {
     language: "ಭಾಷೆ:", previous: "← ಹಿಂದೆ", next: "ಮುಂದೆ →",
     previousSukta: "← ಹಿಂದಿನ ಸೂಕ್ತ", nextSukta: "ಮುಂದಿನ ಸೂಕ್ತ →",
     share: "ಹಂಚಿಕೊಳ್ಳಿ", go: "ಹೋಗಿ", padaOn: "ಪದಪಾಠ: चालू", padaOff: "ಪದಪಾಠ: ಆಫ್",
-    searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", script: "ಲಿಪಿ:", linkCopied: "ಲಿಂಕ್ ನಕಲಿಸಲಾಗಿದೆ!"
+    searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", script: "ಲಿಪಿ:", linkCopied: "ಲಿಂಕ್ ನಕಲಿಸಲಾಗಿದೆ!",
+    autoScrollStart: "▶ ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPause: "Ⅱ ವಿರಾಮ",
+    autoScrollStartLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPauseLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ವಿರಾಮಗೊಳಿಸಿ"
   }
 };
 
@@ -60,6 +68,7 @@ function applyUiLanguage() {
   const selector = document.getElementById("uiLanguageSelect");
   if (selector && selector.value !== language) selector.value = language;
   updatePadaToggleButton();
+  syncAutoScrollButtons(autoScrollTimer !== null);
 }
 
 const DATA_FILES = {
@@ -1906,9 +1915,10 @@ function syncAutoScrollButtons(isRunning) {
   ];
   buttons.forEach(button => {
     if (!button) return;
-    button.textContent = isRunning ? "Ⅱ Pause" : "▶ Auto-scroll";
+    const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr;
+    button.textContent = isRunning ? t.autoScrollPause : t.autoScrollStart;
     button.setAttribute("aria-pressed", String(isRunning));
-    button.setAttribute("aria-label", isRunning ? "Pause mantra auto-scroll" : "Start mantra auto-scroll");
+    button.setAttribute("aria-label", isRunning ? t.autoScrollPauseLabel : t.autoScrollStartLabel);
   });
 }
 
