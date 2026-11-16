@@ -50,6 +50,26 @@ def load_data(path: Path) -> dict[str, Any]:
     return data
 
 
+def derive_rik_num(data: dict[str, Any], ashtaka: int, adhyaya: int) -> str:
+    """Derive Mandala.Sukta from the first Richa of the first Varga."""
+    first_richa_ref = f"{ashtaka}.{adhyaya}.01.01"
+    for key, item in data.items():
+        if str(item.get("ashtaka_ref", "")).strip() == first_richa_ref:
+            first_rik = str(item.get("rik_num", key)).strip()
+            parts = first_rik.split(".")
+            if len(parts) != 3 or not all(part.isdigit() for part in parts):
+                raise SystemExit(
+                    f"Cannot derive Mandala/Sukta: invalid rik_num {first_rik!r} "
+                    f"for {first_richa_ref}."
+                )
+            return f"{int(parts[0]):02d}.{int(parts[1]):03d}.00"
+
+    raise SystemExit(
+        f"Cannot find the first Richa of Varga 1 ({first_richa_ref}) in rigveda.json. "
+        "No changes made."
+    )
+
+
 def find_insertion_index(data: dict[str, Any], ashtaka: int, adhyaya: int) -> int:
     """Return the position after the last entry in the selected Adhyaya."""
     prefix = f"{ashtaka}.{adhyaya}."
@@ -69,14 +89,12 @@ def main() -> None:
 
     print("\nAdd a new Khanda to Rigveda Samhita")
     print("-----------------------------------")
-    print("Enter the reference where this Khanda belongs.")
+    print("Enter the Ashtaka and Adhyaya. Mandala and Sukta are derived automatically.")
 
     ashtaka = ask_number("Ashtaka")
     adhyaya = ask_number("Adhyaya")
     varga = 0  # Khandas are assigned Varga 0 by convention.
     print("Varga: 0 (default for Khanda)")
-    mandala = ask_number("Mandala", maximum=10)
-    sukta = ask_number("Sukta", maximum=191)
 
     print("\nPaste the complete Khanda text. Finish with an empty line:")
     text_lines: list[str] = []
@@ -93,11 +111,12 @@ def main() -> None:
     if not khanda_text:
         raise SystemExit("Khanda text cannot be empty.")
 
-    # Khanda references use artificial zero values for the mantra and richa.
-    rik_num = f"{mandala:02d}.{sukta:03d}.00"
-    ashtaka_ref = f"{ashtaka}.{adhyaya}.{varga:02d}.00"
-
     data = load_data(data_path)
+
+    # The first Richa of Varga 1 carries the Mandala/Sukta mapping for this
+    # Ashtaka-Adhyaya. Khanda uses that same Mandala/Sukta with Mantra 00.
+    rik_num = derive_rik_num(data, ashtaka, adhyaya)
+    ashtaka_ref = f"{ashtaka}.{adhyaya}.{varga:02d}.00"
 
     if rik_num in data:
         existing = data[rik_num]
