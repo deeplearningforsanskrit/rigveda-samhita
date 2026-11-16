@@ -1293,3 +1293,117 @@ body {
     overflow-wrap: anywhere;
   }
 }
+
+
+/* Organised navigation controls: keep the mode, number fields and Go action
+   together, while the pada-patha toggle remains a separate control. */
+.options-toolbar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.jump-controls {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.45fr) repeat(3, minmax(76px, 0.65fr)) auto;
+  align-items: end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.jump-controls > * {
+  min-width: 0;
+}
+
+.jump-controls .input-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.jump-controls .input-list-wrapper label {
+  min-height: 1.2em;
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.jump-controls input,
+.jump-controls select,
+.jump-controls button {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.jump-controls input {
+  text-align: center;
+}
+
+.jump-controls button {
+  width: auto;
+  min-width: 54px;
+}
+
+@media (max-width: 900px) {
+  .options-toolbar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  #togglePadaBtn {
+    justify-self: start;
+  }
+
+  .jump-controls {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .jump-controls #jumpMode {
+    grid-column: 1 / -1;
+  }
+
+  .jump-controls #jumpGo {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .options-toolbar {
+    gap: 8px;
+  }
+
+  .jump-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .jump-controls #jumpMode {
+    grid-column: 1 / -1;
+  }
+
+  .jump-controls .input-list-wrapper {
+    width: 100%;
+  }
+
+  .jump-controls .input-list-wrapper label {
+    min-height: 1.35em;
+    font-size: 11px;
+  }
+
+  .jump-controls input,
+  .jump-controls select,
+  .jump-controls button {
+    min-height: 38px;
+    padding: 7px 9px;
+    font-size: 12px;
+  }
+
+  .jump-controls #jumpGo {
+    align-self: end;
+  }
+}

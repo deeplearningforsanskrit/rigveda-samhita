@@ -912,8 +912,16 @@ function onJumpGo() {
     return;
   }
 
-  if (!v1 || !v2 || !v3) {
-    setStatus("Please enter Ashtaka, Adhyaya, and Varga.");
+  // Varga defaults to the first section when the field is left blank.
+  // The input focus handler clears fields to make datalist selection easier.
+  if (!v3) {
+    v3 = "1";
+    const vargaInput = document.getElementById("jump3");
+    if (vargaInput) vargaInput.value = v3;
+  }
+
+  if (!v1 || !v2) {
+    setStatus("Please enter Ashtaka and Adhyaya.");
     return;
   }
 
