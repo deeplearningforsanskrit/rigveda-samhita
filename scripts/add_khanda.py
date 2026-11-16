@@ -12,9 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import shutil
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -55,12 +53,11 @@ def load_data(path: Path) -> dict[str, Any]:
 def find_insertion_index(data: dict[str, Any], ashtaka: int, adhyaya: int) -> int:
     """Return the position after the last entry in the selected Adhyaya."""
     prefix = f"{ashtaka}.{adhyaya}."
-    keys = list(data)
     matching = [
-        index for index, key in enumerate(keys)
-        if str(data[key].get("ashtaka_ref", "")).startswith(prefix)
+        index for index, (_, item) in enumerate(data.items())
+        if str(item.get("ashtaka_ref", "")).startswith(prefix)
     ]
-    return matching[-1] + 1 if matching else len(keys)
+    return matching[-1] + 1 if matching else len(data)
 
 
 def main() -> None:
@@ -76,7 +73,8 @@ def main() -> None:
 
     ashtaka = ask_number("Ashtaka")
     adhyaya = ask_number("Adhyaya")
-    varga = ask_number("Varga")
+    varga = 0  # Khandas are assigned Varga 0 by convention.
+    print("Varga: 0 (default for Khanda)")
     mandala = ask_number("Mandala", maximum=10)
     sukta = ask_number("Sukta", maximum=191)
 
@@ -95,8 +93,7 @@ def main() -> None:
     if not khanda_text:
         raise SystemExit("Khanda text cannot be empty.")
 
-    # The final component 00 is the artificial mantra/richa reference used
-    # for a Khanda attached to the supplied Sukta and Varga.
+    # Khanda references use artificial zero values for the mantra and richa.
     rik_num = f"{mandala:02d}.{sukta:03d}.00"
     ashtaka_ref = f"{ashtaka}.{adhyaya}.{varga:02d}.00"
 
@@ -110,7 +107,6 @@ def main() -> None:
             f"Reference {rik_num} is already used by a non-Khanda entry. No changes made."
         )
 
-    # Also catch an existing Khanda that uses a different top-level key.
     for key, item in data.items():
         if item.get("is_khanda") is True and (
             str(item.get("rik_num", "")) == rik_num
@@ -138,15 +134,15 @@ def main() -> None:
         print("Cancelled. No files were changed.")
         return
 
-    # Rebuild the object in order so the new entry sits at the end of its
-    # selected Adhyaya when that Adhyaya is present in the dataset.
     insertion_index = find_insertion_index(data, ashtaka, adhyaya)
     items = list(data.items())
     items.insert(insertion_index, (rik_num, entry))
     updated_data = dict(items)
 
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    backup_path = data_path.with_name(f"{data_path.stem}.backup-{timestamp}{data_path.suffix}")
+    backup_path = data_path.with_name(
+        f"{data_path.stem}.backup-{timestamp}{data_path.suffix}"
+    )
     shutil.copy2(data_path, backup_path)
 
     try:
@@ -154,9 +150,10 @@ def main() -> None:
             json.dump(updated_data, handle, ensure_ascii=False, indent=2)
             handle.write("\n")
     except OSError as exc:
-        # Restore the original if writing fails after the backup was made.
         shutil.copy2(backup_path, data_path)
-        raise SystemExit(f"Could not write {data_path}: {exc}. Original restored from backup.")
+        raise SystemExit(
+            f"Could not write {data_path}: {exc}. Original restored from backup."
+        )
 
     print(f"\nKhanda added successfully: {rik_num}")
     print(f"Backup created: {backup_path}")
