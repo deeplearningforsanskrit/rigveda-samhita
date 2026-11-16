@@ -1247,3 +1247,51 @@ button, select, input, label, .page-info, .header-attribution {
   /* The two-line title row needs its own reserved height. */
   :root { --reader-header-height: clamp(62px, 17vw, 72px); }
 }
+
+
+/* Script-aware control typography and wrapping.
+   These rules apply to Devanagari, Kannada, and Telugu via --sanskrit-font. */
+button, input, select, textarea, label,
+.nav-btn, .reader-toolbar button, .search-toolbar button,
+.options-toolbar button, .options-toolbar select,
+#togglePadaBtn, .script-selector select,
+.filter-group label, .filter-group select,
+.modal-content button {
+  font-family: var(--sanskrit-font), sans-serif;
+}
+
+@media (max-width: 600px) {
+  /* Keep long labels readable in every supported UI language/script. */
+  .nav-btn, .reader-toolbar button, .search-toolbar button,
+  .options-toolbar button, #togglePadaBtn,
+  .filter-group label, .filter-group select,
+  .modal-footer button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.4;
+  }
+
+  .options-toolbar .input-list-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: start;
+    min-width: 0;
+  }
+
+  .options-toolbar .input-list-wrapper label {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .options-toolbar .input-list-wrapper input {
+    flex: 1 1 4rem;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .script-selector label {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
