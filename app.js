@@ -14,25 +14,25 @@ const UI_TRANSLATIONS = {
     language: "भाषा:", previous: "← मागे", next: "पुढे →",
     previousSukta: "← मागील सूक्त", nextSukta: "पुढील सूक्त →",
     share: "शेअर करा", go: "जा", padaOn: "पदपाठ: सुरू", padaOff: "पदपाठ: बंद",
-    searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", script: "लिपी:"
+    searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", script: "लिपी:", linkCopied: "दुवा नक्कल केला!"
   },
   en: {
     language: "Language:", previous: "← Previous", next: "Next →",
     previousSukta: "← Previous Sukta", nextSukta: "Next Sukta →",
     share: "Share", go: "Go", padaOn: "Padapatha: On", padaOff: "Padapatha: Off",
-    searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", script: "Script:"
+    searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", script: "Script:", linkCopied: "Link copied!"
   },
   te: {
     language: "భాష:", previous: "← వెనుకకు", next: "తదుపరి →",
     previousSukta: "← మునుపటి సూక్తం", nextSukta: "తదుపరి సూక్తం →",
     share: "పంచుకోండి", go: "వెళ్ళండి", padaOn: "పదపాఠం: ప్రారంభం", padaOff: "పదపాఠం: నిలిపివేత",
-    searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", script: "లిపి:"
+    searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", script: "లిపి:", linkCopied: "లింక్ కాపీ చేయబడింది!"
   },
   kn: {
     language: "ಭಾಷೆ:", previous: "← ಹಿಂದೆ", next: "ಮುಂದೆ →",
     previousSukta: "← ಹಿಂದಿನ ಸೂಕ್ತ", nextSukta: "ಮುಂದಿನ ಸೂಕ್ತ →",
-    share: "ಹಂಚಿಕೊಳ್ಳಿ", go: "ಹೋಗಿ", padaOn: "ಪದಪಾಠ: ಚಾಲು", padaOff: "ಪದಪಾಠ: बंद",
-    searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", script: "ಲಿಪಿ:"
+    share: "ಹಂಚಿಕೊಳ್ಳಿ", go: "ಹೋಗಿ", padaOn: "ಪದಪಾಠ: चालू", padaOff: "ಪದಪಾಠ: ಆಫ್",
+    searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", script: "ಲಿಪಿ:", linkCopied: "ಲಿಂಕ್ ನಕಲಿಸಲಾಗಿದೆ!"
   }
 };
 
@@ -1865,7 +1865,8 @@ async function shareCurrentSukta() {
   const btn = document.getElementById("shareBtn");
   if (btn) {
     const old = btn.textContent;
-    btn.textContent = "दुवा नक्कल केला!";
+    const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr;
+    btn.textContent = t.linkCopied;
     setTimeout(() => btn.textContent = old, 1500);
   }
 }
