@@ -1411,6 +1411,37 @@ body {
 
 /* Balance the separate Pada Patha toggle and Go action on narrow screens. */
 @media (max-width: 600px) {
+  /* Explicit placement prevents Go from being auto-flowed below the
+     navigation grid when the Varga wrapper becomes visible. */
+  .jump-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "mode mode"
+      "ashtaka adhyaya"
+      "varga go";
+    align-items: stretch;
+  }
+
+  .jump-controls #jumpMode { grid-area: mode; }
+  .jump-controls #wrapperJump3 { grid-area: varga; }
+  .jump-controls #jumpGo {
+    grid-area: go;
+    display: block;
+    align-self: end;
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    margin: 0;
+    visibility: visible;
+  }
+
+  .jump-controls #wrapperJump3.hidden {
+    display: none !important;
+  }
+}
+
+@media (max-width: 600px) {
   #togglePadaBtn {
     justify-self: start;
     width: fit-content;
