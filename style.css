@@ -1423,7 +1423,7 @@ body {
   }
 
   .jump-controls #jumpGo {
-    grid-column: 1 / -1;
+    grid-column: auto;
     justify-self: stretch;
     width: 100%;
     min-height: 40px;
