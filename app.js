@@ -623,11 +623,11 @@ function setupFilterModal() {
 }
 
 // Helper function to populate data-lists with options up to max limit
-function populateDatalist(datalistId, maxLimit, minValue = 1) {
+function populateDatalist(datalistId, maxLimit) {
   const datalistElement = document.getElementById(datalistId);
   if (!datalistElement) return;
   datalistElement.innerHTML = '';
-  for (let i = minValue; i <= maxLimit; i++) {
+  for (let i = 1; i <= maxLimit; i++) {
     const option = document.createElement('option');
     option.value = i;
     datalistElement.appendChild(option);
@@ -814,8 +814,7 @@ function updateJumpModeUI() {
 
     populateDatalist("listJump1", 8);
     populateDatalist("listJump2", 8);
-    // Varga 0 is reserved for Khanda entries and must be selectable.
-    populateDatalist("listJump3", 64, 0);
+    populateDatalist("listJump3", 64); 
 
     if (wrapperJump3) wrapperJump3.classList.remove("hidden");
     else jump3.classList.remove("hidden");
@@ -855,10 +854,7 @@ function onJumpGo() {
     return;
   }
 
-  // Khanda entries use Varga 00 and artificial Richa 00.
-  // Ordinary Varga navigation continues to open Richa 01.
-  const richa = Number(v3) === 0 ? 0 : 1;
-  const key = buildAshtakaKey(v1, v2, v3, richa);
+  const key = buildAshtakaKey(v1, v2, v3, 1);
   const entry = ASHTAKA_INDEX.get(key);
 
   if (!entry) {
