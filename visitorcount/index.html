@@ -86,27 +86,11 @@
       <span class="site-tag">GoatCounter</span>
     </header>
 
-    <section id="setup" class="panel setup">
-      <h2>Connect your GoatCounter account</h2>
-      <p class="muted">Enter an API key created from your GoatCounter account's <strong>API</strong> page. The key is saved only in this browser so you don't need to enter it every time.</p>
-      <div class="notice">Use a read-only API key if GoatCounter offers that permission when creating it. Never share this key or paste it into GitHub.</div>
-      <form id="connectForm">
-        <label for="apiKey">GoatCounter API key</label>
-        <input id="apiKey" type="password" autocomplete="off" spellcheck="false" required placeholder="Paste API key">
-        <div class="actions">
-          <button class="primary" id="connectButton" type="submit">Connect dashboard</button>
-        </div>
-      </form>
-      <p id="setupStatus" class="help" role="status" aria-live="polite"></p>
-      <p class="help">Your key is sent over HTTPS directly to rigveda-samhita.goatcounter.com. It is not sent to this website's server. Anyone with access to this browser profile may be able to use the saved key.</p>
-    </section>
-
-    <section id="dashboard" class="hidden" aria-live="polite">
+    <section id="dashboard" aria-live="polite">
       <div class="toolbar">
         <span id="updatedAt" class="help">Loading statistics…</span>
         <div class="actions" style="margin:0">
           <button class="secondary" id="refreshButton" type="button">Refresh</button>
-          <button class="secondary" id="forgetButton" type="button">Forget key</button>
         </div>
       </div>
       <div class="metrics">
@@ -128,18 +112,16 @@
       </section>
       <p id="dashboardStatus" class="help" role="status" aria-live="polite"></p>
     </section>
-    <p class="footer-note">This page is unlisted, not access-controlled. Anyone who discovers its address can open the sign-in screen; statistics remain protected by your API key. <a href="https://www.goatcounter.com/help/api" target="_blank" rel="noopener noreferrer">GoatCounter API documentation</a>.</p>
+    <p class="footer-note">This page is unlisted, not access-controlled. The read-only API key is embedded in this public page source, so anyone who discovers the page can copy it and view the statistics it permits. <a href="https://www.goatcounter.com/help/api" target="_blank" rel="noopener noreferrer">GoatCounter API documentation</a>.</p>
   </main>
 
   <script>
     (() => {
       "use strict";
       const API_BASE = "https://rigveda-samhita.goatcounter.com/api/v0";
-      const STORAGE_KEY = "rigveda-goatcounter-api-key";
+      // Public read-only key: anyone who views this source can copy it.
+      const API_TOKEN = "gm9ojoawn9hz1h61irdxyx1gy3mpexhcwric9h2yr5xcg1it9";
       const $ = (id) => document.getElementById(id);
-      const setup = $("setup");
-      const dashboard = $("dashboard");
-      const connectButton = $("connectButton");
       const number = (value) => new Intl.NumberFormat().format(Number(value) || 0);
       const localDateKey = (date) => {
         const y = date.getFullYear();
@@ -280,48 +262,12 @@
         }
       }
 
-      async function connect(token, save) {
-        connectButton.disabled = true;
-        setStatus($("setupStatus"), "Checking API key…");
-        try {
-          await apiGet("/me", token);
-          if (save) localStorage.setItem(STORAGE_KEY, token);
-          setup.classList.add("hidden");
-          dashboard.classList.remove("hidden");
-          await loadDashboard(token);
-        } catch (error) {
-          if (!dashboard.classList.contains("hidden")) {
-            setStatus($("dashboardStatus"), error.message || "Unable to connect.", true);
-          } else {
-            setStatus($("setupStatus"), error.message || "Unable to connect.", true);
-          }
-        } finally {
-          connectButton.disabled = false;
-        }
-      }
-
-      $("connectForm").addEventListener("submit", (event) => {
-        event.preventDefault();
-        const token = $("apiKey").value.trim();
-        if (token) connect(token, true);
-      });
       $("refreshButton").addEventListener("click", async () => {
-        const token = localStorage.getItem(STORAGE_KEY);
-        if (token) {
-          try { await loadDashboard(token); }
-          catch (_) {}
-        }
-      });
-      $("forgetButton").addEventListener("click", () => {
-        localStorage.removeItem(STORAGE_KEY);
-        $("apiKey").value = "";
-        dashboard.classList.add("hidden");
-        setup.classList.remove("hidden");
-        setStatus($("setupStatus"), "Saved API key removed from this browser.");
+        try { await loadDashboard(API_TOKEN); }
+        catch (_) {}
       });
 
-      const savedToken = localStorage.getItem(STORAGE_KEY);
-      if (savedToken) connect(savedToken, false);
+      loadDashboard(API_TOKEN).catch(() => {});
     })();
   </script>
 </body>
