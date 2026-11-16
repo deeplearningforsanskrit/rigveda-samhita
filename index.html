@@ -41,10 +41,10 @@
 <div class="nav-toolbar">
 
   <div class="nav-buttons">
-    <button id="prevTop" class="nav-btn">← Prev</button>
-    <button id="shareBtn" class="nav-btn" type="button">Share</button>
+    <button id="prevTop" class="nav-btn">← मागे</button>
+    <button id="shareBtn" class="nav-btn" type="button">शेअर करा</button>
     <button id="copyAllBtn" class="nav-btn" type="button">क्लिपबोर्डवर नक्कल करा</button>
-    <button id="nextTop" class="nav-btn">Next →</button>
+    <button id="nextTop" class="nav-btn">पुढे →</button>
   </div>
 
   <div id="pageInfo" class="page-info">
@@ -65,7 +65,7 @@
 
 </div>
 <div class="options-toolbar">
-  <button id="togglePadaBtn" type="button">पद पाठ: OFF</button>
+  <button id="togglePadaBtn" type="button">पदपाठ: बंद</button>
 
   <select id="jumpMode">
     <label for="jumpMode">प्रकार</label>
@@ -88,11 +88,18 @@
     <datalist id="listJump3"></datalist>
   </div>
 
-  <button id="jumpGo" type="button">Go</button>
+  <button id="jumpGo" type="button">जा</button>
 
 
   </div>
   <div class="script-selector">
+  <label for="uiLanguageSelect">भाषा:</label>
+  <select id="uiLanguageSelect" aria-label="Interface language">
+    <option value="mr">मराठी</option>
+    <option value="en">English</option>
+    <option value="te">తెలుగు</option>
+    <option value="kn">ಕನ್ನಡ</option>
+  </select>
   <label for="scriptSelect">Script:</label>
   <select id="scriptSelect">
     <option value="devanagari" selected>देवनागरी</option>
@@ -142,9 +149,9 @@
     <div id="scrollSentinel" aria-hidden="true"></div>
 
     <div class="reader-toolbar bottom-toolbar">
-      <button id="prevBottom">← Previous Sukta</button>
+      <button id="prevBottom">← मागील सूक्त</button>
       <div id="pageInfoBottom" class="page-info">Loading...</div>
-      <button id="nextBottom">Next Sukta →</button>
+      <button id="nextBottom">पुढील सूक्त →</button>
     </div>
   </main>
 
