@@ -814,7 +814,8 @@ function updateJumpModeUI() {
 
     populateDatalist("listJump1", 8);
     populateDatalist("listJump2", 8);
-    // Varga 0 is reserved for Khanda entries and must be selectable.\n    populateDatalist("listJump3", 64, 0);
+    // Varga 0 is reserved for Khanda entries and must be selectable.
+    populateDatalist("listJump3", 64, 0);
 
     if (wrapperJump3) wrapperJump3.classList.remove("hidden");
     else jump3.classList.remove("hidden");
@@ -854,7 +855,10 @@ function onJumpGo() {
     return;
   }
 
-  // Khanda entries use Varga 00 and artificial Richa 00.\n  // Ordinary Varga navigation continues to open Richa 01.\n  const richa = Number(v3) === 0 ? 0 : 1;\n  const key = buildAshtakaKey(v1, v2, v3, richa);
+  // Khanda entries use Varga 00 and artificial Richa 00.
+  // Ordinary Varga navigation continues to open Richa 01.
+  const richa = Number(v3) === 0 ? 0 : 1;
+  const key = buildAshtakaKey(v1, v2, v3, richa);
   const entry = ASHTAKA_INDEX.get(key);
 
   if (!entry) {
