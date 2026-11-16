@@ -392,9 +392,20 @@ main {
   gap: 12px;
 }
 
+.topbar-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+
 .topbar-head h1 {
   margin: 0;
   font-family: 'Tiro Devanagari Sanskrit', serif;
+}
+
+.topbar-title-group .header-tagline {
+  white-space: nowrap;
 }
 
 .topbar-content {
