@@ -1000,3 +1000,38 @@ body {
 .topbar-head h1 {
   margin-right: auto;
 }
+
+
+/* Keep bug reporting reachable from the pinned title row while reading. */
+.report-issue-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 7px 9px;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  background: #1e293b;
+  color: #bfdbfe;
+  font: 600 12px/1.2 sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.report-issue-link:hover,
+.report-issue-link:focus-visible {
+  background: #334155;
+  border-color: #93c5fd;
+  color: #fff;
+}
+.report-issue-link:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+@media (max-width: 480px) {
+  .report-issue-link {
+    padding: 7px;
+    font-size: 11px;
+    gap: 3px;
+  }
+}
