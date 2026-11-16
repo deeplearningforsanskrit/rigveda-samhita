@@ -416,8 +416,10 @@ main {
 }
 
 .topbar-content {
-  max-height: 500px;
-  overflow: hidden;
+  /* The expanded controls now include search, navigation, language/script
+     selectors and attribution. A 500px cap clipped the lower controls. */
+  max-height: 1600px;
+  overflow: visible;
   opacity: 1;
   transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.25s ease;
   margin-top: 12px;
@@ -425,6 +427,7 @@ main {
 
 .topbar.collapsed .topbar-content {
   max-height: 0;
+  overflow: hidden;
   opacity: 0;
   margin-top: 0;
 }
