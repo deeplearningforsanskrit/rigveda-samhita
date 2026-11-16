@@ -15,6 +15,7 @@ const UI_TRANSLATIONS = {
     previousSukta: "← मागील सूक्त", nextSukta: "पुढील सूक्त →",
     share: "शेअर करा", go: "जा", padaOn: "पदपाठ: सुरू", padaOff: "पदपाठ: बंद",
     searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", script: "लिपी:", linkCopied: "दुवा नक्कल केला!",
+    share: "दुवा पाठवा", mandala: "मंडल", sukta: "सूक्त",
     autoScrollStart: "▶ स्वयंस्क्रोल सुरू करा", autoScrollPause: "Ⅱ थांबवा",
     autoScrollStartLabel: "स्वयंस्क्रोल सुरू करा", autoScrollPauseLabel: "स्वयंस्क्रोल थांबवा"
   },
@@ -23,6 +24,7 @@ const UI_TRANSLATIONS = {
     previousSukta: "← Previous Sukta", nextSukta: "Next Sukta →",
     share: "Share", go: "Go", padaOn: "Padapatha: On", padaOff: "Padapatha: Off",
     searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", script: "Script:", linkCopied: "Link copied!",
+    share: "Share link", mandala: "Mandala", sukta: "Sukta",
     autoScrollStart: "▶ Auto-scroll", autoScrollPause: "Ⅱ Pause",
     autoScrollStartLabel: "Start mantra auto-scroll", autoScrollPauseLabel: "Pause mantra auto-scroll"
   },
@@ -31,6 +33,7 @@ const UI_TRANSLATIONS = {
     previousSukta: "← మునుపటి సూక్తం", nextSukta: "తదుపరి సూక్తం →",
     share: "పంచుకోండి", go: "వెళ్ళండి", padaOn: "పదపాఠం: ప్రారంభం", padaOff: "పదపాఠం: నిలిపివేత",
     searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", script: "లిపి:", linkCopied: "లింక్ కాపీ చేయబడింది!",
+    share: "లింక్‌ను పంపండి", mandala: "మండలం", sukta: "సూక్తం",
     autoScrollStart: "▶ ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPause: "Ⅱ ఆపండి",
     autoScrollStartLabel: "ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPauseLabel: "ఆటో స్క్రోల్ ఆపండి"
   },
@@ -39,6 +42,7 @@ const UI_TRANSLATIONS = {
     previousSukta: "← ಹಿಂದಿನ ಸೂಕ್ತ", nextSukta: "ಮುಂದಿನ ಸೂಕ್ತ →",
     share: "ಹಂಚಿಕೊಳ್ಳಿ", go: "ಹೋಗಿ", padaOn: "ಪದಪಾಠ: चालू", padaOff: "ಪದಪಾಠ: ಆಫ್",
     searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", script: "ಲಿಪಿ:", linkCopied: "ಲಿಂಕ್ ನಕಲಿಸಲಾಗಿದೆ!",
+    share: "ಲಿಂಕ್ ಕಳುಹಿಸಿ", mandala: "ಮಂಡಲ", sukta: "ಸೂಕ್ತ",
     autoScrollStart: "▶ ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPause: "Ⅱ ವಿರಾಮ",
     autoScrollStartLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPauseLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ವಿರಾಮಗೊಳಿಸಿ"
   }
@@ -1334,6 +1338,18 @@ function centerAndHighlight(ref) {
   });
 }
 
+function toScriptDigits(value) {
+  const digitSets = {
+    devanagari: "०१२३४५६७८९",
+    telugu: "౦౧౨౩౪౫౬౭౮౯",
+    kannada: "೦೧೨೩೪೫೬೭೮೯"
+  };
+  const digits = digitSets[CURRENT_SCRIPT];
+  return digits
+    ? String(value).replace(/\\d/g, digit => digits[Number(digit)])
+    : String(value);
+}
+
 function updatePageInfo(overrideText = null) {
   const top = document.getElementById("pageInfo");
   const bottom = document.getElementById("pageInfoBottom");
@@ -1342,7 +1358,11 @@ function updatePageInfo(overrideText = null) {
 
   if (!text) {
     const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
-    text = `Mandala ${page.mandala} · Sukta ${String(page.sukta).padStart(3, "0")} · ${CURRENT_PAGE_INDEX + 1}/${SUKTA_PAGES.length}`;
+    const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr;
+    const mandala = toScriptDigits(page.mandala);
+    const sukta = toScriptDigits(String(page.sukta).padStart(3, "0"));
+    const position = toScriptDigits(`${CURRENT_PAGE_INDEX + 1}/${SUKTA_PAGES.length}`);
+    text = `${t.mandala} ${mandala} · ${t.sukta} ${sukta} · ${position}`;
   }
 
   if (top) top.textContent = text;
@@ -1858,25 +1878,37 @@ function getCurrentShareUrl() {
 
 async function shareCurrentSukta() {
   const url = getCurrentShareUrl();
+  const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr;
 
-  if (navigator.share) {
+  // On Android and other supported browsers this opens the native system
+  // share sheet. Keep this call directly in the click handler's call path.
+  if (typeof navigator.share === "function") {
     try {
       await navigator.share({
         title: "ऋग्वेद",
+        text: t.share,
         url
       });
       return;
-    } catch (_) {}
+    } catch (error) {
+      // Closing the native share sheet is not a failure; do not copy instead.
+      if (error && error.name === "AbortError") return;
+      console.warn("Native sharing unavailable; using clipboard fallback.", error);
+    }
   }
 
-  await navigator.clipboard.writeText(url);
-
-  const btn = document.getElementById("shareBtn");
-  if (btn) {
-    const old = btn.textContent;
-    const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr;
-    btn.textContent = t.linkCopied;
-    setTimeout(() => btn.textContent = old, 1500);
+  try {
+    await navigator.clipboard.writeText(url);
+    const btn = document.getElementById("shareBtn");
+    if (btn) {
+      const old = btn.textContent;
+      btn.textContent = t.linkCopied;
+      setTimeout(() => {
+        btn.textContent = (UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr).share;
+      }, 1500);
+    }
+  } catch (error) {
+    console.error("Unable to share or copy the link:", error);
   }
 }
 
