@@ -1085,3 +1085,211 @@ body {
   font-family: var(--sanskrit-font), serif;
   font-size: 14px;
 }
+
+
+/* Responsive mobile layout: keep translated labels inside their controls
+   and prevent the pinned title, tagline, and version from overlapping. */
+@media (max-width: 600px) {
+  .sticky-topbar-head {
+    display: flex;
+    align-items: center;
+    gap: clamp(5px, 1.8vw, 10px);
+    padding: clamp(6px, 2vw, 10px);
+    min-height: var(--reader-header-height);
+  }
+
+  .topbar-title-group {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    gap: 1px;
+  }
+
+  .topbar-head h1 {
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    font-size: clamp(16px, 4.8vw, 22px);
+    line-height: 1.2;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .topbar-title-group .header-tagline {
+    position: static;
+    transform: none;
+    max-width: 100%;
+    white-space: normal;
+    font-size: clamp(10px, 3vw, 13px);
+    line-height: 1.25;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .app-version {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin: 0;
+    font-size: clamp(8px, 2.2vw, 10px);
+    text-align: right;
+  }
+
+  .report-issue-link {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 29vw;
+    padding: 6px;
+    font-size: clamp(9px, 2.5vw, 11px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+
+  .header-toggle {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .mantra {
+    font-size: clamp(18px, 5vw, 22px);
+    padding: clamp(10px, 3vw, 14px);
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .pada-patha {
+    font-size: clamp(17px, 4.6vw, 20px);
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .nav-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .nav-btn,
+  .reader-toolbar button,
+  .search-toolbar button,
+  .options-toolbar button,
+  #togglePadaBtn {
+    min-width: 0;
+    max-width: 100%;
+    height: auto;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.35;
+  }
+
+  .options-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .options-toolbar > *,
+  .options-toolbar .input-list-wrapper {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .options-toolbar select,
+  .options-toolbar input,
+  .options-toolbar button {
+    min-width: 0;
+    max-width: 100%;
+    height: auto;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: clamp(10px, 2.8vw, 12px);
+  }
+
+  .script-selector {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .script-selector select {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .search-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .search-toolbar input {
+    min-width: 0;
+  }
+
+  .header-attribution {
+    gap: 6px 12px;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Keep sizing, wrapping, and Indic control typography scoped to mobile.
+   Desktop controls retain their original dimensions and font metrics. */
+@media (max-width: 600px) {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  button, select, input, label, .page-info, .header-attribution {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* The two-line title row needs its own reserved height. */
+  :root { --reader-header-height: clamp(62px, 17vw, 72px); }
+
+  /* Script-aware typography for translated mobile controls. */
+  button, input, select, textarea, label,
+  .nav-btn, .reader-toolbar button, .search-toolbar button,
+  .options-toolbar button, .options-toolbar select,
+  #togglePadaBtn, .script-selector select,
+  .filter-group label, .filter-group select,
+  .modal-content button {
+    font-family: var(--sanskrit-font), sans-serif;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Keep long labels readable in every supported UI language/script. */
+  .nav-btn, .reader-toolbar button, .search-toolbar button,
+  .options-toolbar button, #togglePadaBtn,
+  .filter-group label, .filter-group select,
+  .modal-footer button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.4;
+  }
+
+  .options-toolbar .input-list-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: start;
+    min-width: 0;
+  }
+
+  .options-toolbar .input-list-wrapper label {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .options-toolbar .input-list-wrapper input {
+    flex: 1 1 4rem;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .script-selector label {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
