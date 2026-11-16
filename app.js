@@ -14,7 +14,7 @@ const UI_TRANSLATIONS = {
     language: "भाषा:", previous: "← मागे", next: "पुढे →",
     previousSukta: "← मागील सूक्त", nextSukta: "पुढील सूक्त →",
     share: "दुवा पाठवा", go: "जा", padaOn: "पदपाठ: सुरू", padaOff: "पदपाठ: बंद",
-    searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", script: "लिपी:", linkCopied: "दुवा नक्कल केला!",
+    searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", reportIssueMessage: "नमस्कार, ऋग्वेद संहिता संकेतस्थळाबाबत मला एक त्रुटी कळवायची आहे: ", script: "लिपी:", linkCopied: "दुवा नक्कल केला!",
     mandala: "मंडल", sukta: "सूक्त",
     autoScrollStart: "▶ स्वयंस्क्रोल सुरू करा", autoScrollPause: "Ⅱ थांबवा",
     autoScrollStartLabel: "स्वयंस्क्रोल सुरू करा", autoScrollPauseLabel: "स्वयंस्क्रोल थांबवा"
@@ -23,7 +23,7 @@ const UI_TRANSLATIONS = {
     language: "Language:", previous: "← Previous", next: "Next →",
     previousSukta: "← Previous Sukta", nextSukta: "Next Sukta →",
     share: "Share link", go: "Go", padaOn: "Padapatha: On", padaOff: "Padapatha: Off",
-    searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", script: "Script:", linkCopied: "Link copied!",
+    searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", reportIssueMessage: "Hello, I would like to report an issue with the Rigveda Samhita website: ", script: "Script:", linkCopied: "Link copied!",
     mandala: "Mandala", sukta: "Sukta",
     autoScrollStart: "▶ Auto-scroll", autoScrollPause: "Ⅱ Pause",
     autoScrollStartLabel: "Start mantra auto-scroll", autoScrollPauseLabel: "Pause mantra auto-scroll"
@@ -32,7 +32,7 @@ const UI_TRANSLATIONS = {
     language: "భాష:", previous: "← వెనుకకు", next: "తదుపరి →",
     previousSukta: "← మునుపటి సూక్తం", nextSukta: "తదుపరి సూక్తం →",
     share: "లింక్‌ను పంపండి", go: "వెళ్ళండి", padaOn: "పదపాఠం: ప్రారంభం", padaOff: "పదపాఠం: నిలిపివేత",
-    searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", script: "లిపి:", linkCopied: "లింక్ కాపీ చేయబడింది!",
+    searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", reportIssueMessage: "నమస్కారం, ఋగ్వేద సంహిత వెబ్‌సైట్‌లోని ఒక సమస్యను తెలియజేయాలనుకుంటున్నాను: ", script: "లిపి:", linkCopied: "లింక్ కాపీ చేయబడింది!",
     mandala: "మండలం", sukta: "సూక్తం",
     autoScrollStart: "▶ ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPause: "Ⅱ ఆపండి",
     autoScrollStartLabel: "ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPauseLabel: "ఆటో స్క్రోల్ ఆపండి"
@@ -41,7 +41,7 @@ const UI_TRANSLATIONS = {
     language: "ಭಾಷೆ:", previous: "← ಹಿಂದೆ", next: "ಮುಂದೆ →",
     previousSukta: "← ಹಿಂದಿನ ಸೂಕ್ತ", nextSukta: "ಮುಂದಿನ ಸೂಕ್ತ →",
     share: "ಲಿಂಕ್ ಕಳುಹಿಸಿ", go: "ಹೋಗಿ", padaOn: "ಪದಪಾಠ: चालू", padaOff: "ಪದಪಾಠ: ಆಫ್",
-    searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", script: "ಲಿಪಿ:", linkCopied: "ಲಿಂಕ್ ನಕಲಿಸಲಾಗಿದೆ!",
+    searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", reportIssueMessage: "ನಮಸ್ಕಾರ, ಋಗ್ವೇದ ಸಂಹಿತಾ ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿನ ಒಂದು ಸಮಸ್ಯೆಯನ್ನು ವರದಿ ಮಾಡಲು ಬಯಸುತ್ತೇನೆ: ", script: "ಲಿಪಿ:", linkCopied: "ಲಿಂಕ್ ನಕಲಿಸಲಾಗಿದೆ!",
     mandala: "ಮಂಡಲ", sukta: "ಸೂಕ್ತ",
     autoScrollStart: "▶ ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPause: "Ⅱ ವಿರಾಮ",
     autoScrollStartLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPauseLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ವಿರಾಮಗೊಳಿಸಿ"
@@ -63,6 +63,11 @@ function applyUiLanguage() {
   setText("shareBtn", t.share);
   setText("jumpGo", t.go);
   setText("reportIssueLink", "🐞 " + t.reportIssue);
+  const reportIssueLink = document.getElementById("reportIssueLink");
+  if (reportIssueLink) {
+    const message = t.reportIssueMessage || UI_TRANSLATIONS.en.reportIssueMessage;
+    reportIssueLink.href = "https://wa.me/919869202194?text=" + encodeURIComponent(message);
+  }
   const search = document.getElementById("search");
   if (search) search.placeholder = t.searchPlaceholder;
   setText("uiLanguageLabel", t.language);
