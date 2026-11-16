@@ -1241,3 +1241,9 @@ button, select, input, label, .page-info, .header-attribution {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
+
+@media (max-width: 600px) {
+  /* The two-line title row needs its own reserved height. */
+  :root { --reader-header-height: clamp(62px, 17vw, 72px); }
+}
