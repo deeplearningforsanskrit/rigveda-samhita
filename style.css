@@ -1454,12 +1454,16 @@ body {
   }
 
   .jump-controls #jumpGo {
-    grid-column: auto;
+    grid-area: go;
     justify-self: stretch;
     width: 100%;
+    min-width: 0;
     min-height: 40px;
     padding: 8px 12px;
     font-size: 13px;
     white-space: nowrap;
   }
+  .jump-controls > .input-list-wrapper:nth-child(2) { grid-area: ashtaka; }
+  .jump-controls > .input-list-wrapper:nth-child(3) { grid-area: adhyaya; }
+  .jump-controls > #wrapperJump3 { grid-area: varga; }
 }
