@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#6f1d1b">
+  <title>Visitor statistics · ऋग्वेद संहिता</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #292522;
+      --muted: #716963;
+      --paper: #fbf8f2;
+      --card: #fffdf9;
+      --line: #e8dfd2;
+      --accent: #7b2925;
+      --accent-soft: #f3e8e3;
+      --gold: #b58a43;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    main { width: min(100% - 32px, 980px); margin: 36px auto 56px; }
+    header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+    h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2rem); letter-spacing: -.03em; }
+    .subtitle { color: var(--muted); margin: 6px 0 0; font-size: .94rem; }
+    .site-tag { color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 7px 11px; font-size: .78rem; white-space: nowrap; }
+    .panel, .metric, .chart-panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 5px 20px #34251a08; }
+    .setup { max-width: 540px; margin: 48px auto; padding: 24px; }
+    h2 { margin: 0 0 8px; font-size: 1.08rem; }
+    p { line-height: 1.55; }
+    .muted, .help { color: var(--muted); }
+    .help { font-size: .88rem; }
+    label { display: block; font-size: .9rem; font-weight: 650; margin: 18px 0 7px; }
+    input { width: 100%; border: 1px solid #cfc3b5; border-radius: 9px; padding: 12px 13px; font: inherit; background: white; color: var(--ink); }
+    button { border: 0; border-radius: 9px; padding: 11px 16px; font: inherit; font-weight: 650; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: wait; }
+    .primary { background: var(--accent); color: white; }
+    .secondary { background: #f0e9df; color: var(--ink); }
+    .actions { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 16px; }
+    .notice { padding: 11px 13px; border-radius: 9px; background: #f5efe5; color: #655545; font-size: .86rem; }
+    .error { background: #fff0ed; color: #9b2c20; }
+    .hidden { display: none !important; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+    .metric { padding: 18px; min-width: 0; }
+    .metric-label { color: var(--muted); font-size: .84rem; }
+    .metric-value { display: block; font-size: clamp(1.45rem, 3vw, 2rem); font-weight: 750; margin-top: 8px; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+    .chart-panel { margin-top: 15px; padding: 20px; }
+    .chart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .chart-head p { margin: 0; font-size: .84rem; color: var(--muted); }
+    .bars { height: 190px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; align-items: end; padding: 18px 2px 0; }
+    .bar-col { display: flex; height: 100%; flex-direction: column; justify-content: end; align-items: center; gap: 7px; min-width: 0; }
+    .bar-value { font-size: .76rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .bar-track { height: 135px; width: min(100%, 48px); display: flex; align-items: end; background: #f3eee7; border-radius: 7px 7px 3px 3px; overflow: hidden; }
+    .bar { width: 100%; min-height: 2px; background: linear-gradient(180deg, #c39a56, #7b2925); border-radius: 6px 6px 0 0; }
+    .bar-day { font-size: .75rem; color: var(--muted); }
+    .table-panel { margin-top: 15px; overflow: hidden; }
+    .table-panel h2 { padding: 18px 20px 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 20px; border-top: 1px solid var(--line); text-align: left; font-size: .9rem; }
+    th { color: var(--muted); font-weight: 600; font-size: .8rem; }
+    td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    .path { overflow-wrap: anywhere; }
+    .footer-note { margin-top: 18px; color: var(--muted); font-size: .8rem; }
+    @media (max-width: 700px) {
+      main { width: min(100% - 22px, 980px); margin-top: 22px; }
+      header { align-items: flex-start; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+      .metric { padding: 14px; }
+      .chart-panel { padding: 15px; }
+      th, td { padding: 11px 13px; }
+      .site-tag { font-size: .7rem; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Visitor statistics</h1>
+        <p class="subtitle">ऋग्वेद संहिता · Private-use dashboard</p>
+      </div>
+      <span class="site-tag">GoatCounter</span>
+    </header>
+
+    <section id="dashboard" aria-live="polite">
+      <div class="toolbar">
+        <span id="updatedAt" class="help">Loading statistics…</span>
+        <div class="actions" style="margin:0">
+          <button class="secondary" id="refreshButton" type="button">Refresh</button>
+        </div>
+      </div>
+      <div class="metrics">
+        <article class="metric"><span class="metric-label">All-time visitors</span><strong class="metric-value" id="allTime">—</strong></article>
+        <article class="metric"><span class="metric-label">Today</span><strong class="metric-value" id="today">—</strong></article>
+        <article class="metric"><span class="metric-label">Yesterday</span><strong class="metric-value" id="yesterday">—</strong></article>
+        <article class="metric"><span class="metric-label">Last 7 days</span><strong class="metric-value" id="lastSeven">—</strong></article>
+      </div>
+      <section class="chart-panel">
+        <div class="chart-head"><h2>Daily visitors</h2><p>Last 7 days</p></div>
+        <div id="dailyChart" class="bars" aria-label="Daily visitors chart"></div>
+      </section>
+      <section class="panel table-panel">
+        <h2>Most visited pages · last 7 days</h2>
+        <table>
+          <thead><tr><th>Page</th><th>Visitors</th></tr></thead>
+          <tbody id="topPages"><tr><td colspan="2" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </section>
+      <p id="dashboardStatus" class="help" role="status" aria-live="polite"></p>
+    </section>
+    <p class="footer-note">This page is unlisted, not access-controlled. The read-only API key is embedded in this public page source, so anyone who discovers the page can copy it and view the statistics it permits. <a href="https://www.goatcounter.com/help/api" target="_blank" rel="noopener noreferrer">GoatCounter API documentation</a>.</p>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+      const API_BASE = "https://rigveda-samhita.goatcounter.com/api/v0";
+      // Public read-only key: anyone who views this source can copy it.
+      const API_TOKEN = "gm9ojoawn9hz1h61irdxyx1gy3mpexhcwric9h2yr5xcg1it9";
+      const $ = (id) => document.getElementById(id);
+      const number = (value) => new Intl.NumberFormat().format(Number(value) || 0);
+      const localDateKey = (date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + d;
+      };
+      const startOfLocalDay = (date) => {
+        const value = new Date(date);
+        value.setHours(0, 0, 0, 0);
+        return value;
+      };
+      const isoHour = (date) => {
+        const value = new Date(date);
+        value.setMinutes(0, 0, 0);
+        return value.toISOString();
+      };
+      const setStatus = (element, message, isError = false) => {
+        element.textContent = message;
+        element.classList.toggle("error", isError);
+      };
+
+      async function apiGet(path, token) {
+        const response = await fetch(API_BASE + path, {
+          method: "GET",
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Accept": "application/json"
+          },
+          cache: "no-store"
+        });
+        let data = {};
+        try { data = await response.json(); } catch (_) {}
+        if (!response.ok) {
+          const detail = data.error || data.Error ||
+            (data.errors ? JSON.stringify(data.errors) : "");
+          if (response.status === 401) throw new Error("API key was rejected. Check it or create a new key in GoatCounter.");
+          if (response.status === 403) throw new Error("This API key does not have permission to read statistics. Create a key with stats/read access.");
+          throw new Error(detail || "GoatCounter returned HTTP " + response.status + ".");
+        }
+        return data;
+      }
+
+      function renderChart(stats) {
+        const values = new Map((stats || []).map((item) => [item.day, Number(item.daily) || 0]));
+        const today = startOfLocalDay(new Date());
+        const days = [];
+        for (let offset = 6; offset >= 0; offset--) {
+          const date = new Date(today);
+          date.setDate(today.getDate() - offset);
+          const key = localDateKey(date);
+          days.push({ key, label: date.toLocaleDateString(undefined, { weekday: "short" }), value: values.get(key) || 0 });
+        }
+        const max = Math.max(1, ...days.map((day) => day.value));
+        $("dailyChart").replaceChildren();
+        days.forEach((day) => {
+          const col = document.createElement("div");
+          col.className = "bar-col";
+          const value = document.createElement("span");
+          value.className = "bar-value";
+          value.textContent = number(day.value);
+          const track = document.createElement("div");
+          track.className = "bar-track";
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.height = (day.value ? Math.max(3, day.value / max * 100) : 0) + "%";
+          bar.title = day.key + ": " + number(day.value) + " visitors";
+          track.append(bar);
+          const label = document.createElement("span");
+          label.className = "bar-day";
+          label.textContent = day.label;
+          col.append(value, track, label);
+          $("dailyChart").append(col);
+        });
+      }
+
+      function renderTopPages(hits) {
+        const body = $("topPages");
+        body.replaceChildren();
+        const rows = Array.isArray(hits) ? hits.slice(0, 10) : [];
+        if (!rows.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 2;
+          td.className = "muted";
+          td.textContent = "No page data for this period yet.";
+          tr.append(td);
+          body.append(tr);
+          return;
+        }
+        rows.forEach((hit) => {
+          const tr = document.createElement("tr");
+          const path = document.createElement("td");
+          path.className = "path";
+          path.textContent = hit.path || "(unknown page)";
+          const count = document.createElement("td");
+          count.textContent = number(hit.count);
+          tr.append(path, count);
+          body.append(tr);
+        });
+      }
+
+      async function loadDashboard(token) {
+        $("refreshButton").disabled = true;
+        setStatus($("dashboardStatus"), "Loading statistics…");
+        const now = new Date();
+        const end = isoHour(now);
+        const todayStart = startOfLocalDay(now);
+        const yesterdayStart = new Date(todayStart);
+        yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+        const weekStart = new Date(todayStart);
+        weekStart.setDate(weekStart.getDate() - 6);
+
+        try {
+          const [allTime, week, pages] = await Promise.all([
+            apiGet("/stats/total?start=1970-01-01T00%3A00%3A00Z&end=" + encodeURIComponent(end), token),
+            apiGet("/stats/total?start=" + encodeURIComponent(isoHour(weekStart)) + "&end=" + encodeURIComponent(end), token),
+            apiGet("/stats/hits?start=" + encodeURIComponent(isoHour(weekStart)) + "&end=" + encodeURIComponent(end) + "&limit=10&group=day", token)
+          ]);
+
+          const daily = Array.isArray(week.stats) ? week.stats : [];
+          const dayCounts = new Map(daily.map((item) => [item.day, Number(item.daily) || 0]));
+          const todayCount = dayCounts.get(localDateKey(todayStart)) || 0;
+          const yesterdayCount = dayCounts.get(localDateKey(yesterdayStart)) || 0;
+          $("allTime").textContent = number(allTime.total);
+          $("today").textContent = number(todayCount);
+          $("yesterday").textContent = number(yesterdayCount);
+          $("lastSeven").textContent = number(week.total);
+          renderChart(daily);
+          renderTopPages(pages.hits);
+          $("updatedAt").textContent = "Updated " + new Date().toLocaleString();
+          setStatus($("dashboardStatus"), "Statistics loaded successfully.");
+        } catch (error) {
+          setStatus($("dashboardStatus"), error.message || "Unable to load statistics.", true);
+          throw error;
+        } finally {
+          $("refreshButton").disabled = false;
+        }
+      }
+
+      $("refreshButton").addEventListener("click", async () => {
+        try { await loadDashboard(API_TOKEN); }
+        catch (_) {}
+      });
+
+      loadDashboard(API_TOKEN).catch(() => {});
+    })();
+  </script>
+</body>
+</html>

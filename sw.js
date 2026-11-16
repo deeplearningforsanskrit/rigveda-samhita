@@ -94,8 +94,12 @@ async function refreshVersionCache(targetVersion) {
 
 // ─── FETCH ───────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', (event) => {
-  // Only handle same-origin GET requests
+  // Only handle same-origin GET requests. Keep the unlisted analytics dashboard
+  // out of the app's offline cache so its private-use page is always fetched fresh.
   if (event.request.method !== 'GET') return;
+  const requestURL = new URL(event.request.url);
+  if (requestURL.origin !== self.location.origin) return;
+  if (requestURL.pathname.includes('/visitorcount/')) return;
 
   event.respondWith(
     (async () => {
