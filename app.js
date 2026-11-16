@@ -716,6 +716,7 @@ function updateScriptFont() {
   document.body.classList.add(`script-${CURRENT_SCRIPT}`);
 }
 function bindEvents() {
+  setupFilterModal();
   const uiLanguageSelect = document.getElementById("uiLanguageSelect");
   if (uiLanguageSelect) {
     uiLanguageSelect.value = CURRENT_UI_LANGUAGE;
