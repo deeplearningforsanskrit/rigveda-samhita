@@ -6,6 +6,79 @@ let INFINITE_SCROLL_ACTIVE = false; // true only while browsing (not showing sea
 let searchDebounceTimer = null;
 let SHOW_PADA_PATHA = false;
 let CURRENT_SCRIPT = "devanagari";
+
+let CURRENT_UI_LANGUAGE = localStorage.getItem("rigvedaUiLanguage") || "mr";
+
+const UI_TRANSLATIONS = {
+  mr: {
+    language: "भाषा:", previous: "← मागे", next: "पुढे →",
+    previousSukta: "← मागील सूक्त", nextSukta: "पुढील सूक्त →",
+    share: "दुवा पाठवा", go: "जा", padaOn: "पदपाठ: सुरू", padaOff: "पदपाठ: बंद",
+    searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", reportIssueMessage: "नमस्कार, ऋग्वेद संहिता संकेतस्थळाबाबत मला एक त्रुटी कळवायची आहे: ", script: "लिपी:", linkCopied: "दुवा नक्कल केला!",
+    mandala: "मंडल", sukta: "सूक्त",
+    autoScrollStart: "▶ स्वयंस्क्रोल सुरू करा", autoScrollPause: "Ⅱ थांबवा",
+    autoScrollStartLabel: "स्वयंस्क्रोल सुरू करा", autoScrollPauseLabel: "स्वयंस्क्रोल थांबवा"
+  },
+  en: {
+    language: "Language:", previous: "← Previous", next: "Next →",
+    previousSukta: "← Previous Sukta", nextSukta: "Next Sukta →",
+    share: "Share link", go: "Go", padaOn: "Padapatha: On", padaOff: "Padapatha: Off",
+    searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", reportIssueMessage: "Hello, I would like to report an issue with the Rigveda Samhita website: ", script: "Script:", linkCopied: "Link copied!",
+    mandala: "Mandala", sukta: "Sukta",
+    autoScrollStart: "▶ Auto-scroll", autoScrollPause: "Ⅱ Pause",
+    autoScrollStartLabel: "Start mantra auto-scroll", autoScrollPauseLabel: "Pause mantra auto-scroll"
+  },
+  te: {
+    language: "భాష:", previous: "← వెనుకకు", next: "తదుపరి →",
+    previousSukta: "← మునుపటి సూక్తం", nextSukta: "తదుపరి సూక్తం →",
+    share: "లింక్‌ను పంపండి", go: "వెళ్ళండి", padaOn: "పదపాఠం: ప్రారంభం", padaOff: "పదపాఠం: నిలిపివేత",
+    searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", reportIssueMessage: "నమస్కారం, ఋగ్వేద సంహిత వెబ్‌సైట్‌లోని ఒక సమస్యను తెలియజేయాలనుకుంటున్నాను: ", script: "లిపి:", linkCopied: "లింక్ కాపీ చేయబడింది!",
+    mandala: "మండలం", sukta: "సూక్తం",
+    autoScrollStart: "▶ ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPause: "Ⅱ ఆపండి",
+    autoScrollStartLabel: "ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPauseLabel: "ఆటో స్క్రోల్ ఆపండి"
+  },
+  kn: {
+    language: "ಭಾಷೆ:", previous: "← ಹಿಂದೆ", next: "ಮುಂದೆ →",
+    previousSukta: "← ಹಿಂದಿನ ಸೂಕ್ತ", nextSukta: "ಮುಂದಿನ ಸೂಕ್ತ →",
+    share: "ಲಿಂಕ್ ಕಳುಹಿಸಿ", go: "ಹೋಗಿ", padaOn: "ಪದಪಾಠ: चालू", padaOff: "ಪದಪಾಠ: ಆಫ್",
+    searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", reportIssueMessage: "ನಮಸ್ಕಾರ, ಋಗ್ವೇದ ಸಂಹಿತಾ ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿನ ಒಂದು ಸಮಸ್ಯೆಯನ್ನು ವರದಿ ಮಾಡಲು ಬಯಸುತ್ತೇನೆ: ", script: "ಲಿಪಿ:", linkCopied: "ಲಿಂಕ್ ನಕಲಿಸಲಾಗಿದೆ!",
+    mandala: "ಮಂಡಲ", sukta: "ಸೂಕ್ತ",
+    autoScrollStart: "▶ ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPause: "Ⅱ ವಿರಾಮ",
+    autoScrollStartLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPauseLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ವಿರಾಮಗೊಳಿಸಿ"
+  }
+};
+
+function applyUiLanguage() {
+  const language = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] ? CURRENT_UI_LANGUAGE : "mr";
+  CURRENT_UI_LANGUAGE = language;
+  const t = UI_TRANSLATIONS[language];
+  const setText = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  };
+  setText("prevTop", t.previous);
+  setText("nextTop", t.next);
+  setText("prevBottom", t.previousSukta);
+  setText("nextBottom", t.nextSukta);
+  setText("shareBtn", t.share);
+  setText("jumpGo", t.go);
+  setText("reportIssueLink", "🐞 " + t.reportIssue);
+  const reportIssueLink = document.getElementById("reportIssueLink");
+  if (reportIssueLink) {
+    const message = t.reportIssueMessage || UI_TRANSLATIONS.en.reportIssueMessage;
+    reportIssueLink.href = "https://wa.me/919869202194?text=" + encodeURIComponent(message);
+  }
+  const search = document.getElementById("search");
+  if (search) search.placeholder = t.searchPlaceholder;
+  setText("uiLanguageLabel", t.language);
+  setText("scriptLabel", t.script);
+  const selector = document.getElementById("uiLanguageSelect");
+  if (selector && selector.value !== language) selector.value = language;
+  updatePadaToggleButton();
+  syncAutoScrollButtons(autoScrollTimer !== null);
+  if (INFINITE_SCROLL_ACTIVE && SUKTA_PAGES.length) updatePageInfo();
+}
+
 const DATA_FILES = {
   devanagari: "rigveda.json",
   kannada: "rigveda_kannada.json",
@@ -541,11 +614,11 @@ function updateFilterButton() {
   if (count > 0) {
     btn.classList.add("active");
     btn.setAttribute("data-count", count);
-    btn.textContent = `Filter (${count})`;
+    btn.textContent = `शोध निकष (${count})`;
   } else {
     btn.classList.remove("active");
     btn.removeAttribute("data-count");
-    btn.textContent = "Filter";
+    btn.textContent = "शोध निकष";
   }
 }
 
@@ -643,6 +716,18 @@ function updateScriptFont() {
   document.body.classList.add(`script-${CURRENT_SCRIPT}`);
 }
 function bindEvents() {
+  setupFilterModal();
+  const uiLanguageSelect = document.getElementById("uiLanguageSelect");
+  if (uiLanguageSelect) {
+    uiLanguageSelect.value = CURRENT_UI_LANGUAGE;
+    uiLanguageSelect.addEventListener("change", (event) => {
+      CURRENT_UI_LANGUAGE = UI_TRANSLATIONS[event.target.value] ? event.target.value : "mr";
+      localStorage.setItem("rigvedaUiLanguage", CURRENT_UI_LANGUAGE);
+      applyUiLanguage();
+    });
+  }
+  applyUiLanguage();
+
   const scriptSelect = document.getElementById("scriptSelect");
 
 if (scriptSelect) {
@@ -765,7 +850,8 @@ function updatePadaToggleButton() {
   const btn = document.getElementById("togglePadaBtn");
   if (!btn) return;
 
-  btn.textContent = SHOW_PADA_PATHA ? "पद पाठ: ON" : "पद पाठ: OFF";
+  const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr;
+  btn.textContent = SHOW_PADA_PATHA ? t.padaOn : t.padaOff;
   btn.classList.toggle("active", SHOW_PADA_PATHA);
 }
 
@@ -1257,6 +1343,18 @@ function centerAndHighlight(ref) {
   });
 }
 
+function toScriptDigits(value) {
+  const digitSets = {
+    devanagari: "०१२३४५६७८९",
+    telugu: "౦౧౨౩౪౫౬౭౮౯",
+    kannada: "೦೧೨೩೪೫೬೭೮೯"
+  };
+  const digits = digitSets[CURRENT_SCRIPT];
+  return digits
+    ? String(value).replace(/\d/g, digit => digits[Number(digit)])
+    : String(value);
+}
+
 function updatePageInfo(overrideText = null) {
   const top = document.getElementById("pageInfo");
   const bottom = document.getElementById("pageInfoBottom");
@@ -1265,7 +1363,11 @@ function updatePageInfo(overrideText = null) {
 
   if (!text) {
     const page = SUKTA_PAGES[CURRENT_PAGE_INDEX];
-    text = `Mandala ${page.mandala} · Sukta ${String(page.sukta).padStart(3, "0")} · ${CURRENT_PAGE_INDEX + 1}/${SUKTA_PAGES.length}`;
+    const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr;
+    const mandala = toScriptDigits(page.mandala);
+    const sukta = toScriptDigits(String(page.sukta).padStart(3, "0"));
+    const position = toScriptDigits(`${CURRENT_PAGE_INDEX + 1}/${SUKTA_PAGES.length}`);
+    text = `${t.mandala} ${mandala} · ${t.sukta} ${sukta} · ${position}`;
   }
 
   if (top) top.textContent = text;
@@ -1319,7 +1421,7 @@ async function copyToClipboard(text, el) {
   try {
     await navigator.clipboard.writeText(text);
     const originalText = el.textContent;
-    el.textContent = "Copied!";
+    el.textContent = "नक्कल झाली!";
     el.style.opacity = "0.7";
     setTimeout(() => {
       el.textContent = originalText;
@@ -1358,9 +1460,9 @@ async function copyAllVisible() {
 
   if (!text.trim()) {
     if (btn) {
-      btn.textContent = "Nothing to copy";
+      btn.textContent = "नक्कल करण्यासाठी मजकूर नाही";
       setTimeout(() => {
-        btn.textContent = "Copy All";
+        btn.textContent = "क्लिपबोर्डवर नक्कल करा";
       }, 1500);
     }
     return;
@@ -1370,7 +1472,7 @@ async function copyAllVisible() {
     await navigator.clipboard.writeText(text);
     if (btn) {
       const originalText = btn.textContent;
-      btn.textContent = `Copied ${text.split("\n").length} lines!`;
+      btn.textContent = `${text.split("\n").length} ओळी क्लिपबोर्डवर नक्कल केल्या!`;
       setTimeout(() => {
         btn.textContent = originalText;
       }, 2000);
@@ -1781,24 +1883,37 @@ function getCurrentShareUrl() {
 
 async function shareCurrentSukta() {
   const url = getCurrentShareUrl();
+  const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr;
 
-  if (navigator.share) {
+  // On Android and other supported browsers this opens the native system
+  // share sheet. Keep this call directly in the click handler's call path.
+  if (typeof navigator.share === "function") {
     try {
       await navigator.share({
         title: "ऋग्वेद",
+        text: t.share,
         url
       });
       return;
-    } catch (_) {}
+    } catch (error) {
+      // Closing the native share sheet is not a failure; do not copy instead.
+      if (error && error.name === "AbortError") return;
+      console.warn("Native sharing unavailable; using clipboard fallback.", error);
+    }
   }
 
-  await navigator.clipboard.writeText(url);
-
-  const btn = document.getElementById("shareBtn");
-  if (btn) {
-    const old = btn.textContent;
-    btn.textContent = "Link Copied!";
-    setTimeout(() => btn.textContent = old, 1500);
+  try {
+    await navigator.clipboard.writeText(url);
+    const btn = document.getElementById("shareBtn");
+    if (btn) {
+      const old = btn.textContent;
+      btn.textContent = t.linkCopied;
+      setTimeout(() => {
+        btn.textContent = (UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr).share;
+      }, 1500);
+    }
+  } catch (error) {
+    console.error("Unable to share or copy the link:", error);
   }
 }
 
@@ -1837,9 +1952,10 @@ function syncAutoScrollButtons(isRunning) {
   ];
   buttons.forEach(button => {
     if (!button) return;
-    button.textContent = isRunning ? "Ⅱ Pause" : "▶ Auto-scroll";
+    const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr;
+    button.textContent = isRunning ? t.autoScrollPause : t.autoScrollStart;
     button.setAttribute("aria-pressed", String(isRunning));
-    button.setAttribute("aria-label", isRunning ? "Pause mantra auto-scroll" : "Start mantra auto-scroll");
+    button.setAttribute("aria-label", isRunning ? t.autoScrollPauseLabel : t.autoScrollStartLabel);
   });
 }
 

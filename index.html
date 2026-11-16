@@ -18,8 +18,12 @@
 </head>
 <body>
 <div class="topbar-head sticky-topbar-head">
-    <h1>ऋग्वेद संहिता</h1>
+    <div class="topbar-title-group">
+      <h1>ऋग्वेद संहिता</h1>
+      <span class="header-tagline">वन्दे गुरु परम्पराम्</span>
+    </div>
     <span id="appVersion" class="app-version" aria-label="App version"></span>
+    <a id="reportIssueLink" class="report-issue-link" href="https://wa.me/919869202194?text=Hello%2C%20I%20would%20like%20to%20report%20an%20issue%20with%20the%20Rigveda%20Samhita%20website%3A%20" target="_blank" rel="noopener noreferrer" aria-label="Report a website issue on WhatsApp">🐞 <span>त्रुटी कळवा</span></a>
     <button id="headerToggle" class="header-toggle" type="button" aria-label="Hide header">
       <span class="chevron">»</span>
     </button>
@@ -31,19 +35,19 @@
       <input
         id="search"
         type="text"
-        placeholder="Search in Devanagari or transliteration..."
+        placeholder="मंत्र शोधा..."
         autocomplete="off"
       />
-      <button id="filterBtn" type="button">Filter</button>
+      <button id="filterBtn" type="button">शोध निकष</button>
     </div>
 
 <div class="nav-toolbar">
 
   <div class="nav-buttons">
-    <button id="prevTop" class="nav-btn">← Prev</button>
-    <button id="shareBtn" class="nav-btn" type="button">Share</button>
-    <button id="copyAllBtn" class="nav-btn" type="button">Copy Page</button>
-    <button id="nextTop" class="nav-btn">Next →</button>
+    <button id="prevTop" class="nav-btn">← मागे</button>
+    <button id="shareBtn" class="nav-btn" type="button">शेअर करा</button>
+    <button id="copyAllBtn" class="nav-btn" type="button">क्लिपबोर्डवर नक्कल करा</button>
+    <button id="nextTop" class="nav-btn">पुढे →</button>
   </div>
 
   <div id="pageInfo" class="page-info">
@@ -64,7 +68,7 @@
 
 </div>
 <div class="options-toolbar">
-  <button id="togglePadaBtn" type="button">पद पाठ: OFF</button>
+  <button id="togglePadaBtn" type="button">पदपाठ: बंद</button>
 
   <select id="jumpMode">
     <label for="jumpMode">प्रकार</label>
@@ -87,12 +91,19 @@
     <datalist id="listJump3"></datalist>
   </div>
 
-  <button id="jumpGo" type="button">Go</button>
+  <button id="jumpGo" type="button">जा</button>
 
 
   </div>
   <div class="script-selector">
-  <label for="scriptSelect">Script:</label>
+  <label for="uiLanguageSelect"><span aria-hidden="true">🌐</span> <span id="uiLanguageLabel">भाषा:</span></label>
+  <select id="uiLanguageSelect" aria-label="Interface language">
+    <option value="mr">मराठी</option>
+    <option value="en">English</option>
+    <option value="te">తెలుగు</option>
+    <option value="kn">ಕನ್ನಡ</option>
+  </select>
+  <label for="scriptSelect"><span aria-hidden="true">अ文</span> <span id="scriptLabel">लिपी:</span></label>
   <select id="scriptSelect">
     <option value="devanagari" selected>देवनागरी</option>
     <option value="kannada">ಕನ್ನಡ</option>
@@ -101,10 +112,15 @@
 </div>
 
     <div id="status">Loading...</div>
+    <div class="header-attribution">
+      <span>Developed by <a href="https://abhi-glitchhg.github.io/" target="_blank" rel="noopener noreferrer">Abhijit Deo</a></span>
+      <a href="https://deeplearningforsanskrit.github.io/" target="_blank" rel="noopener noreferrer">Project Website</a>
+    </div>
+
   <div id="filterModal" class="modal hidden">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>Search Filters</h2>
+        <h2>शोध निकष</h2>
         <button id="closeFilterModal" class="close-btn" type="button">&times;</button>
       </div>
       <div class="modal-body">
@@ -128,8 +144,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button id="clearFiltersBtn" type="button" class="secondary-btn">Clear Filters</button>
-        <button id="applyFiltersBtn" type="button" class="primary-btn">Apply Filters</button>
+        <button id="clearFiltersBtn" type="button" class="secondary-btn">निकष काढा</button>
+        <button id="applyFiltersBtn" type="button" class="primary-btn">निकष लागू करा</button>
       </div>
     </div>
   </div>
@@ -141,32 +157,15 @@
     <div id="scrollSentinel" aria-hidden="true"></div>
 
     <div class="reader-toolbar bottom-toolbar">
-      <button id="prevBottom">← Previous Sukta</button>
+      <button id="prevBottom">← मागील सूक्त</button>
       <div id="pageInfoBottom" class="page-info">Loading...</div>
-      <button id="nextBottom">Next Sukta →</button>
+      <button id="nextBottom">पुढील सूक्त →</button>
     </div>
   </main>
 
   <script src="app.js"></script>
 
-  <footer class="footer" align="center">
-    <div>
-      Developed by
-      <a href="https://abhi-glitchhg.github.io/" target="_blank">
-        Abhijit Deo
-      </a>
-    </div>
 
-    <div>
-      <a href="https://deeplearningforsanskrit.github.io/" target="_blank">
-        Project Website
-      </a>
-    </div>
-
-    <div class="tagline">
-      वन्दे गुरु परम्पराम्
-    </div>
-  </footer>
 
   <aside id="pwaInstallPrompt" class="pwa-install-prompt" aria-labelledby="pwaInstallTitle" aria-describedby="pwaInstallDescription" hidden>
     <button id="pwaInstallClose" class="pwa-install-close" type="button" aria-label="Dismiss install suggestion">&times;</button>

@@ -392,9 +392,27 @@ main {
   gap: 12px;
 }
 
+.topbar-head {
+  position: relative;
+}
+
+.topbar-title-group {
+  display: contents;
+}
+
 .topbar-head h1 {
   margin: 0;
   font-family: 'Tiro Devanagari Sanskrit', serif;
+}
+
+.topbar-title-group .header-tagline {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
 }
 
 .topbar-content {
@@ -999,4 +1017,71 @@ body {
 
 .topbar-head h1 {
   margin-right: auto;
+}
+
+
+/* Keep bug reporting reachable from the pinned title row while reading. */
+.report-issue-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 7px 9px;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  background: #1e293b;
+  color: #bfdbfe;
+  font: 600 12px/1.2 sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.report-issue-link:hover,
+.report-issue-link:focus-visible {
+  background: #334155;
+  border-color: #93c5fd;
+  color: #fff;
+}
+.report-issue-link:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+@media (max-width: 480px) {
+  .report-issue-link {
+    padding: 7px;
+    font-size: 11px;
+    gap: 3px;
+  }
+}
+
+/* Compact project credits within the expanded reader header. */
+.header-attribution {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 8px 0 12px;
+  padding-top: 9px;
+  border-top: 1px solid #333;
+  color: #94a3b8;
+  font-family: sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.header-attribution a {
+  color: #93c5fd;
+  text-decoration: none;
+}
+
+.header-attribution a:hover {
+  text-decoration: underline;
+}
+
+.header-tagline {
+  color: #e2e8f0;
+  font-family: var(--sanskrit-font), serif;
+  font-size: 14px;
 }
