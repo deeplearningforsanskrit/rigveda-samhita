@@ -17,7 +17,8 @@ const UI_TRANSLATIONS = {
     searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", reportIssueMessage: "नमस्कार, ऋग्वेद संहिता संकेतस्थळाबाबत मला एक त्रुटी कळवायची आहे: ", script: "लिपी:", linkCopied: "दुवा नक्कल केला!",
     mandala: "मंडल", sukta: "सूक्त",
     autoScrollStart: "▶ स्वयंस्क्रोल सुरू करा", autoScrollPause: "Ⅱ थांबवा",
-    autoScrollStartLabel: "स्वयंस्क्रोल सुरू करा", autoScrollPauseLabel: "स्वयंस्क्रोल थांबवा"
+    autoScrollStartLabel: "स्वयंस्क्रोल सुरू करा", autoScrollPauseLabel: "स्वयंस्क्रोल थांबवा",
+    copy: "क्लिपबोर्डवर नक्कल करा", copyEmpty: "नक्कल करण्यासाठी मजकूर नाही", copiedLines: "ओळी क्लिपबोर्डवर नक्कल केल्या!", filter: "शोध निकष", filterTitle: "शोध निकष", all: "सर्व", ashtaka: "अष्टक", adhyaya: "अध्याय", mandalaLabel: "मंडल", suktaLabel: "सूक्त", mantra: "मंत्र", varga: "वर्ग", rikMode: "मंडल/सूक्त", ashtakaMode: "अष्टक/अध्याय/वर्ग", clear: "निकष काढा", apply: "निकष लागू करा"
   },
   en: {
     language: "Language:", previous: "← Previous", next: "Next →",
@@ -26,7 +27,8 @@ const UI_TRANSLATIONS = {
     searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", reportIssueMessage: "Hello, I would like to report an issue with the Rigveda Samhita website: ", script: "Script:", linkCopied: "Link copied!",
     mandala: "Mandala", sukta: "Sukta",
     autoScrollStart: "▶ Auto-scroll", autoScrollPause: "Ⅱ Pause",
-    autoScrollStartLabel: "Start mantra auto-scroll", autoScrollPauseLabel: "Pause mantra auto-scroll"
+    autoScrollStartLabel: "Start mantra auto-scroll", autoScrollPauseLabel: "Pause mantra auto-scroll",
+    copy: "Copy to clipboard", copyEmpty: "Nothing to copy", copiedLines: "lines copied to clipboard!", filter: "Search filters", filterTitle: "Search filters", all: "All", ashtaka: "Ashtaka", adhyaya: "Adhyaya", mandalaLabel: "Mandala", suktaLabel: "Sukta", mantra: "Mantra", varga: "Varga", rikMode: "Mandala/Sukta", ashtakaMode: "Ashtaka/Adhyaya/Varga", clear: "Clear filters", apply: "Apply filters"
   },
   te: {
     language: "భాష:", previous: "← వెనుకకు", next: "తదుపరి →",
@@ -35,7 +37,8 @@ const UI_TRANSLATIONS = {
     searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", reportIssueMessage: "నమస్కారం, ఋగ్వేద సంహిత వెబ్‌సైట్‌లోని ఒక సమస్యను తెలియజేయాలనుకుంటున్నాను: ", script: "లిపి:", linkCopied: "లింక్ కాపీ చేయబడింది!",
     mandala: "మండలం", sukta: "సూక్తం",
     autoScrollStart: "▶ ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPause: "Ⅱ ఆపండి",
-    autoScrollStartLabel: "ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPauseLabel: "ఆటో స్క్రోల్ ఆపండి"
+    autoScrollStartLabel: "ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPauseLabel: "ఆటో స్క్రోల్ ఆపండి",
+    copy: "క్లిప్‌బోర్డ్‌కు కాపీ చేయండి", copyEmpty: "కాపీ చేయడానికి ఏమీ లేదు", copiedLines: "పంక్తులు క్లిప్‌బోర్డ్‌కు కాపీ చేయబడ్డాయి!", filter: "శోధన వడపోతలు", filterTitle: "శోధన వడపోతలు", all: "అన్నీ", ashtaka: "అష్టకం", adhyaya: "అధ్యాయం", mandalaLabel: "మండలం", suktaLabel: "సూక్తం", mantra: "మంత్రం", varga: "వర్గం", rikMode: "మండలం/సూక్తం", ashtakaMode: "అష్టకం/అధ్యాయం/వర్గం", clear: "వడపోతలను తొలగించండి", apply: "వడపోతలను వర్తింపజేయండి"
   },
   kn: {
     language: "ಭಾಷೆ:", previous: "← ಹಿಂದೆ", next: "ಮುಂದೆ →",
@@ -44,7 +47,8 @@ const UI_TRANSLATIONS = {
     searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", reportIssueMessage: "ನಮಸ್ಕಾರ, ಋಗ್ವೇದ ಸಂಹಿತಾ ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿನ ಒಂದು ಸಮಸ್ಯೆಯನ್ನು ವರದಿ ಮಾಡಲು ಬಯಸುತ್ತೇನೆ: ", script: "ಲಿಪಿ:", linkCopied: "ಲಿಂಕ್ ನಕಲಿಸಲಾಗಿದೆ!",
     mandala: "ಮಂಡಲ", sukta: "ಸೂಕ್ತ",
     autoScrollStart: "▶ ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPause: "Ⅱ ವಿರಾಮ",
-    autoScrollStartLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPauseLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ವಿರಾಮಗೊಳಿಸಿ"
+    autoScrollStartLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPauseLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ವಿರಾಮಗೊಳಿಸಿ",
+    copy: "ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ಗೆ ನಕಲಿಸಿ", copyEmpty: "ನಕಲಿಸಲು ಏನೂ ಇಲ್ಲ", copiedLines: "ಸಾಲುಗಳನ್ನು ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ಗೆ ನಕಲಿಸಲಾಗಿದೆ!", filter: "ಹುಡುಕಾಟ ಫಿಲ್ಟರ್‌ಗಳು", filterTitle: "ಹುಡುಕಾಟ ಫಿಲ್ಟರ್‌ಗಳು", all: "ಎಲ್ಲಾ", ashtaka: "ಅಷ್ಟಕ", adhyaya: "ಅಧ್ಯಾಯ", mandalaLabel: "ಮಂಡಲ", suktaLabel: "ಸೂಕ್ತ", mantra: "ಮಂತ್ರ", varga: "ವರ್ಗ", rikMode: "ಮಂಡಲ/ಸೂಕ್ತ", ashtakaMode: "ಅಷ್ಟಕ/ಅಧ್ಯಾಯ/ವರ್ಗ", clear: "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ", apply: "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ಅನ್ವಯಿಸಿ"
   }
 };
 
@@ -74,6 +78,27 @@ function applyUiLanguage() {
   setText("scriptLabel", t.script);
   const selector = document.getElementById("uiLanguageSelect");
   if (selector && selector.value !== language) selector.value = language;
+  setText("copyAllBtn", t.copy);
+  setText("filterModalTitle", t.filterTitle);
+  setText("filterAshtakaLabel", t.ashtaka + ":");
+  setText("filterAdhyayaLabel", t.adhyaya + ":");
+  setText("filterMandalaLabel", t.mandalaLabel + ":");
+  setText("clearFiltersBtn", t.clear);
+  setText("applyFiltersBtn", t.apply);
+  const jumpModeSelect = document.getElementById("jumpMode");
+  if (jumpModeSelect) {
+    jumpModeSelect.querySelector('option[value="rik"]').textContent = t.rikMode;
+    jumpModeSelect.querySelector('option[value="ashtaka"]').textContent = t.ashtakaMode;
+  }
+  ["filterAshtaka", "filterAdhyaya", "filterMandala"].forEach((id) => {
+    const selectElement = document.getElementById(id);
+    if (selectElement && selectElement.options.length) selectElement.options[0].textContent = t.all;
+  });
+  ADHYAYA_DROPDOWN_CACHE.clear();
+  const selectedAshtaka = document.getElementById("filterAshtaka")?.value || "";
+  if (selectedAshtaka) populateAdhyayaDropdown(selectedAshtaka);
+  updateFilterButton();
+  updateJumpModeUI();
   updatePadaToggleButton();
   syncAutoScrollButtons(autoScrollTimer !== null);
   if (INFINITE_SCROLL_ACTIVE && SUKTA_PAGES.length) updatePageInfo();
@@ -556,36 +581,14 @@ function populateFilterDropdowns() {
 
 function populateAdhyayaDropdown(ashtaka) {
   const adhyayaSelect = document.getElementById("filterAdhyaya");
-
-  if (!ashtaka) {
-    adhyayaSelect.innerHTML = '<option value="">All</option>';
-    return;
-  }
-
-  if (ADHYAYA_DROPDOWN_CACHE.has(ashtaka)) {
-    adhyayaSelect.innerHTML = ADHYAYA_DROPDOWN_CACHE.get(ashtaka);
-    return;
-  }
-
-  if (!window.ADHYAYA_BY_ASHTAKA) {
-    adhyayaSelect.innerHTML = '<option value="">All</option>';
-    return;
-  }
-
+  if (!adhyayaSelect) return;
+  const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.en;
+  const allOption = '<option value="">' + t.all + '</option>';
+  if (!ashtaka || !window.ADHYAYA_BY_ASHTAKA) { adhyayaSelect.innerHTML = allOption; return; }
   const values = window.ADHYAYA_BY_ASHTAKA.get(Number(ashtaka));
-  if (!values) {
-    adhyayaSelect.innerHTML = '<option value="">All</option>';
-    return;
-  }
-
-  const sortedValues = Array.from(values).sort((a, b) => a - b);
-  let html = '<option value="">All</option>';
-  for (const val of sortedValues) {
-    html += `<option value="${val}">${val}</option>`;
-  }
-
-  ADHYAYA_DROPDOWN_CACHE.set(ashtaka, html);
-  adhyayaSelect.innerHTML = html;
+  if (!values) { adhyayaSelect.innerHTML = allOption; return; }
+  const sortedValues = Array.from(values).sort((x, y) => x - y);
+  adhyayaSelect.innerHTML = allOption + sortedValues.map((value) => '<option value="' + value + '">' + value + '</option>').join("");
 }
 
 function filterSearchResults(results) {
@@ -609,16 +612,17 @@ function filterSearchResults(results) {
 
 function updateFilterButton() {
   const btn = document.getElementById("filterBtn");
+  if (!btn) return;
   const count = Object.values(CURRENT_FILTERS).filter(v => v !== "").length;
-
+  const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.en;
   if (count > 0) {
     btn.classList.add("active");
     btn.setAttribute("data-count", count);
-    btn.textContent = `शोध निकष (${count})`;
+    btn.textContent = t.filter + " (" + count + ")";
   } else {
     btn.classList.remove("active");
     btn.removeAttribute("data-count");
-    btn.textContent = "शोध निकष";
+    btn.textContent = t.filter;
   }
 }
 
@@ -857,53 +861,26 @@ function updatePadaToggleButton() {
 
 function updateJumpModeUI() {
   const mode = document.getElementById("jumpMode")?.value || "rik";
-
-  const jump1 = document.getElementById("jump1");
-  const jump2 = document.getElementById("jump2");
-  const jump3 = document.getElementById("jump3");
+  const jump1 = document.getElementById("jump1"), jump2 = document.getElementById("jump2"), jump3 = document.getElementById("jump3");
   const wrapperJump3 = document.getElementById("wrapperJump3");
-
-  // Fetch the label elements to alter their text dynamically
-  const lblJump1 = document.getElementById("lblJump1");
-  const lblJump2 = document.getElementById("lblJump2");
-  const lblJump3 = document.getElementById("lblJump3");
-
+  const lblJump1 = document.getElementById("lblJump1"), lblJump2 = document.getElementById("lblJump2"), lblJump3 = document.getElementById("lblJump3");
   if (!jump1 || !jump2 || !jump3) return;
-
+  const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.en;
   const v1 = parseInt(jump1.value) || 1;
-
   if (mode === "rik") {
-    // 1. Reset text elements to Rik mode values
-    // if (lblJump1) lblJump1.textContent = "";
-    // if (lblJump2) lblJump2.textContent = "सुक्त:";
-    // if (lblJump3) lblJump3.textContent = "मण्डल  :";
-
-    // jump1.placeholder = "मण्डल";
-    // jump2.placeholder = "सूक्त";
-    // jump3.placeholder = "मन्त्र";
-
-    populateDatalist("listJump1", 10);
-    populateDatalist("listJump2", rikSuktaMapping[v1] || 191);
-    populateDatalist("listJump3", MAX_MANTRA_FALLBACK);
-
-    if (wrapperJump3) wrapperJump3.classList.add("hidden"); 
-    else jump3.classList.add("hidden");
+    if (lblJump1) lblJump1.textContent = t.mandalaLabel + ":";
+    if (lblJump2) lblJump2.textContent = t.suktaLabel + ":";
+    if (lblJump3) lblJump3.textContent = t.mantra + ":";
+    jump1.placeholder = t.mandalaLabel; jump2.placeholder = t.suktaLabel; jump3.placeholder = t.mantra;
+    populateDatalist("listJump1", 10); populateDatalist("listJump2", rikSuktaMapping[v1] || 191); populateDatalist("listJump3", MAX_MANTRA_FALLBACK);
+    if (wrapperJump3) wrapperJump3.classList.add("hidden"); else jump3.classList.add("hidden");
   } else {
-    // 2. Change text elements to Ashtaka mode values
-    // if (lblJump1) lblJump1.textContent = "अष्टक:";
-    // if (lblJump2) lblJump2.textContent = "अध्याय:"; // Or just "अ:" depending on preference
-    // if (lblJump3) lblJump3.textContent = "वर्ग:";
-
-    jump1.placeholder = "अष्टक";
-    jump2.placeholder = "अध्याय";
-    jump3.placeholder = "वर्ग";
-
-    populateDatalist("listJump1", 8);
-    populateDatalist("listJump2", 8);
-    populateDatalist("listJump3", 64); 
-
-    if (wrapperJump3) wrapperJump3.classList.remove("hidden");
-    else jump3.classList.remove("hidden");
+    if (lblJump1) lblJump1.textContent = t.ashtaka + ":";
+    if (lblJump2) lblJump2.textContent = t.adhyaya + ":";
+    if (lblJump3) lblJump3.textContent = t.varga + ":";
+    jump1.placeholder = t.ashtaka; jump2.placeholder = t.adhyaya; jump3.placeholder = t.varga;
+    populateDatalist("listJump1", 8); populateDatalist("listJump2", 8); populateDatalist("listJump3", 64);
+    if (wrapperJump3) wrapperJump3.classList.remove("hidden"); else jump3.classList.remove("hidden");
   }
 }
 
@@ -1457,29 +1434,15 @@ function getAllVisibleText() {
 async function copyAllVisible() {
   const btn = document.getElementById("copyAllBtn");
   const text = getAllVisibleText();
-
+  const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.en;
   if (!text.trim()) {
-    if (btn) {
-      btn.textContent = "नक्कल करण्यासाठी मजकूर नाही";
-      setTimeout(() => {
-        btn.textContent = "क्लिपबोर्डवर नक्कल करा";
-      }, 1500);
-    }
+    if (btn) { btn.textContent = t.copyEmpty; setTimeout(() => { btn.textContent = (UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.en).copy; }, 1500); }
     return;
   }
-
   try {
     await navigator.clipboard.writeText(text);
-    if (btn) {
-      const originalText = btn.textContent;
-      btn.textContent = `${text.split("\n").length} ओळी क्लिपबोर्डवर नक्कल केल्या!`;
-      setTimeout(() => {
-        btn.textContent = originalText;
-      }, 2000);
-    }
-  } catch (err) {
-    console.error("Failed to copy all:", err);
-  }
+    if (btn) { btn.textContent = text.split("\n").length + " " + t.copiedLines; setTimeout(() => { btn.textContent = (UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.en).copy; }, 2000); }
+  } catch (err) { console.error("Failed to copy all:", err); }
 }
 
 // Telugu (U+0C00) and Kannada (U+0C80) blocks are laid out in parallel with
