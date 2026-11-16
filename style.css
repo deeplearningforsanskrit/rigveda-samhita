@@ -1232,32 +1232,30 @@ body {
   }
 }
 
-/* Apply safe sizing and wrapping to translated UI text at every viewport. */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-button, select, input, label, .page-info, .header-attribution {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-
+/* Keep sizing, wrapping, and Indic control typography scoped to mobile.
+   Desktop controls retain their original dimensions and font metrics. */
 @media (max-width: 600px) {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  button, select, input, label, .page-info, .header-attribution {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
   /* The two-line title row needs its own reserved height. */
   :root { --reader-header-height: clamp(62px, 17vw, 72px); }
-}
 
-
-/* Script-aware control typography and wrapping.
-   These rules apply to Devanagari, Kannada, and Telugu via --sanskrit-font. */
-button, input, select, textarea, label,
-.nav-btn, .reader-toolbar button, .search-toolbar button,
-.options-toolbar button, .options-toolbar select,
-#togglePadaBtn, .script-selector select,
-.filter-group label, .filter-group select,
-.modal-content button {
-  font-family: var(--sanskrit-font), sans-serif;
+  /* Script-aware typography for translated mobile controls. */
+  button, input, select, textarea, label,
+  .nav-btn, .reader-toolbar button, .search-toolbar button,
+  .options-toolbar button, .options-toolbar select,
+  #togglePadaBtn, .script-selector select,
+  .filter-group label, .filter-group select,
+  .modal-content button {
+    font-family: var(--sanskrit-font), sans-serif;
+  }
 }
 
 @media (max-width: 600px) {
