@@ -13,36 +13,36 @@ const UI_TRANSLATIONS = {
   mr: {
     language: "भाषा:", previous: "← मागे", next: "पुढे →",
     previousSukta: "← मागील सूक्त", nextSukta: "पुढील सूक्त →",
-    share: "शेअर करा", go: "जा", padaOn: "पदपाठ: सुरू", padaOff: "पदपाठ: बंद",
+    share: "दुवा पाठवा", go: "जा", padaOn: "पदपाठ: सुरू", padaOff: "पदपाठ: बंद",
     searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", script: "लिपी:", linkCopied: "दुवा नक्कल केला!",
-    share: "दुवा पाठवा", mandala: "मंडल", sukta: "सूक्त",
+    mandala: "मंडल", sukta: "सूक्त",
     autoScrollStart: "▶ स्वयंस्क्रोल सुरू करा", autoScrollPause: "Ⅱ थांबवा",
     autoScrollStartLabel: "स्वयंस्क्रोल सुरू करा", autoScrollPauseLabel: "स्वयंस्क्रोल थांबवा"
   },
   en: {
     language: "Language:", previous: "← Previous", next: "Next →",
     previousSukta: "← Previous Sukta", nextSukta: "Next Sukta →",
-    share: "Share", go: "Go", padaOn: "Padapatha: On", padaOff: "Padapatha: Off",
+    share: "Share link", go: "Go", padaOn: "Padapatha: On", padaOff: "Padapatha: Off",
     searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", script: "Script:", linkCopied: "Link copied!",
-    share: "Share link", mandala: "Mandala", sukta: "Sukta",
+    mandala: "Mandala", sukta: "Sukta",
     autoScrollStart: "▶ Auto-scroll", autoScrollPause: "Ⅱ Pause",
     autoScrollStartLabel: "Start mantra auto-scroll", autoScrollPauseLabel: "Pause mantra auto-scroll"
   },
   te: {
     language: "భాష:", previous: "← వెనుకకు", next: "తదుపరి →",
     previousSukta: "← మునుపటి సూక్తం", nextSukta: "తదుపరి సూక్తం →",
-    share: "పంచుకోండి", go: "వెళ్ళండి", padaOn: "పదపాఠం: ప్రారంభం", padaOff: "పదపాఠం: నిలిపివేత",
+    share: "లింక్‌ను పంపండి", go: "వెళ్ళండి", padaOn: "పదపాఠం: ప్రారంభం", padaOff: "పదపాఠం: నిలిపివేత",
     searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", script: "లిపి:", linkCopied: "లింక్ కాపీ చేయబడింది!",
-    share: "లింక్‌ను పంపండి", mandala: "మండలం", sukta: "సూక్తం",
+    mandala: "మండలం", sukta: "సూక్తం",
     autoScrollStart: "▶ ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPause: "Ⅱ ఆపండి",
     autoScrollStartLabel: "ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPauseLabel: "ఆటో స్క్రోల్ ఆపండి"
   },
   kn: {
     language: "ಭಾಷೆ:", previous: "← ಹಿಂದೆ", next: "ಮುಂದೆ →",
     previousSukta: "← ಹಿಂದಿನ ಸೂಕ್ತ", nextSukta: "ಮುಂದಿನ ಸೂಕ್ತ →",
-    share: "ಹಂಚಿಕೊಳ್ಳಿ", go: "ಹೋಗಿ", padaOn: "ಪದಪಾಠ: चालू", padaOff: "ಪದಪಾಠ: ಆಫ್",
+    share: "ಲಿಂಕ್ ಕಳುಹಿಸಿ", go: "ಹೋಗಿ", padaOn: "ಪದಪಾಠ: चालू", padaOff: "ಪದಪಾಠ: ಆಫ್",
     searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", script: "ಲಿಪಿ:", linkCopied: "ಲಿಂಕ್ ನಕಲಿಸಲಾಗಿದೆ!",
-    share: "ಲಿಂಕ್ ಕಳುಹಿಸಿ", mandala: "ಮಂಡಲ", sukta: "ಸೂಕ್ತ",
+    mandala: "ಮಂಡಲ", sukta: "ಸೂಕ್ತ",
     autoScrollStart: "▶ ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPause: "Ⅱ ವಿರಾಮ",
     autoScrollStartLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPauseLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ವಿರಾಮಗೊಳಿಸಿ"
   }
@@ -65,14 +65,14 @@ function applyUiLanguage() {
   setText("reportIssueLink", "🐞 " + t.reportIssue);
   const search = document.getElementById("search");
   if (search) search.placeholder = t.searchPlaceholder;
-  const languageLabel = document.querySelector('label[for="uiLanguageSelect"]');
-  if (languageLabel) languageLabel.textContent = t.language;
+  setText("uiLanguageLabel", t.language);
   const scriptLabel = document.querySelector('label[for="scriptSelect"]');
   if (scriptLabel) scriptLabel.textContent = t.script;
   const selector = document.getElementById("uiLanguageSelect");
   if (selector && selector.value !== language) selector.value = language;
   updatePadaToggleButton();
   syncAutoScrollButtons(autoScrollTimer !== null);
+  if (INFINITE_SCROLL_ACTIVE && SUKTA_PAGES.length) updatePageInfo();
 }
 
 const DATA_FILES = {
@@ -1346,7 +1346,7 @@ function toScriptDigits(value) {
   };
   const digits = digitSets[CURRENT_SCRIPT];
   return digits
-    ? String(value).replace(/\\d/g, digit => digits[Number(digit)])
+    ? String(value).replace(/\d/g, digit => digits[Number(digit)])
     : String(value);
 }
 
