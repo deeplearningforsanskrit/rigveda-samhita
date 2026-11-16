@@ -6,6 +6,62 @@ let INFINITE_SCROLL_ACTIVE = false; // true only while browsing (not showing sea
 let searchDebounceTimer = null;
 let SHOW_PADA_PATHA = false;
 let CURRENT_SCRIPT = "devanagari";
+
+let CURRENT_UI_LANGUAGE = localStorage.getItem("rigvedaUiLanguage") || "mr";
+
+const UI_TRANSLATIONS = {
+  mr: {
+    language: "भाषा:", previous: "← मागे", next: "पुढे →",
+    previousSukta: "← मागील सूक्त", nextSukta: "पुढील सूक्त →",
+    share: "शेअर करा", go: "जा", padaOn: "पदपाठ: सुरू", padaOff: "पदपाठ: बंद",
+    searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", script: "लिपी:"
+  },
+  en: {
+    language: "Language:", previous: "← Previous", next: "Next →",
+    previousSukta: "← Previous Sukta", nextSukta: "Next Sukta →",
+    share: "Share", go: "Go", padaOn: "Padapatha: On", padaOff: "Padapatha: Off",
+    searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", script: "Script:"
+  },
+  te: {
+    language: "భాష:", previous: "← వెనుకకు", next: "తదుపరి →",
+    previousSukta: "← మునుపటి సూక్తం", nextSukta: "తదుపరి సూక్తం →",
+    share: "పంచుకోండి", go: "వెళ్ళండి", padaOn: "పదపాఠం: ప్రారంభం", padaOff: "పదపాఠం: నిలిపివేత",
+    searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", script: "లిపి:"
+  },
+  kn: {
+    language: "ಭಾಷೆ:", previous: "← ಹಿಂದೆ", next: "ಮುಂದೆ →",
+    previousSukta: "← ಹಿಂದಿನ ಸೂಕ್ತ", nextSukta: "ಮುಂದಿನ ಸೂಕ್ತ →",
+    share: "ಹಂಚಿಕೊಳ್ಳಿ", go: "ಹೋಗಿ", padaOn: "ಪದಪಾಠ: ಚಾಲು", padaOff: "ಪದಪಾಠ: बंद",
+    searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", script: "ಲಿಪಿ:"
+  }
+};
+
+function applyUiLanguage() {
+  const language = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] ? CURRENT_UI_LANGUAGE : "mr";
+  CURRENT_UI_LANGUAGE = language;
+  const t = UI_TRANSLATIONS[language];
+  const setText = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  };
+  setText("prevTop", t.previous);
+  setText("nextTop", t.next);
+  setText("prevBottom", t.previousSukta);
+  setText("nextBottom", t.nextSukta);
+  setText("shareBtn", t.share);
+  setText("jumpGo", t.go);
+  setText("reportIssueLink", "🐞 " + t.reportIssue);
+  const search = document.getElementById("search");
+  if (search) search.placeholder = t.searchPlaceholder;
+  const languageLabel = document.querySelector('label[for="uiLanguageSelect"]');
+  if (languageLabel) languageLabel.textContent = t.language;
+  const scriptLabel = document.querySelector('label[for="scriptSelect"]');
+  if (scriptLabel) scriptLabel.textContent = t.script;
+  const selector = document.getElementById("uiLanguageSelect");
+  if (selector && selector.value !== language) selector.value = language;
+  updatePadaToggleButton();
+}
+
 const DATA_FILES = {
   devanagari: "rigveda.json",
   kannada: "rigveda_kannada.json",
@@ -643,6 +699,17 @@ function updateScriptFont() {
   document.body.classList.add(`script-${CURRENT_SCRIPT}`);
 }
 function bindEvents() {
+  const uiLanguageSelect = document.getElementById("uiLanguageSelect");
+  if (uiLanguageSelect) {
+    uiLanguageSelect.value = CURRENT_UI_LANGUAGE;
+    uiLanguageSelect.addEventListener("change", (event) => {
+      CURRENT_UI_LANGUAGE = UI_TRANSLATIONS[event.target.value] ? event.target.value : "mr";
+      localStorage.setItem("rigvedaUiLanguage", CURRENT_UI_LANGUAGE);
+      applyUiLanguage();
+    });
+  }
+  applyUiLanguage();
+
   const scriptSelect = document.getElementById("scriptSelect");
 
 if (scriptSelect) {
@@ -765,7 +832,8 @@ function updatePadaToggleButton() {
   const btn = document.getElementById("togglePadaBtn");
   if (!btn) return;
 
-  btn.textContent = SHOW_PADA_PATHA ? "पद पाठ: ON" : "पद पाठ: OFF";
+  const t = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] || UI_TRANSLATIONS.mr;
+  btn.textContent = SHOW_PADA_PATHA ? t.padaOn : t.padaOff;
   btn.classList.toggle("active", SHOW_PADA_PATHA);
 }
 
