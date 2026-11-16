@@ -392,11 +392,12 @@ main {
   gap: 12px;
 }
 
+.topbar-head {
+  position: relative;
+}
+
 .topbar-title-group {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  min-width: 0;
+  display: contents;
 }
 
 .topbar-head h1 {
@@ -405,7 +406,13 @@ main {
 }
 
 .topbar-title-group .header-tagline {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
 }
 
 .topbar-content {
