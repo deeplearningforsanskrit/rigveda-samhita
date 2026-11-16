@@ -541,11 +541,11 @@ function updateFilterButton() {
   if (count > 0) {
     btn.classList.add("active");
     btn.setAttribute("data-count", count);
-    btn.textContent = `Filter (${count})`;
+    btn.textContent = `शोध निकष (${count})`;
   } else {
     btn.classList.remove("active");
     btn.removeAttribute("data-count");
-    btn.textContent = "Filter";
+    btn.textContent = "शोध निकष";
   }
 }
 
@@ -1319,7 +1319,7 @@ async function copyToClipboard(text, el) {
   try {
     await navigator.clipboard.writeText(text);
     const originalText = el.textContent;
-    el.textContent = "Copied!";
+    el.textContent = "नक्कल झाली!";
     el.style.opacity = "0.7";
     setTimeout(() => {
       el.textContent = originalText;
@@ -1358,9 +1358,9 @@ async function copyAllVisible() {
 
   if (!text.trim()) {
     if (btn) {
-      btn.textContent = "Nothing to copy";
+      btn.textContent = "नक्कल करण्यासाठी मजकूर नाही";
       setTimeout(() => {
-        btn.textContent = "Copy All";
+        btn.textContent = "क्लिपबोर्डवर नक्कल करा";
       }, 1500);
     }
     return;
@@ -1370,7 +1370,7 @@ async function copyAllVisible() {
     await navigator.clipboard.writeText(text);
     if (btn) {
       const originalText = btn.textContent;
-      btn.textContent = `Copied ${text.split("\n").length} lines!`;
+      btn.textContent = `${text.split("\n").length} ओळी क्लिपबोर्डवर नक्कल केल्या!`;
       setTimeout(() => {
         btn.textContent = originalText;
       }, 2000);
@@ -1797,7 +1797,7 @@ async function shareCurrentSukta() {
   const btn = document.getElementById("shareBtn");
   if (btn) {
     const old = btn.textContent;
-    btn.textContent = "Link Copied!";
+    btn.textContent = "दुवा नक्कल केला!";
     setTimeout(() => btn.textContent = old, 1500);
   }
 }
