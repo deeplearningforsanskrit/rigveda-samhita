@@ -1407,3 +1407,28 @@ body {
     align-self: end;
   }
 }
+
+
+/* Balance the separate Pada Patha toggle and Go action on narrow screens. */
+@media (max-width: 600px) {
+  #togglePadaBtn {
+    justify-self: start;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 36px;
+    padding: 7px 12px;
+    font-size: 12px;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+
+  .jump-controls #jumpGo {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
