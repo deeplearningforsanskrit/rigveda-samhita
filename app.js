@@ -1739,9 +1739,9 @@ function matchPosition(item, devQ, latinQ, compact) {
 function mantraPrefixMatchScore(item, devQ, latinQ) {
   if (devQ && item.searchText.startsWith(devQ)) return 0;
   if (latinQ && item.latinText.startsWith(latinQ)) return 0;
-  if (!latinQ || /\\s/.test(latinQ)) return Infinity;
+  if (!latinQ || /\s/.test(latinQ)) return Infinity;
 
-  const firstWord = item.latinText.split(/\\s+/)[0] || "";
+  const firstWord = item.latinText.split(/\s+/)[0] || "";
   const maxDistance =
     latinQ.length <= 4 ? 1 :
     latinQ.length <= 8 ? 2 : 3;
@@ -1766,9 +1766,9 @@ function sortByPosition(list) {
   list.sort((a, b) => {
     // Explicit reference matches retain their existing highest priority.
     if (a.pos === -1 || b.pos === -1) return a.pos - b.pos;
-    const prefixDifference =
-      (a.prefixScore ?? Infinity) - (b.prefixScore ?? Infinity);
-    if (prefixDifference !== 0) return prefixDifference;
+    const aPrefix = a.prefixScore ?? Infinity;
+    const bPrefix = b.prefixScore ?? Infinity;
+    if (aPrefix !== bPrefix) return aPrefix < bPrefix ? -1 : 1;
     return a.pos - b.pos;
   });
 }
@@ -1815,7 +1815,7 @@ function searchEntries(rawQuery) {
   const compact = [];
   for (const item of ENTRIES) {
     const pos = matchPosition(item, qCompact, latinCompactQ, true);
-    const prefixScore = mantraPrefixMatchScore(item, qCompact, latinCompactQ);
+    const prefixScore = mantraPrefixMatchScore(item, q, latinQ);
     if (pos !== Infinity || prefixScore !== Infinity) {
       compact.push({ item, pos, prefixScore });
     }
