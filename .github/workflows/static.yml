@@ -94,7 +94,7 @@ jobs:
             const closed = context.payload.action === 'closed';
             const body = closed
               ? `${marker}\n**Live preview removed.** PR #${number} is closed.`
-              : `${marker}\n**Live preview:** [Open PR #${number} website] (${url})\n\nThis preview updates automatically when new commits are pushed to this PR.`;
+              : `${marker}\n**Live preview:** [Open PR #${number} website](${url})\n\nThis preview updates automatically when new commits are pushed to this PR.`;
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
