@@ -1732,8 +1732,45 @@ function matchPosition(item, devQ, latinQ, compact) {
   return best;
 }
 
+// Give priority to a keyword that matches the very first word of a mantra.
+// Latin transliteration can differ slightly from a user's phonetic spelling
+// (e.g. "ganaanam" vs. "ganaanaam"), so allow the same bounded edit distance
+// used by fuzzy search, but only against a prefix of the first word.
+function mantraPrefixMatchScore(item, devQ, latinQ) {
+  if (devQ && item.searchText.startsWith(devQ)) return 0;
+  if (latinQ && item.latinText.startsWith(latinQ)) return 0;
+  if (!latinQ || /\\s/.test(latinQ)) return Infinity;
+
+  const firstWord = item.latinText.split(/\\s+/)[0] || "";
+  const maxDistance =
+    latinQ.length <= 4 ? 1 :
+    latinQ.length <= 8 ? 2 : 3;
+  let best = Infinity;
+  const minLength = Math.max(1, latinQ.length - maxDistance);
+  const maxLength = Math.min(firstWord.length, latinQ.length + maxDistance);
+
+  for (let length = minLength; length <= maxLength; length++) {
+    const score = levenshteinWithinLimit(
+      latinQ,
+      firstWord.slice(0, length),
+      maxDistance
+    );
+    if (score < best) best = score;
+    if (best === 0) break;
+  }
+
+  return best;
+}
+
 function sortByPosition(list) {
-  list.sort((a, b) => a.pos - b.pos);
+  list.sort((a, b) => {
+    // Explicit reference matches retain their existing highest priority.
+    if (a.pos === -1 || b.pos === -1) return a.pos - b.pos;
+    const prefixDifference =
+      (a.prefixScore ?? Infinity) - (b.prefixScore ?? Infinity);
+    if (prefixDifference !== 0) return prefixDifference;
+    return a.pos - b.pos;
+  });
 }
 
 function searchEntries(rawQuery) {
@@ -1761,7 +1798,10 @@ function searchEntries(rawQuery) {
   const exact = [];
   for (const item of ENTRIES) {
     const pos = matchPosition(item, q, latinQ, false);
-    if (pos !== Infinity) exact.push({ item, pos });
+    const prefixScore = mantraPrefixMatchScore(item, q, latinQ);
+    if (pos !== Infinity || prefixScore !== Infinity) {
+      exact.push({ item, pos, prefixScore });
+    }
   }
   sortByPosition(exact);
 
@@ -1775,7 +1815,10 @@ function searchEntries(rawQuery) {
   const compact = [];
   for (const item of ENTRIES) {
     const pos = matchPosition(item, qCompact, latinCompactQ, true);
-    if (pos !== Infinity) compact.push({ item, pos });
+    const prefixScore = mantraPrefixMatchScore(item, qCompact, latinCompactQ);
+    if (pos !== Infinity || prefixScore !== Infinity) {
+      compact.push({ item, pos, prefixScore });
+    }
   }
   sortByPosition(compact);
 
