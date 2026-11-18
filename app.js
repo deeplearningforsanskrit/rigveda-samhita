@@ -1732,42 +1732,53 @@ function matchPosition(item, devQ, latinQ, compact) {
   return best;
 }
 
-// Give priority to a keyword that matches the very first word of a mantra.
-// Latin transliteration can differ slightly from a user's phonetic spelling
-// (e.g. "ganaanam" vs. "ganaanaam"), so allow the same bounded edit distance
-// used by fuzzy search, but only against a prefix of the first word.
-function mantraPrefixMatchScore(item, devQ, latinQ) {
-  if (devQ && item.searchText.startsWith(devQ)) return 0;
-  if (latinQ && item.latinText.startsWith(latinQ)) return 0;
-  if (!latinQ || /\s/.test(latinQ)) return Infinity;
+// Rank a keyword when it begins a pada (a mantra segment separated by a
+// danda). The first pada outranks the second, the second outranks the third,
+// and so on. Within a pada, tolerate the same small transliteration variance
+// used by fuzzy search (e.g. "ganaanam" for "ganaanaam").
+function mantraPadaPrefixRank(item, devQ, latinQ) {
+  if (!devQ && !latinQ) return Infinity;
 
-  const firstWord = item.latinText.split(/\s+/)[0] || "";
+  const padas = String(item.text ?? "").split(/[।॥]/);
   const maxDistance =
     latinQ.length <= 4 ? 1 :
     latinQ.length <= 8 ? 2 : 3;
-  let best = Infinity;
-  const minLength = Math.max(1, latinQ.length - maxDistance);
-  const maxLength = Math.min(firstWord.length, latinQ.length + maxDistance);
 
-  for (let length = minLength; length <= maxLength; length++) {
-    const score = levenshteinWithinLimit(
-      latinQ,
-      firstWord.slice(0, length),
-      maxDistance
-    );
-    if (score < best) best = score;
-    if (best === 0) break;
+  for (let padaIndex = 0; padaIndex < padas.length; padaIndex++) {
+    const pada = padas[padaIndex].trim();
+    if (!pada) continue;
+
+    const devanagariPada = normalizeForSearch(toDevanagari(pada));
+    if (devQ && devanagariPada.startsWith(devQ)) return padaIndex * 10;
+
+    if (!latinQ || /\\s/.test(latinQ)) continue;
+    const latinPada = transliterateForSearch(toDevanagari(pada));
+    const firstWord = latinPada.split(/\\s+/)[0] || "";
+    const minLength = Math.max(1, latinQ.length - maxDistance);
+    const maxLength = Math.min(firstWord.length, latinQ.length + maxDistance);
+    let bestDistance = Infinity;
+
+    for (let length = minLength; length <= maxLength; length++) {
+      bestDistance = Math.min(
+        bestDistance,
+        levenshteinWithinLimit(latinQ, firstWord.slice(0, length), maxDistance)
+      );
+    }
+
+    if (bestDistance <= maxDistance) {
+      return padaIndex * 10 + bestDistance;
+    }
   }
 
-  return best;
+  return Infinity;
 }
 
 function sortByPosition(list) {
   list.sort((a, b) => {
     // Explicit reference matches retain their existing highest priority.
     if (a.pos === -1 || b.pos === -1) return a.pos - b.pos;
-    const aPrefix = a.prefixScore ?? Infinity;
-    const bPrefix = b.prefixScore ?? Infinity;
+    const aPrefix = a.padaPrefixRank ?? Infinity;
+    const bPrefix = b.padaPrefixRank ?? Infinity;
     if (aPrefix !== bPrefix) return aPrefix < bPrefix ? -1 : 1;
     return a.pos - b.pos;
   });
@@ -1798,9 +1809,9 @@ function searchEntries(rawQuery) {
   const exact = [];
   for (const item of ENTRIES) {
     const pos = matchPosition(item, q, latinQ, false);
-    const prefixScore = mantraPrefixMatchScore(item, q, latinQ);
-    if (pos !== Infinity || prefixScore !== Infinity) {
-      exact.push({ item, pos, prefixScore });
+    const padaPrefixRank = mantraPadaPrefixRank(item, q, latinQ);
+    if (pos !== Infinity || padaPrefixRank !== Infinity) {
+      exact.push({ item, pos, padaPrefixRank });
     }
   }
   sortByPosition(exact);
@@ -1815,9 +1826,9 @@ function searchEntries(rawQuery) {
   const compact = [];
   for (const item of ENTRIES) {
     const pos = matchPosition(item, qCompact, latinCompactQ, true);
-    const prefixScore = mantraPrefixMatchScore(item, q, latinQ);
-    if (pos !== Infinity || prefixScore !== Infinity) {
-      compact.push({ item, pos, prefixScore });
+    const padaPrefixRank = mantraPadaPrefixRank(item, q, latinQ);
+    if (pos !== Infinity || padaPrefixRank !== Infinity) {
+      compact.push({ item, pos, padaPrefixRank });
     }
   }
   sortByPosition(compact);
