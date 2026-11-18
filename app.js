@@ -1593,7 +1593,7 @@ function transliterateForSearch(input) {
       continue;
     }
 
-    if (/[।॥.,;:!?'"“”‘’()[\]{}\-—_/\\\s]/.test(ch)) {
+    if (/[।॥.,;:!?'"“”‘’()[\]{}\-—_/\\s]/.test(ch)) {
       out += " ";
       continue;
     }
@@ -1751,9 +1751,9 @@ function mantraPadaPrefixRank(item, devQ, latinQ) {
     const devanagariPada = normalizeForSearch(toDevanagari(pada));
     if (devQ && devanagariPada.startsWith(devQ)) return padaIndex * 10;
 
-    if (!latinQ || /\\s/.test(latinQ)) continue;
+    if (!latinQ || /\s/.test(latinQ)) continue;
     const latinPada = transliterateForSearch(toDevanagari(pada));
-    const firstWord = latinPada.split(/\\s+/)[0] || "";
+    const firstWord = latinPada.split(/\s+/)[0] || "";
     const minLength = Math.max(1, latinQ.length - maxDistance);
     const maxLength = Math.min(firstWord.length, latinQ.length + maxDistance);
     let bestDistance = Infinity;
