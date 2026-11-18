@@ -84,39 +84,51 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Publish PR preview link
-        if: ${{ github.event_name == 'pull_request' }}
+      - name: Publish or refresh PR preview links
         uses: actions/github-script@v7
         with:
           script: |
             const marker = '<!-- pr-preview-link -->';
-            const number = context.issue.number;
-            const url = `https://${context.repo.owner}.github.io/${context.repo.repo}/pr-preview/pr-${number}/`;
-            const closed = context.payload.action === 'closed';
-            const body = closed
-              ? `${marker}\n**Live preview removed.** PR #${number} is closed.`
-              : `${marker}\n**Live preview:** [Open PR #${number} website](${url})\n\nThis preview updates automatically when new commits are pushed to this PR.`;
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: number,
-              per_page: 100
+            const { owner, repo } = context.repo;
+            const repoFullName = `${owner}/${repo}`;
+
+            async function upsertPreviewComment(number, body, createIfMissing = true) {
+              const { data: comments } = await github.rest.issues.listComments({
+                owner, repo, issue_number: number, per_page: 100
+              });
+              const existing = comments.find(comment =>
+                comment.user.type === 'Bot' && comment.body.includes(marker)
+              );
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner, repo, comment_id: existing.id, body
+                });
+              } else if (createIfMissing) {
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: number, body
+                });
+              }
+            }
+
+            // Refresh links for every open same-repository PR, including PRs
+            // that were already open when this preview system was introduced.
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: 'open', per_page: 100
             });
-            const existing = comments.find(comment =>
-              comment.user.type === 'Bot' && comment.body.includes(marker)
-            );
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body
-              });
-            } else if (!closed) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: number,
-                body
-              });
+            for (const pull of pulls) {
+              if (pull.head.repo?.full_name !== repoFullName) continue;
+              const number = pull.number;
+              const url = `https://${owner}.github.io/${repo}/pr-preview/pr-${number}/`;
+              const body = `${marker}\n**Live preview:** [Open PR #${number} website](${url})\n\nThis preview updates automatically when new commits are pushed to this PR.`;
+              await upsertPreviewComment(number, body);
+            }
+
+            // A closed PR is absent from the open list; mark its old link as removed.
+            if (context.eventName === 'pull_request' && context.payload.action === 'closed') {
+              const number = context.issue.number;
+              await upsertPreviewComment(
+                number,
+                `${marker}\n**Live preview removed.** PR #${number} is closed.`,
+                false
+              );
             }
