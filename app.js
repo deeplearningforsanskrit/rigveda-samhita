@@ -1593,7 +1593,7 @@ function transliterateForSearch(input) {
       continue;
     }
 
-    if (/[।॥.,;:!?'"“”‘’()[\]{}\-—_/\\\s]/.test(ch)) {
+    if (/[।॥.,;:!?'"“”‘’()[\]{}\-—_/\s]/.test(ch)) {
       out += " ";
       continue;
     }
@@ -1724,16 +1724,77 @@ function matchPosition(item, devQ, latinQ, compact) {
   }
 
   let best = Infinity;
-  for (const [hay, needle] of texts) {
+  for (let index = 0; index < texts.length; index++) {
+    const [hay, needle] = texts[index];
     if (!needle) continue;
+
+    // Devanagari keeps its established substring behavior. Latin matches
+    // must align to a complete transliterated word/phrase, not an arbitrary
+    // sequence of letters inside another word.
+    if (index === 1) {
+      if (compact) continue;
+      const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const match = new RegExp(`(^|\\s)${escaped}(?=\\s|$)`).exec(hay);
+      if (match) best = Math.min(best, match.index + match[1].length);
+      continue;
+    }
+
     const i = hay.indexOf(needle);
     if (i !== -1 && i < best) best = i;
   }
   return best;
 }
 
+// Rank a keyword when it begins a pada (a mantra segment separated by a
+// danda). The first pada outranks the second, the second outranks the third,
+// and so on. Within a pada, tolerate the same small transliteration variance
+// used by fuzzy search (e.g. "ganaanam" for "ganaanaam").
+function mantraPadaPrefixRank(item, devQ, latinQ) {
+  if (!devQ && !latinQ) return Infinity;
+
+  const padas = String(item.text ?? "").split(/[।॥]/);
+  const maxDistance =
+    latinQ.length <= 4 ? 1 :
+    latinQ.length <= 8 ? 2 : 3;
+
+  for (let padaIndex = 0; padaIndex < padas.length; padaIndex++) {
+    const pada = padas[padaIndex].trim();
+    if (!pada) continue;
+
+    const devanagariPada = normalizeForSearch(toDevanagari(pada));
+    if (devQ && devanagariPada.startsWith(devQ)) return padaIndex * 10;
+
+    if (!latinQ || /\s/.test(latinQ)) continue;
+    const latinPada = transliterateForSearch(toDevanagari(pada));
+    const firstWord = latinPada.split(/\s+/)[0] || "";
+    const minLength = Math.max(1, latinQ.length - maxDistance);
+    const maxLength = Math.min(firstWord.length, latinQ.length + maxDistance);
+    let bestDistance = Infinity;
+
+    for (let length = minLength; length <= maxLength; length++) {
+      bestDistance = Math.min(
+        bestDistance,
+        levenshteinWithinLimit(latinQ, firstWord.slice(0, length), maxDistance)
+      );
+    }
+
+    if (bestDistance <= maxDistance) {
+      return padaIndex * 10 + bestDistance;
+    }
+  }
+
+  return Infinity;
+}
+
 function sortByPosition(list) {
-  list.sort((a, b) => a.pos - b.pos);
+  list.sort((a, b) => {
+    // Explicit reference matches retain their existing highest priority.
+    if (a.pos === -1 || b.pos === -1) return a.pos - b.pos;
+    const aPrefix = a.padaPrefixRank ?? Infinity;
+    const bPrefix = b.padaPrefixRank ?? Infinity;
+    if (aPrefix !== bPrefix) return aPrefix < bPrefix ? -1 : 1;
+    return a.pos - b.pos;
+  });
 }
 
 function searchEntries(rawQuery) {
@@ -1761,7 +1822,10 @@ function searchEntries(rawQuery) {
   const exact = [];
   for (const item of ENTRIES) {
     const pos = matchPosition(item, q, latinQ, false);
-    if (pos !== Infinity) exact.push({ item, pos });
+    const padaPrefixRank = mantraPadaPrefixRank(item, q, latinQ);
+    if (pos !== Infinity || padaPrefixRank !== Infinity) {
+      exact.push({ item, pos, padaPrefixRank });
+    }
   }
   sortByPosition(exact);
 
@@ -1775,7 +1839,10 @@ function searchEntries(rawQuery) {
   const compact = [];
   for (const item of ENTRIES) {
     const pos = matchPosition(item, qCompact, latinCompactQ, true);
-    if (pos !== Infinity) compact.push({ item, pos });
+    const padaPrefixRank = mantraPadaPrefixRank(item, q, latinQ);
+    if (pos !== Infinity || padaPrefixRank !== Infinity) {
+      compact.push({ item, pos, padaPrefixRank });
+    }
   }
   sortByPosition(compact);
 
