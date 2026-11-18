@@ -1,53 +1,134 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+# Deploy the production reader together with isolated, live previews for every open PR.
+name: Deploy GitHub Pages (production + PR previews)
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
+  pull-requests: write
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: pages
+  cancel-in-progress: true
+
 jobs:
   deploy:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout production branch
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Generate preview pages
-        run: python scripts/generate_previews.py
+      - name: Build production site and all open PR previews
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          # Build the normal production Sūkta preview pages first.
+          python scripts/generate_previews.py
+
+          rm -rf _site
+          mkdir -p _site
+          rsync -a --exclude='.git' --exclude='_site' ./ _site/
+
+          # Rebuild every currently open same-repository PR preview on each
+          # deployment. This keeps previews available together and removes
+          # them automatically after a PR is closed.
+          while IFS= read -r pr_number; do
+            [ -n "$pr_number" ] || continue
+            echo "Building preview for PR #${pr_number}"
+            git fetch --no-tags --depth=1 origin "refs/pull/${pr_number}/head"
+            preview_dir="_site/pr-preview/pr-${pr_number}"
+            mkdir -p "$preview_dir"
+            git archive FETCH_HEAD | tar -x -C "$preview_dir"
+
+            # Generate this PR version's Sūkta preview pages inside its own
+            # isolated folder; never alter the production files.
+            python "$preview_dir/scripts/generate_previews.py"
+          done < <(
+            gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls?state=open&per_page=100" \
+              --jq '.[] | select(.head.repo.full_name == env.GITHUB_REPOSITORY) | .number'
+          )
+
+          touch _site/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Publish or refresh PR preview links
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- pr-preview-link -->';
+            const { owner, repo } = context.repo;
+            const repoFullName = `${owner}/${repo}`;
+
+            async function upsertPreviewComment(number, body, createIfMissing = true) {
+              const { data: comments } = await github.rest.issues.listComments({
+                owner, repo, issue_number: number, per_page: 100
+              });
+              const existing = comments.find(comment =>
+                comment.user.type === 'Bot' && comment.body.includes(marker)
+              );
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner, repo, comment_id: existing.id, body
+                });
+              } else if (createIfMissing) {
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: number, body
+                });
+              }
+            }
+
+            // Refresh links for every open same-repository PR, including PRs
+            // that were already open when this preview system was introduced.
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: 'open', per_page: 100
+            });
+            for (const pull of pulls) {
+              if (pull.head.repo?.full_name !== repoFullName) continue;
+              const number = pull.number;
+              const url = `https://${owner}.github.io/${repo}/pr-preview/pr-${number}/`;
+              const body = `${marker}\n**Live preview:** [Open PR #${number} website](${url})\n\nThis preview updates automatically when new commits are pushed to this PR.`;
+              await upsertPreviewComment(number, body);
+            }
+
+            // A closed PR is absent from the open list; mark its old link as removed.
+            if (context.eventName === 'pull_request' && context.payload.action === 'closed') {
+              const number = context.issue.number;
+              await upsertPreviewComment(
+                number,
+                `${marker}\n**Live preview removed.** PR #${number} is closed.`,
+                false
+              );
+            }

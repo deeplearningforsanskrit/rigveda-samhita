@@ -259,7 +259,10 @@
     }
   })();
 
-  if ('serviceWorker' in navigator) {
+  // PR previews are hosted below /pr-preview/pr-N/. Do not register the production
+  // service worker there: its configured scope belongs to the production app root.
+  const isPullRequestPreview = window.location.pathname.includes('/pr-preview/');
+  if ('serviceWorker' in navigator && !isPullRequestPreview) {
     window.addEventListener('load', async () => {
       try {
         const reg = await navigator.serviceWorker.register('./sw.js', {
