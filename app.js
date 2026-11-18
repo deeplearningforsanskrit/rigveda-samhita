@@ -1593,7 +1593,7 @@ function transliterateForSearch(input) {
       continue;
     }
 
-    if (/[।॥.,;:!?'"“”‘’()[\]{}\-—_/\\s]/.test(ch)) {
+    if (/[।॥.,;:!?'"“”‘’()[\]{}\-—_/\s]/.test(ch)) {
       out += " ";
       continue;
     }
@@ -1724,8 +1724,21 @@ function matchPosition(item, devQ, latinQ, compact) {
   }
 
   let best = Infinity;
-  for (const [hay, needle] of texts) {
+  for (let index = 0; index < texts.length; index++) {
+    const [hay, needle] = texts[index];
     if (!needle) continue;
+
+    // Devanagari keeps its established substring behavior. Latin matches
+    // must align to a complete transliterated word/phrase, not an arbitrary
+    // sequence of letters inside another word.
+    if (index === 1) {
+      if (compact) continue;
+      const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const match = new RegExp(`(^|\\s)${escaped}(?=\\s|$)`).exec(hay);
+      if (match) best = Math.min(best, match.index + match[1].length);
+      continue;
+    }
+
     const i = hay.indexOf(needle);
     if (i !== -1 && i < best) best = i;
   }
