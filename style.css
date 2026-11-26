@@ -1354,11 +1354,19 @@ body {
 
 @media (max-width: 900px) {
   .options-toolbar {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: auto auto;
+    justify-content: start;
+    align-items: start;
+    gap: 8px;
   }
 
+  .jump-navigation-section { display: contents; }
+  .navigation-toggle { grid-column: 2; grid-row: 1; }
+  .jump-navigation-panel { grid-column: 1 / -1; width: 100%; box-sizing: border-box; }
+
   #togglePadaBtn {
+    grid-column: 1;
+    grid-row: 1;
     justify-self: start;
   }
 
@@ -1377,8 +1385,13 @@ body {
 
 @media (max-width: 600px) {
   .options-toolbar {
+    grid-template-columns: auto auto;
+    justify-content: start;
     gap: 8px;
   }
+  .jump-navigation-section { display: contents; }
+  .navigation-toggle { grid-column: 2; grid-row: 1; }
+  .jump-navigation-panel { grid-column: 1 / -1; width: 100%; box-sizing: border-box; }
 
   .jump-controls {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1519,6 +1532,6 @@ body {
 }
 @media (max-width: 600px) {
   .jump-navigation-section { width: auto; }
-  .navigation-toggle { width: 40px; }
+  .navigation-toggle { width: auto; min-width: 40px; min-height: 38px; white-space: nowrap; }
   .jump-navigation-panel { width: 100%; padding: 8px; }
 }
