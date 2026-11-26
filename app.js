@@ -18,7 +18,7 @@ const UI_TRANSLATIONS = {
     mandala: "मंडल", sukta: "सूक्त",
     autoScrollStart: "▶ स्वयंस्क्रोल सुरू करा", autoScrollPause: "Ⅱ थांबवा",
     autoScrollStartLabel: "स्वयंस्क्रोल सुरू करा", autoScrollPauseLabel: "स्वयंस्क्रोल थांबवा",
-    copy: "क्लिपबोर्डवर नक्कल करा", copyEmpty: "नक्कल करण्यासाठी मजकूर नाही", copiedLines: "ओळी क्लिपबोर्डवर नक्कल केल्या!", navigationToggle: "विस्तार करा", filter: "शोध निकष", filterTitle: "शोध निकष", all: "सर्व", ashtaka: "अष्टक", adhyaya: "अध्याय", mandalaLabel: "मंडल", suktaLabel: "सूक्त", mantra: "मंत्र", varga: "वर्ग", rikMode: "मंडल/सूक्त", ashtakaMode: "अष्टक/अध्याय/वर्ग", clear: "निकष काढा", apply: "निकष लागू करा"
+    copy: "क्लिपबोर्डवर नक्कल करा", copyEmpty: "नक्कल करण्यासाठी मजकूर नाही", copiedLines: "ओळी क्लिपबोर्डवर नक्कल केल्या!", navigationExpand: "उघडा", navigationCollapse: "बंद करा", filter: "शोध निकष", filterTitle: "शोध निकष", all: "सर्व", ashtaka: "अष्टक", adhyaya: "अध्याय", mandalaLabel: "मंडल", suktaLabel: "सूक्त", mantra: "मंत्र", varga: "वर्ग", rikMode: "मंडल/सूक्त", ashtakaMode: "अष्टक/अध्याय/वर्ग", clear: "निकष काढा", apply: "निकष लागू करा"
   },
   en: {
     language: "Language:", previous: "← Previous", next: "Next →",
@@ -28,7 +28,7 @@ const UI_TRANSLATIONS = {
     mandala: "Mandala", sukta: "Sukta",
     autoScrollStart: "▶ Auto-scroll", autoScrollPause: "Ⅱ Pause",
     autoScrollStartLabel: "Start mantra auto-scroll", autoScrollPauseLabel: "Pause mantra auto-scroll",
-    copy: "Copy to clipboard", copyEmpty: "Nothing to copy", copiedLines: "lines copied to clipboard!", navigationToggle: "Expand", filter: "Search filters", filterTitle: "Search filters", all: "All", ashtaka: "Ashtaka", adhyaya: "Adhyaya", mandalaLabel: "Mandala", suktaLabel: "Sukta", mantra: "Mantra", varga: "Varga", rikMode: "Mandala/Sukta", ashtakaMode: "Ashtaka/Adhyaya/Varga", clear: "Clear filters", apply: "Apply filters"
+    copy: "Copy to clipboard", copyEmpty: "Nothing to copy", copiedLines: "lines copied to clipboard!", navigationExpand: "Expand", navigationCollapse: "Collapse", filter: "Search filters", filterTitle: "Search filters", all: "All", ashtaka: "Ashtaka", adhyaya: "Adhyaya", mandalaLabel: "Mandala", suktaLabel: "Sukta", mantra: "Mantra", varga: "Varga", rikMode: "Mandala/Sukta", ashtakaMode: "Ashtaka/Adhyaya/Varga", clear: "Clear filters", apply: "Apply filters"
   },
   te: {
     language: "భాష:", previous: "← వెనుకకు", next: "తదుపరి →",
@@ -38,7 +38,7 @@ const UI_TRANSLATIONS = {
     mandala: "మండలం", sukta: "సూక్తం",
     autoScrollStart: "▶ ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPause: "Ⅱ ఆపండి",
     autoScrollStartLabel: "ఆటో స్క్రోల్ ప్రారంభించండి", autoScrollPauseLabel: "ఆటో స్క్రోల్ ఆపండి",
-    copy: "క్లిప్‌బోర్డ్‌కు కాపీ చేయండి", copyEmpty: "కాపీ చేయడానికి ఏమీ లేదు", copiedLines: "పంక్తులు క్లిప్‌బోర్డ్‌కు కాపీ చేయబడ్డాయి!", navigationToggle: "విస్తరించు", filter: "శోధన వడపోతలు", filterTitle: "శోధన వడపోతలు", all: "అన్నీ", ashtaka: "అష్టకం", adhyaya: "అధ్యాయం", mandalaLabel: "మండలం", suktaLabel: "సూక్తం", mantra: "మంత్రం", varga: "వర్గం", rikMode: "మండలం/సూక్తం", ashtakaMode: "అష్టకం/అధ్యాయం/వర్గం", clear: "వడపోతలను తొలగించండి", apply: "వడపోతలను వర్తింపజేయండి"
+    copy: "క్లిప్‌బోర్డ్‌కు కాపీ చేయండి", copyEmpty: "కాపీ చేయడానికి ఏమీ లేదు", copiedLines: "పంక్తులు క్లిప్‌బోర్డ్‌కు కాపీ చేయబడ్డాయి!", navigationExpand: "తెరవండి", navigationCollapse: "మూసివేయండి", filter: "శోధన వడపోతలు", filterTitle: "శోధన వడపోతలు", all: "అన్నీ", ashtaka: "అష్టకం", adhyaya: "అధ్యాయం", mandalaLabel: "మండలం", suktaLabel: "సూక్తం", mantra: "మంత్రం", varga: "వర్గం", rikMode: "మండలం/సూక్తం", ashtakaMode: "అష్టకం/అధ్యాయం/వర్గం", clear: "వడపోతలను తొలగించండి", apply: "వడపోతలను వర్తింపజేయండి"
   },
   kn: {
     language: "ಭಾಷೆ:", previous: "← ಹಿಂದೆ", next: "ಮುಂದೆ →",
@@ -48,7 +48,7 @@ const UI_TRANSLATIONS = {
     mandala: "ಮಂಡಲ", sukta: "ಸೂಕ್ತ",
     autoScrollStart: "▶ ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPause: "Ⅱ ವಿರಾಮ",
     autoScrollStartLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ಪ್ರಾರಂಭಿಸಿ", autoScrollPauseLabel: "ಸ್ವಯಂ ಸ್ಕ್ರೋಲ್ ವಿರಾಮಗೊಳಿಸಿ",
-    copy: "ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ಗೆ ನಕಲಿಸಿ", copyEmpty: "ನಕಲಿಸಲು ಏನೂ ಇಲ್ಲ", copiedLines: "ಸಾಲುಗಳನ್ನು ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ಗೆ ನಕಲಿಸಲಾಗಿದೆ!", navigationToggle: "ವಿಸ್ತರಿಸಿ", filter: "ಹುಡುಕಾಟ ಫಿಲ್ಟರ್‌ಗಳು", filterTitle: "ಹುಡುಕಾಟ ಫಿಲ್ಟರ್‌ಗಳು", all: "ಎಲ್ಲಾ", ashtaka: "ಅಷ್ಟಕ", adhyaya: "ಅಧ್ಯಾಯ", mandalaLabel: "ಮಂಡಲ", suktaLabel: "ಸೂಕ್ತ", mantra: "ಮಂತ್ರ", varga: "ವರ್ಗ", rikMode: "ಮಂಡಲ/ಸೂಕ್ತ", ashtakaMode: "ಅಷ್ಟಕ/ಅಧ್ಯಾಯ/ವರ್ಗ", clear: "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ", apply: "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ಅನ್ವಯಿಸಿ"
+    copy: "ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ಗೆ ನಕಲಿಸಿ", copyEmpty: "ನಕಲಿಸಲು ಏನೂ ಇಲ್ಲ", copiedLines: "ಸಾಲುಗಳನ್ನು ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ಗೆ ನಕಲಿಸಲಾಗಿದೆ!", navigationExpand: "ತೆರೆಯಿರಿ", navigationCollapse: "ಮುಚ್ಚಿರಿ", filter: "ಹುಡುಕಾಟ ಫಿಲ್ಟರ್‌ಗಳು", filterTitle: "ಹುಡುಕಾಟ ಫಿಲ್ಟರ್‌ಗಳು", all: "ಎಲ್ಲಾ", ashtaka: "ಅಷ್ಟಕ", adhyaya: "ಅಧ್ಯಾಯ", mandalaLabel: "ಮಂಡಲ", suktaLabel: "ಸೂಕ್ತ", mantra: "ಮಂತ್ರ", varga: "ವರ್ಗ", rikMode: "ಮಂಡಲ/ಸೂಕ್ತ", ashtakaMode: "ಅಷ್ಟಕ/ಅಧ್ಯಾಯ/ವರ್ಗ", clear: "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ", apply: "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ಅನ್ವಯಿಸಿ"
   }
 };
 
@@ -79,9 +79,13 @@ function applyUiLanguage() {
   const selector = document.getElementById("uiLanguageSelect");
   if (selector && selector.value !== language) selector.value = language;
   setText("copyAllBtn", t.copy);
-  setText("navigationToggleLabel", t.navigationToggle);
   const navigationToggle = document.getElementById("navigationToggle");
-  if (navigationToggle) navigationToggle.setAttribute("aria-label", t.navigationToggle);
+  if (navigationToggle) {
+    const expanded = navigationToggle.getAttribute("aria-expanded") === "true";
+    const toggleLabel = expanded ? t.navigationCollapse : t.navigationExpand;
+    setText("navigationToggleLabel", toggleLabel);
+    navigationToggle.setAttribute("aria-label", toggleLabel);
+  }
   setText("filterModalTitle", t.filterTitle);
   setText("filterAshtakaLabel", t.ashtaka + ":");
   setText("filterAdhyayaLabel", t.adhyaya + ":");
@@ -814,6 +818,11 @@ if (shareBtn) {
     navigationToggle.addEventListener("click", () => {
       const isExpanded = navigationToggle.getAttribute("aria-expanded") === "true";
       navigationToggle.setAttribute("aria-expanded", String(!isExpanded));
+      const language = UI_TRANSLATIONS[CURRENT_UI_LANGUAGE] ? CURRENT_UI_LANGUAGE : "mr";
+      const toggleLabel = isExpanded ? UI_TRANSLATIONS[language].navigationExpand : UI_TRANSLATIONS[language].navigationCollapse;
+      const label = navigationToggle.querySelector("#navigationToggleLabel");
+      if (label) label.textContent = toggleLabel;
+      navigationToggle.setAttribute("aria-label", toggleLabel);
       jumpNavigationPanel.classList.toggle("hidden", isExpanded);
       requestAnimationFrame(syncExpandedHeaderSpace);
     });
