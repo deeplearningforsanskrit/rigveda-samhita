@@ -11,7 +11,7 @@ let CURRENT_UI_LANGUAGE = localStorage.getItem("rigvedaUiLanguage") || "mr";
 
 const UI_TRANSLATIONS = {
   mr: {
-    language: "भाषा:", previous: "← मागे", next: "पुढे →",
+    language: "भाषा:", more: "अधिक", previous: "← मागे", next: "पुढे →",
     previousSukta: "← मागील सूक्त", nextSukta: "पुढील सूक्त →",
     share: "दुवा पाठवा", go: "जा", padaOn: "पदपाठ: सुरू", padaOff: "पदपाठ: बंद",
     searchPlaceholder: "मंत्र शोधा...", reportIssue: "त्रुटी कळवा", reportIssueMessage: "नमस्कार, ऋग्वेद संहिता संकेतस्थळाबाबत मला एक त्रुटी कळवायची आहे: ", script: "लिपी:", linkCopied: "दुवा नक्कल केला!",
@@ -21,7 +21,7 @@ const UI_TRANSLATIONS = {
     copy: "क्लिपबोर्डवर नक्कल करा", copyEmpty: "नक्कल करण्यासाठी मजकूर नाही", copiedLines: "ओळी क्लिपबोर्डवर नक्कल केल्या!", navigationExpand: "उघडा", navigationCollapse: "बंद करा", filter: "शोध निकष", filterTitle: "शोध निकष", all: "सर्व", ashtaka: "अष्टक", adhyaya: "अध्याय", mandalaLabel: "मंडल", suktaLabel: "सूक्त", mantra: "मंत्र", varga: "वर्ग", rikMode: "मंडल/सूक्त", ashtakaMode: "अष्टक/अध्याय/वर्ग", clear: "निकष काढा", apply: "निकष लागू करा"
   },
   en: {
-    language: "Language:", previous: "← Previous", next: "Next →",
+    language: "Language:", more: "More", previous: "← Previous", next: "Next →",
     previousSukta: "← Previous Sukta", nextSukta: "Next Sukta →",
     share: "Share link", go: "Go", padaOn: "Padapatha: On", padaOff: "Padapatha: Off",
     searchPlaceholder: "Search mantras...", reportIssue: "Report Issue", reportIssueMessage: "Hello, I would like to report an issue with the Rigveda Samhita website: ", script: "Script:", linkCopied: "Link copied!",
@@ -31,7 +31,7 @@ const UI_TRANSLATIONS = {
     copy: "Copy to clipboard", copyEmpty: "Nothing to copy", copiedLines: "lines copied to clipboard!", navigationExpand: "Expand", navigationCollapse: "Collapse", filter: "Search filters", filterTitle: "Search filters", all: "All", ashtaka: "Ashtaka", adhyaya: "Adhyaya", mandalaLabel: "Mandala", suktaLabel: "Sukta", mantra: "Mantra", varga: "Varga", rikMode: "Mandala/Sukta", ashtakaMode: "Ashtaka/Adhyaya/Varga", clear: "Clear filters", apply: "Apply filters"
   },
   te: {
-    language: "భాష:", previous: "← వెనుకకు", next: "తదుపరి →",
+    language: "భాష:", more: "మరిన్ని", previous: "← వెనుకకు", next: "తదుపరి →",
     previousSukta: "← మునుపటి సూక్తం", nextSukta: "తదుపరి సూక్తం →",
     share: "లింక్‌ను పంపండి", go: "వెళ్ళండి", padaOn: "పదపాఠం: ప్రారంభం", padaOff: "పదపాఠం: నిలిపివేత",
     searchPlaceholder: "మంత్రాన్ని వెతకండి...", reportIssue: "లోపాన్ని నివేదించండి", reportIssueMessage: "నమస్కారం, ఋగ్వేద సంహిత వెబ్‌సైట్‌లోని ఒక సమస్యను తెలియజేయాలనుకుంటున్నాను: ", script: "లిపి:", linkCopied: "లింక్ కాపీ చేయబడింది!",
@@ -41,7 +41,7 @@ const UI_TRANSLATIONS = {
     copy: "క్లిప్‌బోర్డ్‌కు కాపీ చేయండి", copyEmpty: "కాపీ చేయడానికి ఏమీ లేదు", copiedLines: "పంక్తులు క్లిప్‌బోర్డ్‌కు కాపీ చేయబడ్డాయి!", navigationExpand: "తెరవండి", navigationCollapse: "మూసివేయండి", filter: "శోధన వడపోతలు", filterTitle: "శోధన వడపోతలు", all: "అన్నీ", ashtaka: "అష్టకం", adhyaya: "అధ్యాయం", mandalaLabel: "మండలం", suktaLabel: "సూక్తం", mantra: "మంత్రం", varga: "వర్గం", rikMode: "మండలం/సూక్తం", ashtakaMode: "అష్టకం/అధ్యాయం/వర్గం", clear: "వడపోతలను తొలగించండి", apply: "వడపోతలను వర్తింపజేయండి"
   },
   kn: {
-    language: "ಭಾಷೆ:", previous: "← ಹಿಂದೆ", next: "ಮುಂದೆ →",
+    language: "ಭಾಷೆ:", more: "ಇನ್ನಷ್ಟು", previous: "← ಹಿಂದೆ", next: "ಮುಂದೆ →",
     previousSukta: "← ಹಿಂದಿನ ಸೂಕ್ತ", nextSukta: "ಮುಂದಿನ ಸೂಕ್ತ →",
     share: "ಲಿಂಕ್ ಕಳುಹಿಸಿ", go: "ಹೋಗಿ", padaOn: "ಪದಪಾಠ: चालू", padaOff: "ಪದಪಾಠ: ಆಫ್",
     searchPlaceholder: "ಮಂತ್ರವನ್ನು ಹುಡುಕಿ...", reportIssue: "ದೋಷ ವರದಿ ಮಾಡಿ", reportIssueMessage: "ನಮಸ್ಕಾರ, ಋಗ್ವೇದ ಸಂಹಿತಾ ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿನ ಒಂದು ಸಮಸ್ಯೆಯನ್ನು ವರದಿ ಮಾಡಲು ಬಯಸುತ್ತೇನೆ: ", script: "ಲಿಪಿ:", linkCopied: "ಲಿಂಕ್ ನಕಲಿಸಲಾಗಿದೆ!",
@@ -60,6 +60,7 @@ function applyUiLanguage() {
     const element = document.getElementById(id);
     if (element) element.textContent = value;
   };
+  setText("moreActionsToggle", t.more + " ▾");
   setText("prevTop", t.previous);
   setText("nextTop", t.next);
   setText("prevBottom", t.previousSukta);
@@ -763,6 +764,35 @@ if (shareBtn) {
   shareBtn.addEventListener("click", shareCurrentSukta);
 }
   const search = document.getElementById("search");
+
+  const moreActionsToggle = document.getElementById("moreActionsToggle");
+  const navToolbar = document.querySelector(".nav-toolbar");
+  if (moreActionsToggle && navToolbar) {
+    moreActionsToggle.addEventListener("click", () => {
+      const expanded = navToolbar.classList.toggle("show-actions");
+      moreActionsToggle.setAttribute("aria-expanded", String(expanded));
+      moreActionsToggle.textContent = (UI_TRANSLATIONS[CURRENT_UI_LANGUAGE]?.more || "More") + (expanded ? " ▴" : " ▾");
+    });
+  }
+
+  const searchCloseBtn = document.getElementById("searchCloseBtn");
+  if (search) {
+    search.addEventListener("focus", () => document.body.classList.add("search-active"));
+    search.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeSearchMode();
+    });
+  }
+  function closeSearchMode() {
+    document.body.classList.remove("search-active");
+    if (search) {
+      search.value = "";
+      search.blur();
+    }
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+    renderBrowseMode();
+  }
+  if (searchCloseBtn) searchCloseBtn.addEventListener("click", closeSearchMode);
+
   if (search) {
     search.addEventListener("input", (e) => {
       const rawQuery = e.target.value.trim();
@@ -1333,6 +1363,7 @@ function openEntryInContext(ref) {
 
   const search = document.getElementById("search");
   if (search) search.value = "";
+  document.body.classList.remove("search-active");
 
   renderBrowseMode(ref);
 }
