@@ -70,6 +70,12 @@
 <div class="options-toolbar">
   <button id="togglePadaBtn" type="button">पदपाठ: बंद</button>
 
+  <div class="jump-navigation-section">
+    <button id="navigationToggle" class="navigation-toggle" type="button" aria-expanded="false" aria-controls="jumpNavigationPanel">
+      <span id="navigationToggleLabel">ग्रंथ नेव्हिगेशन</span>
+      <span class="navigation-toggle-chevron" aria-hidden="true">⌄</span>
+    </button>
+    <div id="jumpNavigationPanel" class="jump-navigation-panel hidden">
   <div class="jump-controls" role="group" aria-label="Mantra navigation">
     <select id="jumpMode" aria-label="Navigation mode">
       <option value="rik">मण्डल/सुक्त</option>
@@ -95,6 +101,8 @@
     </div>
 
     <button id="jumpGo" type="button">जा</button>
+  </div>
+    </div>
   </div>
 </div>
   <div class="script-selector">
