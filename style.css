@@ -1354,7 +1354,7 @@ body {
 
 @media (max-width: 900px) {
   .options-toolbar {
-    grid-template-columns: auto auto;
+    grid-template-columns: max-content max-content;
     justify-content: start;
     align-items: start;
     gap: 8px;
@@ -1385,7 +1385,7 @@ body {
 
 @media (max-width: 600px) {
   .options-toolbar {
-    grid-template-columns: auto auto;
+    grid-template-columns: max-content max-content;
     justify-content: start;
     gap: 8px;
   }
@@ -1543,4 +1543,19 @@ body {
     white-space: nowrap;
   }
   .jump-navigation-panel { width: 100%; padding: 8px; }
+}
+
+
+/* Keep the mobile navigation toggle at its natural label width. Earlier
+   generic mobile button rules allowed Indic labels to wrap vertically. */
+@media (max-width: 900px) {
+  .options-toolbar .navigation-toggle {
+    width: max-content;
+    min-width: max-content;
+    max-width: none;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    flex-shrink: 0;
+  }
 }
