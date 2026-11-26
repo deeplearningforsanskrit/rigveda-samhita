@@ -1599,6 +1599,9 @@ body {
     line-height: 1;
   }
 
+  body.search-active {
+    padding-top: calc(var(--reader-header-height) + 64px);
+  }
   body.search-active .topbar {
     max-height: 112px;
     overflow: visible;
