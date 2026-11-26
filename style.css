@@ -1495,10 +1495,11 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 38px;
+  gap: 8px;
+  width: fit-content;
   min-width: 40px;
-  padding: 6px;
+  min-height: 38px;
+  padding: 7px 11px;
   border: 1px solid #475569;
   border-radius: 9px;
   background: #172033;
@@ -1532,6 +1533,14 @@ body {
 }
 @media (max-width: 600px) {
   .jump-navigation-section { width: auto; }
-  .navigation-toggle { width: auto; min-width: 40px; min-height: 38px; white-space: nowrap; }
+  .navigation-toggle {
+    grid-column: 2;
+    grid-row: 1;
+    width: fit-content;
+    min-width: 40px;
+    min-height: 36px;
+    padding: 7px 10px;
+    white-space: nowrap;
+  }
   .jump-navigation-panel { width: 100%; padding: 8px; }
 }
