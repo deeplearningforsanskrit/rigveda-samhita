@@ -39,10 +39,12 @@
         autocomplete="off"
       />
       <button id="filterBtn" type="button">शोध निकष</button>
+      <button id="searchCloseBtn" class="search-close-btn" type="button" aria-label="Close search">×</button>
     </div>
 
 <div class="nav-toolbar">
 
+  <button id="moreActionsToggle" class="more-actions-toggle" type="button" aria-expanded="false">अधिक ▾</button>
   <div class="nav-buttons">
     <button id="prevTop" class="nav-btn">← मागे</button>
     <button id="shareBtn" class="nav-btn" type="button">शेअर करा</button>
@@ -70,6 +72,12 @@
 <div class="options-toolbar">
   <button id="togglePadaBtn" type="button">पदपाठ: बंद</button>
 
+  <div class="jump-navigation-section">
+    <button id="navigationToggle" class="navigation-toggle" type="button" aria-label="Expand" aria-expanded="false" aria-controls="jumpNavigationPanel">
+      <span id="navigationToggleLabel">उघडा</span>
+      <span class="navigation-toggle-chevron" aria-hidden="true">⌄</span>
+    </button>
+    <div id="jumpNavigationPanel" class="jump-navigation-panel hidden">
   <div class="jump-controls" role="group" aria-label="Mantra navigation">
     <select id="jumpMode" aria-label="Navigation mode">
       <option value="rik">मण्डल/सुक्त</option>
@@ -95,6 +103,8 @@
     </div>
 
     <button id="jumpGo" type="button">जा</button>
+  </div>
+    </div>
   </div>
 </div>
   <div class="script-selector">
